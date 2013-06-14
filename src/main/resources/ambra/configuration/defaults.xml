@@ -212,6 +212,11 @@
           <option displayName="Date\, newest first">publication_date desc\, id desc</option>
         </sortOptions>
       </browse>
+
+      <ai>
+        <thesaurus></thesaurus>
+      </ai>
+
     </services>
     <articleTypeList>
       <articleType>
