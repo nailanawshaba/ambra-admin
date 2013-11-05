@@ -29,7 +29,7 @@ import org.ambraproject.models.Issue;
 import org.ambraproject.models.Journal;
 import org.ambraproject.models.Volume;
 import org.ambraproject.queue.MessageSender;
-import org.ambraproject.routes.CrossRefLookupRoutes;
+import org.ambraproject.routes.CitedArticleLookupRoutes;
 import org.ambraproject.routes.SavedSearchEmailRoutes;
 import org.ambraproject.search.SavedSearchRetriever;
 import org.ambraproject.service.article.ArticleClassifier;
@@ -178,7 +178,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     if (refreshCitedArticlesQueue != null) {
       try {
         messageSender.sendMessage(refreshCitedArticlesQueue, articleDoi, new HashMap() {{
-          put(CrossRefLookupRoutes.HEADER_AUTH_ID, authID);
+          put(CitedArticleLookupRoutes.HEADER_AUTH_ID, authID);
         }});
       } catch (CamelExecutionException ex) {
         log.error(ex.getMessage(), ex);
