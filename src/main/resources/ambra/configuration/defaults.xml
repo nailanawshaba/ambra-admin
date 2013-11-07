@@ -99,7 +99,7 @@
 
     <services>
       <queue>
-        <refreshCitedArticles>activemq:plos.updatedCitedArticles?transacted=false</refreshCitedArticles>
+        <refreshCitedArticles>activemq:plos.updateArticleCites?transacted=false</refreshCitedArticles>
         <sendSearchAlerts>activemq:ambra.searchAlerts?transacted=false</sendSearchAlerts>
       </queue>
 
