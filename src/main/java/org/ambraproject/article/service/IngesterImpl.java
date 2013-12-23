@@ -409,7 +409,7 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
         reciprocalLink.setParentArticle(otherArticle);
         reciprocalLink.setOtherArticleID(newArticle.getID());
         reciprocalLink.setOtherArticleDoi(newArticle.getDoi());
-        reciprocalLink.setType(relationship.getType());
+        reciprocalLink.setType(getReciprocalType(relationship));
         otherArticle.getRelatedArticles().add(reciprocalLink);
         hibernateTemplate.update(otherArticle);
       }
@@ -442,7 +442,7 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
           relationship.setParentArticle(newArticle);
           relationship.setOtherArticleID(otherArticle.getID());
           relationship.setOtherArticleDoi(otherArticle.getDoi());
-          relationship.setType(otherRelationship.getType());
+          relationship.setType(getReciprocalType(otherRelationship));
           newArticle.getRelatedArticles().add(relationship);
         }
       }
@@ -452,4 +452,19 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
       hibernateTemplate.update(newArticle);
     }
   }
+
+  /**
+   * Get the type for a reciprocal relationship, which is the same as the type of the argument except in the special
+   * cases of corrections and retractions.
+   */
+  private static String getReciprocalType(ArticleRelationship relationship) {
+    String type = relationship.getType();
+    if ("corrected-article".equals(type)) {
+      type = "correction-forward";
+    } else if ("retracted-article".equals(type)) {
+      type = "retraction";
+    }
+    return type;
+  }
+
 }
