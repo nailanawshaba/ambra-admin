@@ -170,6 +170,60 @@
             <publisher_item>
               <item_number><xsl:value-of select="$article_doi"/></item_number>
             </publisher_item>
+            <crossmark>
+              <crossmark_version>1</crossmark_version>
+              <crossmark_policy>10.1371/journal.plos.0000000</crossmark_policy>
+              <crossmark_domains>
+                <crossmark_domain>
+                  <domain>www.plosone.org</domain>
+                  <domain>www.plosbiology.org</domain>
+                  <domain>www.plosmedicine.org</domain>
+                  <domain>www.ploscompbiol.org</domain>
+                  <domain>www.plosgenetics.org</domain>
+                  <domain>www.plospathogens.org</domain>
+                  <domain>www.plosntds.org</domain>
+                </crossmark_domain>
+              </crossmark_domains>
+              <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
+              <xsl:variable name="articletype"><xsl:value-of select="article/front/article-meta/related-article/@related-article-type"/></xsl:variable>
+              <xsl:if test="$articletype = 'corrected-article' | $articletype = 'retracted-article' | $articletype = 'object-of-concern'">
+                <updates>
+                  <xsl:element name="update">
+                    <xsl:choose>
+                      <xsl:when test="$articletype = 'corrected-article'">
+                        <xsl:attribute name="type">correction</xsl:attribute>
+                        <xsl:attribute name="label">Correction</xsl:attribute>
+                      </xsl:when>
+                      <xsl:when test="$articletype = 'retracted-article'">
+                        <xsl:attribute name="type">retraction</xsl:attribute>
+                        <xsl:attribute name="label">Retraction</xsl:attribute>
+                      </xsl:when>
+                      <xsl:when test="$articletype = 'object-of-concern'">
+                        <xsl:attribute name="type">expression-of-concern</xsl:attribute>
+                        <xsl:attribute name="label">Expression of Concern</xsl:attribute>
+                      </xsl:when>
+                    </xsl:choose>
+                    <xsl:if test="article/front/article-meta/pub-date[@pub-type='epub']">
+                      <xsl:attribute name="date">
+                        <xsl:variable name="pubdate"><xsl:value-of select="article/front/article-meta/pub-date[@pub-type='epub']"/></xsl:variable>
+                        <xsl:value-of select="$pubdate/year"/>-<xsl:value-of select="$pubdate/month"/>-<xsl:value-of select="$pubdate/day"/>
+                      </xsl:attribute>
+                    </xsl:if>
+                    <xsl:if test="article/front/article-meta/related-article/@xlink:href">
+                      <xsl:variable name="relatedlink"><xsl:value-of select="article/front/article-meta/related-article/@xlink:href"/></xsl:variable>
+                      <xsl:choose>
+                        <xsl:when test="substring($relatedlink, 1, 9) = 'info:doi/'">
+                          <xsl:value-of select="substring($relatedlink, 10)"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <xsl:value-of select="$relatedlink"/>
+                        </xsl:otherwise>
+                      </xsl:choose>
+                    </xsl:if>
+                  </xsl:element>
+                </updates>
+              </xsl:if>
+            </crossmark>
             <doi_data>
               <doi><xsl:value-of select="$article_doi"/></doi>
               <timestamp> <xsl:value-of select="$timestamp"/></timestamp>
