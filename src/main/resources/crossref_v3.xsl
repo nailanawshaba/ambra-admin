@@ -174,19 +174,17 @@
               <crossmark_version>1</crossmark_version>
               <crossmark_policy>10.1371/journal.plos.0000000</crossmark_policy>
               <crossmark_domains>
-                <crossmark_domain>
-                  <domain>www.plosone.org</domain>
-                  <domain>www.plosbiology.org</domain>
-                  <domain>www.plosmedicine.org</domain>
-                  <domain>www.ploscompbiol.org</domain>
-                  <domain>www.plosgenetics.org</domain>
-                  <domain>www.plospathogens.org</domain>
-                  <domain>www.plosntds.org</domain>
-                </crossmark_domain>
+                <crossmark_domain><domain>www.plosone.org</domain></crossmark_domain>
+                <crossmark_domain><domain>www.plosbiology.org</domain></crossmark_domain>
+                <crossmark_domain><domain>www.plosmedicine.org</domain></crossmark_domain>
+                <crossmark_domain><domain>www.ploscompbiol.org</domain></crossmark_domain>
+                <crossmark_domain><domain>www.plosgenetics.org</domain></crossmark_domain>
+                <crossmark_domain><domain>www.plospathogens.org</domain></crossmark_domain>
+                <crossmark_domain><domain>www.plosntds.org</domain></crossmark_domain>
               </crossmark_domains>
               <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
               <xsl:variable name="articletype"><xsl:value-of select="article/front/article-meta/related-article/@related-article-type"/></xsl:variable>
-              <xsl:if test="$articletype = 'corrected-article' | $articletype = 'retracted-article' | $articletype = 'object-of-concern'">
+              <xsl:if test="$articletype = 'corrected-article' or $articletype = 'retracted-article' or $articletype = 'object-of-concern'">
                 <updates>
                   <xsl:element name="update">
                     <xsl:choose>
@@ -204,9 +202,14 @@
                       </xsl:when>
                     </xsl:choose>
                     <xsl:if test="article/front/article-meta/pub-date[@pub-type='epub']">
+                      <xsl:variable name="pubyear"><xsl:value-of
+                          select="article/front/article-meta/pub-date[@pub-type='epub']/year"/></xsl:variable>
+                      <xsl:variable name="pubmonth"><xsl:value-of
+                          select="article/front/article-meta/pub-date[@pub-type='epub']/month"/></xsl:variable>
+                      <xsl:variable name="pubday"><xsl:value-of
+                          select="article/front/article-meta/pub-date[@pub-type='epub']/day"/></xsl:variable>
                       <xsl:attribute name="date">
-                        <xsl:variable name="pubdate"><xsl:value-of select="article/front/article-meta/pub-date[@pub-type='epub']"/></xsl:variable>
-                        <xsl:value-of select="$pubdate/year"/>-<xsl:value-of select="$pubdate/month"/>-<xsl:value-of select="$pubdate/day"/>
+                        <xsl:value-of select="concat(format-number($pubyear, '0000'), '-', format-number($pubmonth, '00'), '-', format-number($pubday, '00'))"/>
                       </xsl:attribute>
                     </xsl:if>
                     <xsl:if test="article/front/article-meta/related-article/@xlink:href">
