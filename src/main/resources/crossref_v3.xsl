@@ -172,15 +172,44 @@
             </publisher_item>
             <crossmark>
               <crossmark_version>1</crossmark_version>
-              <crossmark_policy>10.1371/journal.plos.0000000</crossmark_policy>
+              <xsl:variable name="doi_domain"><xsl:value-of select="substring-before(substring($article_doi, 17), '.')"/></xsl:variable>
+              <xsl:choose>
+                <xsl:when test="$article_doi">
+                  <crossmark_policy><xsl:value-of select="concat('10.1371/journal.', $doi_domain, '.corrections_policy')"/></crossmark_policy>
+                </xsl:when>
+                <xsl:otherwise>
+                  <crossmark_policy>10.1371/journal.pone.corrections_policy</crossmark_policy>
+                </xsl:otherwise>
+              </xsl:choose>
               <crossmark_domains>
-                <crossmark_domain><domain>www.plosone.org</domain></crossmark_domain>
-                <crossmark_domain><domain>www.plosbiology.org</domain></crossmark_domain>
-                <crossmark_domain><domain>www.plosmedicine.org</domain></crossmark_domain>
-                <crossmark_domain><domain>www.ploscompbiol.org</domain></crossmark_domain>
-                <crossmark_domain><domain>www.plosgenetics.org</domain></crossmark_domain>
-                <crossmark_domain><domain>www.plospathogens.org</domain></crossmark_domain>
-                <crossmark_domain><domain>www.plosntds.org</domain></crossmark_domain>
+                <crossmark_domain>
+                  <xsl:choose>
+                    <xsl:when test="$doi_domain = 'pone'">
+                      <domain>www.plosone.org</domain>
+                    </xsl:when>
+                    <xsl:when test="$doi_domain = 'pbio'">
+                      <domain>www.plosbiology.org</domain>
+                    </xsl:when>
+                    <xsl:when test="$doi_domain = 'pmed'">
+                      <domain>www.plosmedicine.org</domain>
+                    </xsl:when>
+                    <xsl:when test="$doi_domain = 'pcbi'">
+                      <domain>www.ploscompbiol.org</domain>
+                    </xsl:when>
+                    <xsl:when test="$doi_domain = 'pgen'">
+                      <domain>www.plosgenetics.org</domain>
+                    </xsl:when>
+                    <xsl:when test="$doi_domain = 'ppat'">
+                      <domain>www.plospathogens.org</domain>
+                    </xsl:when>
+                    <xsl:when test="$doi_domain = 'pntd'">
+                      <domain>www.plosntds.org</domain>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <domain>www.plosone.org</domain>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </crossmark_domain>
               </crossmark_domains>
               <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
               <xsl:variable name="articletype"><xsl:value-of select="article/front/article-meta/related-article/@related-article-type"/></xsl:variable>
