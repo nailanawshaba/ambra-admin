@@ -21,6 +21,7 @@
 
 package org.ambraproject.article.service;
 
+import com.google.common.collect.ImmutableBiMap;
 import org.ambraproject.admin.service.DocumentManagementService;
 import org.ambraproject.admin.service.SyndicationService;
 import org.ambraproject.article.ArchiveProcessException;
@@ -454,17 +455,23 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
   }
 
   /**
+   * Special cases of article relationship types where the reciprocal relationships are asymmetric.
+   * <p/>
+   * For example, if A is a "retracted-article" of B, then B must be a "retraction" of A.
+   */
+  private static final ImmutableBiMap<String, String> RECIPROCAL_TYPES = ImmutableBiMap.<String, String>builder()
+      .put("corrected-article", "correction-forward")
+      .put("retracted-article", "retraction")
+      .build();
+
+  /**
    * Get the type for a reciprocal relationship, which is the same as the type of the argument except in the special
    * cases of corrections and retractions.
    */
   private static String getReciprocalType(ArticleRelationship relationship) {
-    String type = relationship.getType();
-    if ("corrected-article".equals(type)) {
-      type = "correction-forward";
-    } else if ("retracted-article".equals(type)) {
-      type = "retraction";
-    }
-    return type;
+    String relationshipType = relationship.getType();
+    String reciprocalType = RECIPROCAL_TYPES.get(relationshipType);
+    return (reciprocalType == null) ? relationshipType : reciprocalType;
   }
 
 }

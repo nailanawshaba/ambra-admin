@@ -39,6 +39,7 @@
     <testng.version>6.8.1</testng.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <surefire.version>2.16</surefire.version>
+    <guava.version>15.0</guava.version>
   </properties>
 
   <repositories>
@@ -389,6 +390,12 @@
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
     </dependency>
 
   </dependencies>
