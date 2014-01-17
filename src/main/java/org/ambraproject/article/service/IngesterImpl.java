@@ -462,6 +462,7 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
   private static final ImmutableBiMap<String, String> RECIPROCAL_TYPES = ImmutableBiMap.<String, String>builder()
       .put("corrected-article", "correction-forward")
       .put("retracted-article", "retraction")
+      .put("object-of-concern", "expressed-concern")
       .build();
 
   /**
