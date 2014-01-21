@@ -400,6 +400,8 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
         if (otherArticleRelationship.getOtherArticleDoi().equals(newArticle.getDoi())) {
           createNewRelationship = false;
           otherArticleRelationship.setOtherArticleID(newArticle.getID());
+          // if new types are defined for the reciprocal link
+          otherArticleRelationship.setType(getReciprocalType(relationship));
           hibernateTemplate.update(otherArticleRelationship);
           break;
         }
