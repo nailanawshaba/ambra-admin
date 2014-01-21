@@ -945,7 +945,8 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     Set<String> articleDoisSet = new HashSet<String>();
     for (String doi: articleDois) {
       if (!doi.isEmpty()) {
-        articleDoisSet.add(doi);
+        //Trim off extra spaces.  AMEC-2225
+        articleDoisSet.add(doi.trim());
       }
     }
 
