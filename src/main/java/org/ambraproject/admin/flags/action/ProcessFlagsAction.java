@@ -30,9 +30,9 @@ public class ProcessFlagsAction extends BaseAdminActionSupport {
 
   private Long[] commentsToUnflag;
   private Long[] commentsToDelete;
-  private Long[] convertToFormalCorrection;
-  private Long[] convertToMinorCorrection;
-  private Long[] convertToRetraction;
+//  private Long[] convertToFormalCorrection;
+//  private Long[] convertToMinorCorrection;
+//  private Long[] convertToRetraction;
 
   @Override
   public String execute() throws Exception {
@@ -45,18 +45,18 @@ public class ProcessFlagsAction extends BaseAdminActionSupport {
         flagService.deleteFlagAndComment(commentsToDelete);
         addActionMessage("Successfully deleted " + commentsToDelete.length + "  comments");
       }
-      if (!ArrayUtils.isEmpty(convertToFormalCorrection)) {
-        flagService.convertToType(AnnotationType.FORMAL_CORRECTION, convertToFormalCorrection);
-        addActionMessage("Successfully converted " + convertToFormalCorrection.length + " annotations to formal correction");
-      }
-      if (!ArrayUtils.isEmpty(convertToMinorCorrection)) {
-        flagService.convertToType(AnnotationType.MINOR_CORRECTION, convertToMinorCorrection);
-        addActionMessage("Successfully converted " + convertToMinorCorrection.length + " annotations to minor correction");
-      }
-      if (!ArrayUtils.isEmpty(convertToRetraction)) {
-        flagService.convertToType(AnnotationType.RETRACTION, convertToRetraction);
-        addActionMessage("Successfully converted " + convertToRetraction.length + " annotations to retraction");
-      }
+//      if (!ArrayUtils.isEmpty(convertToFormalCorrection)) {
+//        flagService.convertToType(AnnotationType.FORMAL_CORRECTION, convertToFormalCorrection);
+//        addActionMessage("Successfully converted " + convertToFormalCorrection.length + " annotations to formal correction");
+//      }
+//      if (!ArrayUtils.isEmpty(convertToMinorCorrection)) {
+//        flagService.convertToType(AnnotationType.MINOR_CORRECTION, convertToMinorCorrection);
+//        addActionMessage("Successfully converted " + convertToMinorCorrection.length + " annotations to minor correction");
+//      }
+//      if (!ArrayUtils.isEmpty(convertToRetraction)) {
+//        flagService.convertToType(AnnotationType.RETRACTION, convertToRetraction);
+//        addActionMessage("Successfully converted " + convertToRetraction.length + " annotations to retraction");
+//      }
     } catch (Exception e) {
       log.error("error processing flags", e);
       addActionError("Error processing flags: " + e.getMessage());
@@ -78,16 +78,16 @@ public class ProcessFlagsAction extends BaseAdminActionSupport {
     this.commentsToDelete = commentsToDelete;
   }
 
-  public void setConvertToFormalCorrection(Long[] convertToFormalCorrection) {
-    this.convertToFormalCorrection = convertToFormalCorrection;
-  }
-
-  public void setConvertToMinorCorrection(Long[] convertToMinorCorrection) {
-    this.convertToMinorCorrection = convertToMinorCorrection;
-  }
-
-  public void setConvertToRetraction(Long[] convertToRetraction) {
-    this.convertToRetraction = convertToRetraction;
-  }
+//  public void setConvertToFormalCorrection(Long[] convertToFormalCorrection) {
+//    this.convertToFormalCorrection = convertToFormalCorrection;
+//  }
+//
+//  public void setConvertToMinorCorrection(Long[] convertToMinorCorrection) {
+//    this.convertToMinorCorrection = convertToMinorCorrection;
+//  }
+//
+//  public void setConvertToRetraction(Long[] convertToRetraction) {
+//    this.convertToRetraction = convertToRetraction;
+//  }
 
 }

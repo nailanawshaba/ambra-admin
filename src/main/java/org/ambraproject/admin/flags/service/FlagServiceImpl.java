@@ -173,18 +173,18 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
       Annotation annotation = flag.getFlaggedAnnotation();
       annotation.setType(newType);
       log.debug("Converting annotation {} to {}", annotation.getID(), newType);
-      
+
       if (annotation.getAnnotationCitation() != null) {
         //if this is already a correction and we're converting back to a note, delete the citation
         hibernateTemplate.delete(annotation.getAnnotationCitation());
         annotation.setAnnotationCitation(null);
       }
 
-      if (newType.isCorrection() && !(newType == AnnotationType.MINOR_CORRECTION)) {
-        Article article = (Article) hibernateTemplate.get(Article.class, annotation.getArticleID());
-        log.debug("Creating citation for article {}", article.getDoi());
-        annotation.setAnnotationCitation(new AnnotationCitation(article));
-      }
+//      if (newType.isCorrection() && !(newType == AnnotationType.MINOR_CORRECTION)) {
+//        Article article = (Article) hibernateTemplate.get(Article.class, annotation.getArticleID());
+//        log.debug("Creating citation for article {}", article.getDoi());
+//        annotation.setAnnotationCitation(new AnnotationCitation(article));
+//      }
       hibernateTemplate.delete(flag);
       hibernateTemplate.update(annotation);
       articleHtmlCache.remove(getArticleDoi(annotation));
