@@ -37,6 +37,7 @@ import org.ambraproject.service.article.ArticleService;
 import org.ambraproject.service.article.FetchArticleService;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
+import org.ambraproject.util.XPathUtil;
 import org.ambraproject.views.TOCArticleGroup;
 import org.ambraproject.views.article.ArticleInfo;
 import org.ambraproject.views.article.ArticleType;
@@ -60,6 +61,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -84,6 +86,12 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
   private ArticleClassifier articleClassifier;
   private Configuration configuration;
   private List<OnCrossPubListener> onCrossPubListener;
+  private final static Set<String> ARTICLE_TYPE = new HashSet<String>();
+  static {
+    ARTICLE_TYPE.add("correction");
+    ARTICLE_TYPE.add("expression-of-concern");
+    ARTICLE_TYPE.add("retraction");
+  }
 
   public void setOnCrossPubListener(List<OnCrossPubListener> onCrossPubListener) {
     this.onCrossPubListener = onCrossPubListener;
@@ -759,10 +767,12 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
   @Override
   @Transactional
-  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException {
+  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException {
     // Attempt to assign categories to the article based on the taxonomy server.
 
     Document articleXml = fetchArticleService.getArticleDocument(new ArticleInfo(articleDoi));
+
+    if (!isAmendment(articleXml)) {
     List<String> terms = null;
 
     try {
@@ -775,7 +785,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       Article article = articleService.getArticle(articleDoi, authID);
       return articleService.setArticleCategories(article, terms);
     }
-
+    }
     return Collections.emptyList();
   }
 
@@ -1039,5 +1049,15 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       }
     }
     return orphans;
+  }
+
+  private boolean isAmendment(Document articleXml) throws XPathExpressionException {
+    XPathUtil xPathUtil = new XPathUtil();
+    String expression = "/article@article-type";
+    String articleType = xPathUtil.evaluate(articleXml, expression);
+    if (ARTICLE_TYPE.contains(articleType.toLowerCase())) {
+      return true;
+    }
+    return false;
   }
 }

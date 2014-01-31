@@ -29,6 +29,7 @@ import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.views.TOCArticleGroup;
 import org.ambraproject.views.article.ArticleInfo;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.util.Date;
 import java.util.List;
 
@@ -263,7 +264,7 @@ public interface AdminService {
    *
    * @throws NoSuchArticleIdException
    */
-  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException;
+  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException;
 
   /**
    * Create a new article list and add it to the current Journal's.
