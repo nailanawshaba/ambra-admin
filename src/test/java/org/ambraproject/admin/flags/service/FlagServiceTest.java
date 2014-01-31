@@ -76,10 +76,6 @@ public class FlagServiceTest extends AdminBaseTest {
     reply.setTitle("test title for reply on flagManagementServiceTest");
     dummyDataStore.store(reply);
 
-//    Annotation correction = new Annotation(commentCreator, AnnotationType.MINOR_CORRECTION, 123l);
-//    correction.setTitle("test title for minorCorrection on flagManagementServiceTest");
-//    dummyDataStore.store(correction);
-
     Calendar lastYear = Calendar.getInstance();
     lastYear.add(Calendar.YEAR, -1);
 
@@ -95,10 +91,6 @@ public class FlagServiceTest extends AdminBaseTest {
     secondFlag.setComment("inappropriate");
     secondFlag.setCreated(lastMonth.getTime());
     dummyDataStore.store(secondFlag);
-
-//    Flag thirdFlag = new Flag(flagCreator, FlagReasonCode.SPAM, correction);
-//    thirdFlag.setComment("More spam");
-//    dummyDataStore.store(thirdFlag);
 
     //call the service method
     Collection<FlagView> list = flagService.getFlaggedComments();
@@ -136,121 +128,6 @@ public class FlagServiceTest extends AdminBaseTest {
 
   }
 
-//  @Test
-//  public void testConvertToFormalCorrection() throws ParseException {
-//    UserProfile creator = new UserProfile(
-//        "id:creatorForConvertToFormalCorrectionServiceTest",
-//        "email@ConvertToFormalCorrectionServiceTest.org",
-//        "displaynameForConvertToFormalCorrectionServiceTest");
-//    dummyDataStore.store(creator);
-//
-//    Article article = new Article("id:doi-for-convert-to-formal-correction-by-service");
-//    article.setTitle("Title for Convert to Formal Correction by Service");
-//    article.seteLocationId("eLocationId for Convert to Formal Correction by Service");
-//    article.setJournal("journal for Convert to Formal Correction by Service");
-//    article.setDescription("description for Convert to Formal Correction by Service");
-//    article.setDate(new SimpleDateFormat("yyyy-mm-dd").parse("2100-03-03"));
-//    article.setAuthors(new ArrayList<ArticleAuthor>(2));
-//    article.getAuthors().add(new ArticleAuthor("John", "Smith", "MD"));
-//    article.getAuthors().add(new ArticleAuthor("Harry", "Potter", "PhD"));
-//    dummyDataStore.store(article);
-//
-//    //put the article in cache
-//    articleHtmlCache.put(article.getDoi(), new Cache.Item(article));
-//
-//    Annotation annotation = new Annotation(creator, AnnotationType.COMMENT, article.getID());
-//    dummyDataStore.store(annotation);
-//
-//    Flag flag1 = new Flag(creator, FlagReasonCode.CORRECTION, annotation);
-//    Long id1 = Long.valueOf(dummyDataStore.store(flag1));
-//    Flag flag2 = new Flag(creator, FlagReasonCode.CORRECTION, annotation);
-//    Long id2 = Long.valueOf(dummyDataStore.store(flag2));
-//
-//    flagService.convertToType(AnnotationType.FORMAL_CORRECTION, id1, id2);
-//
-//    assertNull(dummyDataStore.get(Flag.class, id1), "didn't delete first flag");
-//    assertNull(dummyDataStore.get(Flag.class, id2), "didn't delete second flag");
-//
-//    checkStoredCorrection(annotation.getID(), article, AnnotationType.FORMAL_CORRECTION, "2100");
-//
-//    assertNull(articleHtmlCache.get(article.getDoi()),"article didn't get kicked out of cache");
-//  }
-//
-//  @Test
-//  public void testConvertToMinorCorrection() throws ParseException {
-//    UserProfile creator = new UserProfile(
-//        "id:creatorForConvertToMinorCorrectionServiceTest",
-//        "email@ConvertToMinorCorrectionServiceTest.org",
-//        "displaynameForConvertToMinorCorrectionServiceTest");
-//    dummyDataStore.store(creator);
-//
-//    Article article = new Article("id:doi-for-convert-to-minor-correction-by-service");
-//    dummyDataStore.store(article);
-//
-//    //put the article in cache
-//    articleHtmlCache.put(article.getDoi(), new Cache.Item(article));
-//
-//    Annotation annotation = new Annotation(creator, AnnotationType.COMMENT, article.getID());
-//    dummyDataStore.store(annotation);
-//
-//    Flag flag1 = new Flag(creator, FlagReasonCode.CORRECTION, annotation);
-//    Long id1 = Long.valueOf(dummyDataStore.store(flag1));
-//    Flag flag2 = new Flag(creator, FlagReasonCode.CORRECTION, annotation);
-//    Long id2 = Long.valueOf(dummyDataStore.store(flag2));
-//
-//    flagService.convertToType(AnnotationType.MINOR_CORRECTION, id1, id2);
-//
-//    assertNull(dummyDataStore.get(Flag.class, id1), "didn't delete first flag");
-//    assertNull(dummyDataStore.get(Flag.class, id2), "didn't delete second flag");
-//
-//    Annotation storedAnnotation = dummyDataStore.get(Annotation.class, annotation.getID());
-//    assertNotNull(storedAnnotation, "Annotation got deleted");
-//    assertEquals(storedAnnotation.getType(), AnnotationType.MINOR_CORRECTION, "Annotation didn't get converted to minor correction");
-//    assertNull(storedAnnotation.getAnnotationCitation(), "Minor correction shouldn't get a citation created");
-//
-//    assertNull(articleHtmlCache.get(article.getDoi()),"article didn't get kicked out of cache");
-//  }
-
-//  @Test
-//  public void testConvertToRetraction() throws ParseException {
-//    UserProfile creator = new UserProfile(
-//        "id:creatorForConvertToRetractionServiceTest",
-//        "email@ConvertToRetractionServiceTest.org",
-//        "displaynameForConvertToRetractionServiceTest");
-//    dummyDataStore.store(creator);
-//
-//    Article article = new Article("id:doi-for-convert-to-retraction-by-service");
-//    article.setTitle("Title for Convert to Retraction by Service");
-//    article.seteLocationId("eLocationId for Convert to Retraction by Service");
-//    article.setJournal("journal for Convert to Retraction by Service");
-//    article.setDescription("description for Convert to Retraction by Service");
-//    article.setDate(new SimpleDateFormat("yyyy-mm-dd").parse("2100-03-03"));
-//    article.setAuthors(new ArrayList<ArticleAuthor>(2));
-//    article.getAuthors().add(new ArticleAuthor("John", "Smith", "MD"));
-//    article.getAuthors().add(new ArticleAuthor("Harry", "Potter", "PhD"));
-//    dummyDataStore.store(article);
-//
-//    //put the article in cache
-//    articleHtmlCache.put(article.getDoi(), new Cache.Item(article));
-//
-//    Annotation annotation = new Annotation(creator, AnnotationType.COMMENT, article.getID());
-//    dummyDataStore.store(annotation);
-//
-//    Flag flag1 = new Flag(creator, FlagReasonCode.CORRECTION, annotation);
-//    Long id1 = Long.valueOf(dummyDataStore.store(flag1));
-//    Flag flag2 = new Flag(creator, FlagReasonCode.CORRECTION, annotation);
-//    Long id2 = Long.valueOf(dummyDataStore.store(flag2));
-
-//    flagService.convertToType(AnnotationType.RETRACTION, id1, id2);
-//
-//    assertNull(dummyDataStore.get(Flag.class, id1), "didn't delete first flag");
-//    assertNull(dummyDataStore.get(Flag.class, id2), "didn't delete second flag");
-//
-//    checkStoredCorrection(annotation.getID(), article, AnnotationType.RETRACTION, "2100");
-//
-//    assertNull(articleHtmlCache.get(article.getDoi()), "article didn't get kicked out of cache");
-//  }
-
   @Test
   public void testConvertToNote() throws ParseException {
     UserProfile creator = new UserProfile(
@@ -268,7 +145,6 @@ public class FlagServiceTest extends AdminBaseTest {
     article.getAuthors().add(new ArticleAuthor("John", "Smith", "MD"));
     article.getAuthors().add(new ArticleAuthor("Harry", "Potter", "PhD"));
     dummyDataStore.store(article);
-
     //put the article in cache
     articleHtmlCache.put(article.getDoi(), new Cache.Item(article));
 
@@ -292,31 +168,6 @@ public class FlagServiceTest extends AdminBaseTest {
 
     assertNull(articleHtmlCache.get(article.getDoi()),"article didn't get kicked out of cache");
   }
-
-//  private void checkStoredCorrection(Long annotationId, Article article, AnnotationType expectedType, String expectedYear) {
-//    Annotation storedAnnotation = dummyDataStore.get(Annotation.class, annotationId);
-//    assertNotNull(storedAnnotation, "deleted annotation");
-//    assertEquals(storedAnnotation.getType(), expectedType, "Didn't convert to correct type");
-//    assertNotNull(storedAnnotation.getAnnotationCitation(), "Didn't create a citation for the annotation");
-//    assertEquals(storedAnnotation.getAnnotationCitation().getTitle(), article.getTitle(), "Citation had incorrect title");
-//    assertEquals(storedAnnotation.getAnnotationCitation().getSummary(), article.getDescription(), "Citation had incorrect summary");
-//    assertEquals(storedAnnotation.getAnnotationCitation().getELocationId(), article.geteLocationId(),
-//        "Citation had incorrect eLocationId");
-//    assertEquals(storedAnnotation.getAnnotationCitation().getJournal(), article.getJournal(),
-//        "Citation had incorrect journal");
-//    assertEquals(storedAnnotation.getAnnotationCitation().getYear(), expectedYear,
-//        "Citation had incorrect year");
-//    assertNotNull(storedAnnotation.getAnnotationCitation().getAuthors(), "Citation didn't have author list");
-//    assertEquals(storedAnnotation.getAnnotationCitation().getAuthors().size(), article.getAuthors().size(),
-//        "Citation had incorrect number of authors");
-//    for (int i = 0; i < storedAnnotation.getAnnotationCitation().getAuthors().size(); i++) {
-//      CorrectedAuthor actual = storedAnnotation.getAnnotationCitation().getAuthors().get(i);
-//      ArticleAuthor expected = article.getAuthors().get(i);
-//      assertEquals(actual.getGivenNames(), expected.getGivenNames(), "Author " + (i + 1) + " had incorrect given names");
-//      assertEquals(actual.getSurName(), expected.getSurnames(), "Author " + (i + 1) + " had incorrect surnames");
-//      assertEquals(actual.getSuffix(), expected.getSuffix(), "Author " + (i + 1) + " had incorrect suffix");
-//    }
-//  }
 
   @Test
   public void testDeleteComment(){
@@ -346,11 +197,11 @@ public class FlagServiceTest extends AdminBaseTest {
     Annotation note = new Annotation(creator, AnnotationType.COMMENT, noteArticle.getID());
     dummyDataStore.store(note);
 
-    Flag flag1 = new Flag(creator, FlagReasonCode.CORRECTION, comment1);
+    Flag flag1 = new Flag(creator, FlagReasonCode.OFFENSIVE, comment1);
     flag1.setFlaggedAnnotation(comment1);
     Long id1 = Long.valueOf(dummyDataStore.store(flag1));
 
-    Flag flag2 = new Flag(creator, FlagReasonCode.CORRECTION, note);
+    Flag flag2 = new Flag(creator, FlagReasonCode.OTHER, note);
     flag2.setFlaggedAnnotation(note);
     Long id2 = Long.valueOf(dummyDataStore.store(flag2));
 

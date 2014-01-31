@@ -50,9 +50,7 @@
       </tr>
       <#list flaggedComments as flaggedComment>
         <@s.url id="flagURL" namespace="/" action="manageAnnotationLoad" annotationId="${flaggedComment.annotationID}"/>
-        <#if flaggedComment.isCorrection>
-          <#assign deleteLabel = "Delete Correction">
-        <#elseif flaggedComment.isComment>
+        <#if flaggedComment.isComment>
           <#assign deleteLabel = "Delete Comment">
         <#elseif flaggedComment.isReply>
           <#assign deleteLabel = "Delete Reply (Sub-thread)">
@@ -76,25 +74,6 @@
             <@s.checkbox name="commentsToDelete" label="${deleteLabel}" fieldValue="${flaggedComment.ID}"/>
             <#--NOTE: Admins cannot convert general comments to corrections.-->
             <br/>
-            <#if permissions?seq_contains("MANAGE_CORRECTIONS")>
-              Convert to:
-              <br/>
-              <#if !flaggedComment.isMinorCorrection >
-                <@s.checkbox name="convertToMinorCorrection" label="Minor Correction"
-                fieldValue="${flaggedComment.ID}"/>
-                <br/>
-              </#if>
-              <#if !flaggedComment.isFormalCorrection >
-                <@s.checkbox name="convertToFormalCorrection" label="Formal Correction"
-                fieldValue="${flaggedComment.ID}"/>
-                <br/>
-              </#if>
-              <#if !flaggedComment.isRetraction >
-                <@s.checkbox name="convertToRetraction" label="Retraction"
-                fieldValue="${flaggedComment.ID}"/>
-                <br/>
-              </#if>
-            </#if>
           </td>
         </tr>
         <tr>
