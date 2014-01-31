@@ -75,13 +75,13 @@ public class LoadAnnotationActionTest extends AdminWebTest {
     comment.setBody("This is a test comment");
     dummyDataStore.store(comment);
 
-    Annotation correction = new Annotation(creator, AnnotationType.MINOR_CORRECTION, article.getID());
-    correction.setAnnotationUri("id:minorCorrection-for-LoadAnnotationActionTest");
-    correction.setTitle("Test correction title");
-    correction.setBody("This is a test correction");
-    correction.setAnnotationCitation(new AnnotationCitation(article));
-    dummyDataStore.store(correction.getAnnotationCitation());
-    dummyDataStore.store(correction);
+//    Annotation correction = new Annotation(creator, AnnotationType.MINOR_CORRECTION, article.getID());
+//    correction.setAnnotationUri("id:minorCorrection-for-LoadAnnotationActionTest");
+//    correction.setTitle("Test correction title");
+//    correction.setBody("This is a test correction");
+//    correction.setAnnotationCitation(new AnnotationCitation(article));
+//    dummyDataStore.store(correction.getAnnotationCitation());
+//    dummyDataStore.store(correction);
 
     Annotation reply = new Annotation(creator, AnnotationType.REPLY, article.getID());
     reply.setAnnotationUri("id:reply-for-LoadAnnotationActionTest");
@@ -92,7 +92,7 @@ public class LoadAnnotationActionTest extends AdminWebTest {
 
     return new Object[][]{
         {comment},
-        {correction},
+        //{correction},
         {reply}
     };
   }
