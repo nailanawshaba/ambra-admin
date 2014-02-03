@@ -46,7 +46,6 @@ public class SaveAnnotationAction extends BaseAdminActionSupport implements Mode
   private String[] authorSuffixes;
   private String[] collabAuthors;
 
-
   public SaveAnnotationAction() {
     super();
     this.annotation = new Annotation();
