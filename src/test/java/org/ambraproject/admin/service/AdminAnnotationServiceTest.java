@@ -64,10 +64,10 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
     dummyDataStore.store(article);
 
     Annotation originalComment = new Annotation(userProfile, AnnotationType.COMMENT, article.getID());
-    originalComment.setTitle("Old Correction Title");
-    originalComment.setAnnotationUri("old correction annotation uri");
-    originalComment.setBody("Old correction annotation body");
-    originalComment.setCompetingInterestBody("old correction competing interest");
+    originalComment.setTitle("Old comment title");
+    originalComment.setAnnotationUri("old comment annotation uri");
+    originalComment.setBody("Old comment annotation body");
+    originalComment.setCompetingInterestBody("old comment competing interest");
     originalComment.setAnnotationCitation(new AnnotationCitation(article));
     originalComment.getAnnotationCitation().setNote("Old note");
     originalComment.getAnnotationCitation().setSummary("Old summary");
@@ -81,7 +81,6 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
     changeBasicProperties.setCompetingInterestBody("Change Basic Properties competing interest");
     //keep the same annotation citation
     changeBasicProperties.setAnnotationCitation(new AnnotationCitation(article));
-
 
     //change the basic citation info
     Annotation changeCitationInfo = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
@@ -189,6 +188,5 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
         }
       }
     }
-
   }
 }
