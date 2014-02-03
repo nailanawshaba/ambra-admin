@@ -72,7 +72,6 @@
             <@s.checkbox name="commentsToUnflag" label="Remove Flag" fieldValue="${flaggedComment.ID}"/>
             <br/>
             <@s.checkbox name="commentsToDelete" label="${deleteLabel}" fieldValue="${flaggedComment.ID}"/>
-            <#--NOTE: Admins cannot convert general comments to corrections.-->
             <br/>
           </td>
         </tr>
