@@ -60,22 +60,6 @@ public class FlagView {
     this.date = date.getTime();
   }
 
-//  public boolean getIsCorrection() {
-//    return type.isCorrection();
-//  }
-
-//  public boolean getIsFormalCorrection() {
-//    return type == AnnotationType.FORMAL_CORRECTION;
-//  }
-//
-//  public boolean getIsMinorCorrection() {
-//    return type == AnnotationType.MINOR_CORRECTION;
-//  }
-//
-//  public boolean getIsRetraction() {
-//    return type == AnnotationType.RETRACTION;
-//  }
-
   public boolean getIsComment() {
     return type == AnnotationType.COMMENT;
   }
