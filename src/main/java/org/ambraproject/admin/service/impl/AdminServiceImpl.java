@@ -772,19 +772,19 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
     Document articleXml = fetchArticleService.getArticleDocument(new ArticleInfo(articleDoi));
 
-    if (!isAmendment(articleXml)) {
-    List<String> terms = null;
+    if (articleXml != null && !isAmendment(articleXml)) {
+      List<String> terms = null;
 
-    try {
-      terms = articleClassifier.classifyArticle(articleXml);
-    } catch (Exception e) {
-      log.warn("Taxonomy server not responding, but ingesting article anyway", e);
-    }
+      try {
+        terms = articleClassifier.classifyArticle(articleXml);
+      } catch (Exception e) {
+        log.warn("Taxonomy server not responding, but ingesting article anyway", e);
+      }
 
-    if (terms != null && terms.size() > 0) {
-      Article article = articleService.getArticle(articleDoi, authID);
-      return articleService.setArticleCategories(article, terms);
-    }
+      if (terms != null && terms.size() > 0) {
+        Article article = articleService.getArticle(articleDoi, authID);
+        return articleService.setArticleCategories(article, terms);
+      }
     }
     return Collections.emptyList();
   }
@@ -1053,7 +1053,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
   private boolean isAmendment(Document articleXml) throws XPathExpressionException {
     XPathUtil xPathUtil = new XPathUtil();
-    String expression = "/article@article-type";
+    String expression = "/article/@article-type";
     String articleType = xPathUtil.evaluate(articleXml, expression);
     if (ARTICLE_TYPE.contains(articleType.toLowerCase())) {
       return true;
