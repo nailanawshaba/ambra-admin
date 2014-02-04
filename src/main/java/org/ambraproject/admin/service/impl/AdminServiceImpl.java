@@ -771,7 +771,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     // Attempt to assign categories to the article based on the taxonomy server.
 
     Document articleXml = fetchArticleService.getArticleDocument(new ArticleInfo(articleDoi));
-
+    // update categories for non-amendment articles
     if (articleXml != null && !isAmendment(articleXml)) {
       List<String> terms = null;
 
@@ -1051,6 +1051,12 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     return orphans;
   }
 
+  /**
+   * Checks whether an article is an amendment using the article-type attribute in the article xml
+   * @param articleXml the article xml
+   * @return true if the article is an amendment; false, otherwise
+   * @throws XPathExpressionException
+   */
   private boolean isAmendment(Document articleXml) throws XPathExpressionException {
     XPathUtil xPathUtil = new XPathUtil();
     String expression = "/article/@article-type";

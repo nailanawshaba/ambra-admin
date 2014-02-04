@@ -268,7 +268,7 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
           : archive.getName();
       article.setArchiveName(archiveName);
 
-      // Attempt to assign categories to the article based on the taxonomy server.  However,
+      // Attempt to assign categories to the non-amendment article based on the taxonomy server.  However,
       // we still want to ingest the article even if this process fails.
       if (!isAmendment(article)) {
         List<String> terms = null;
@@ -921,7 +921,7 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
   }
 
   /**
-   * Check the type of article for taxonomy classification
+   * Check the type of the article for taxonomy classification using the article object
    * @param article the article
    * @return true if the article is an amendment (correction, eoc or retraction)
    * @throws ApplicationException
