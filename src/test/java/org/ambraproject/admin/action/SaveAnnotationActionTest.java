@@ -62,7 +62,7 @@ public class SaveAnnotationActionTest extends AdminWebTest {
     Article article = new Article("id:doi-SaveAnnotationActionTest");
     dummyDataStore.store(article);
 
-    Annotation original = new Annotation(userProfile, AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation original = new Annotation(userProfile, AnnotationType.COMMENT, article.getID());
     original.setBody("After surviving the horrific car crash, Elena, still shaken by her resemblance to " +
         "Katherine Pierce, is rescued by Damon who takes on her on a road trip to Georgia where he meets " +
         "with an old friend of his, a witch/barmaid named Bree, to ask for her help on a spell that could " +
@@ -148,7 +148,7 @@ public class SaveAnnotationActionTest extends AdminWebTest {
     Article article = new Article("id:doi-SaveAnnotationActionTest");
     dummyDataStore.store(article);
 
-    Annotation original = new Annotation(userProfile, AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation original = new Annotation(userProfile, AnnotationType.COMMENT, article.getID());
     original.setAnnotationCitation(new AnnotationCitation());
     dummyDataStore.store(original);
 
@@ -196,7 +196,7 @@ public class SaveAnnotationActionTest extends AdminWebTest {
     Article article = new Article("id:doi-SaveAnnotationActionTest");
     dummyDataStore.store(article);
 
-    Annotation original = new Annotation(userProfile, AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation original = new Annotation(userProfile, AnnotationType.COMMENT, article.getID());
     original.setAnnotationCitation(new AnnotationCitation());
     original.getAnnotationCitation().setAuthors(Arrays.asList(
         new CorrectedAuthor("stored","author","1"),
@@ -275,7 +275,7 @@ public class SaveAnnotationActionTest extends AdminWebTest {
     String originalCollabAuthor = "The Fu Foundation";
     CorrectedAuthor originalAuthor = new CorrectedAuthor("Alaric", "Saltzman", "Tch.");
 
-    Annotation original = new Annotation(userProfile, AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation original = new Annotation(userProfile, AnnotationType.COMMENT, article.getID());
     original.setAnnotationCitation(new AnnotationCitation());
     original.getAnnotationCitation().setAuthors(Arrays.asList(originalAuthor));
     original.getAnnotationCitation().setCollaborativeAuthors(Arrays.asList(originalCollabAuthor));
