@@ -39,7 +39,6 @@ import org.ambraproject.models.Journal;
 import org.ambraproject.service.article.ArticleClassifier;
 import org.ambraproject.service.article.ArticleService;
 import org.ambraproject.service.article.NoSuchArticleIdException;
-import org.ambraproject.util.Rhino;
 import org.ambraproject.util.XPathUtil;
 import org.ambraproject.views.article.ArticleType;
 import org.apache.commons.codec.binary.Base64;
@@ -270,23 +269,21 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
 
       // Attempt to assign categories to the non-amendment article based on the taxonomy server.  However,
       // we still want to ingest the article even if this process fails.
-      if (!isAmendment(article)) {
-        List<String> terms = null;
-        try {
+      List<String> terms = null;
+      try {
+        if (!isAmendment(article)) {
           terms = articleClassifier.classifyArticle(articleXml);
-        } catch (Exception e) {
-          log.warn("Taxonomy server not responding, but ingesting article anyway", e);
-        }
-
-        if (terms != null && terms.size() > 0) {
-          articleService.setArticleCategories(article, terms);
+          if (terms != null && terms.size() > 0) {
+            articleService.setArticleCategories(article, terms);
+          } else {
+            article.setCategories(new HashSet<Category>());
+          }
         } else {
-        article.setCategories(new HashSet<Category>());
+          article.setCategories(new HashSet<Category>());
+        }
+      } catch (Exception e) {
+        log.warn("Taxonomy server not responding, but ingesting article anyway", e);
       }
-      } else {
-        article.setCategories(new HashSet<Category>());
-      }
-
 
       Journal journal = new Journal();
       journal.seteIssn(article.geteIssn());
