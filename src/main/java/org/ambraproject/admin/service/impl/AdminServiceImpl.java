@@ -634,8 +634,12 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       return;
     }
     for (String doi : articleDois) {
-      if (!issue.getArticleDois().contains(doi)) {
-        issue.getArticleDois().add(doi);
+      if(!doi.isEmpty()) {
+        //Trim off extra spaces.  AMEC-2225
+        doi = doi.trim();
+        if (!issue.getArticleDois().contains(doi)) {
+          issue.getArticleDois().add(doi);
+        }
       }
     }
     hibernateTemplate.update(issue);
@@ -922,8 +926,12 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     log.debug("Adding articles {} to list '{}'", Arrays.toString(articleDois), listCode);
     ArticleList articleList = getList(listCode);
     for (String doi : articleDois) {
-      if (!doi.isEmpty() && !articleList.getArticleDois().contains(doi)) {
-        articleList.getArticleDois().add(doi);
+      if (!doi.isEmpty()) {
+        //Trim off extra spaces.  AMEC-2225
+        doi = doi.trim();
+        if(!articleList.getArticleDois().contains(doi)) {
+          articleList.getArticleDois().add(doi);
+        }
       }
     }
     hibernateTemplate.update(articleList);
@@ -938,7 +946,8 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     log.debug("Removing articles {} to article list '{}'", Arrays.toString(articleDois), listCode);
     ArticleList articleList = getList(listCode);
     for (String doi : articleDois) {
-      articleList.getArticleDois().remove(doi);
+      //Trim off extra spaces.  AMEC-2225
+      articleList.getArticleDois().remove(doi.trim());
     }
     hibernateTemplate.update(articleList);
   }
