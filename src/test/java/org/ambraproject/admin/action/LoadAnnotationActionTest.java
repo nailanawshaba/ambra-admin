@@ -17,7 +17,6 @@ import com.opensymphony.xwork2.Action;
 import org.ambraproject.action.BaseActionSupport;
 import org.ambraproject.admin.AdminWebTest;
 import org.ambraproject.models.Annotation;
-import org.ambraproject.models.AnnotationCitation;
 import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleAuthor;
@@ -75,14 +74,6 @@ public class LoadAnnotationActionTest extends AdminWebTest {
     comment.setBody("This is a test comment");
     dummyDataStore.store(comment);
 
-    Annotation correction = new Annotation(creator, AnnotationType.MINOR_CORRECTION, article.getID());
-    correction.setAnnotationUri("id:minorCorrection-for-LoadAnnotationActionTest");
-    correction.setTitle("Test correction title");
-    correction.setBody("This is a test correction");
-    correction.setAnnotationCitation(new AnnotationCitation(article));
-    dummyDataStore.store(correction.getAnnotationCitation());
-    dummyDataStore.store(correction);
-
     Annotation reply = new Annotation(creator, AnnotationType.REPLY, article.getID());
     reply.setAnnotationUri("id:reply-for-LoadAnnotationActionTest");
     reply.setTitle("Test reply title");
@@ -92,7 +83,6 @@ public class LoadAnnotationActionTest extends AdminWebTest {
 
     return new Object[][]{
         {comment},
-        {correction},
         {reply}
     };
   }

@@ -63,18 +63,18 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
     );
     dummyDataStore.store(article);
 
-    Annotation originalCorrection = new Annotation(userProfile, AnnotationType.MINOR_CORRECTION, article.getID());
-    originalCorrection.setTitle("Old Correction Title");
-    originalCorrection.setAnnotationUri("old correction annotation uri");
-    originalCorrection.setBody("Old correction annotation body");
-    originalCorrection.setCompetingInterestBody("old correction competing interest");
-    originalCorrection.setAnnotationCitation(new AnnotationCitation(article));
-    originalCorrection.getAnnotationCitation().setNote("Old note");
-    originalCorrection.getAnnotationCitation().setSummary("Old summary");
-    dummyDataStore.store(originalCorrection);
+    Annotation originalComment = new Annotation(userProfile, AnnotationType.COMMENT, article.getID());
+    originalComment.setTitle("Old comment title");
+    originalComment.setAnnotationUri("old comment annotation uri");
+    originalComment.setBody("Old comment annotation body");
+    originalComment.setCompetingInterestBody("old comment competing interest");
+    originalComment.setAnnotationCitation(new AnnotationCitation(article));
+    originalComment.getAnnotationCitation().setNote("Old note");
+    originalComment.getAnnotationCitation().setSummary("Old summary");
+    dummyDataStore.store(originalComment);
 
     //Just change the basic annotation properties
-    Annotation changeBasicProperties = new Annotation(new UserProfile(), AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation changeBasicProperties = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
     changeBasicProperties.setTitle("Change Basic Properties Title");
     changeBasicProperties.setAnnotationUri("Change Basic Properties annotation uri");
     changeBasicProperties.setBody("Change Basic Properties body");
@@ -82,9 +82,8 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
     //keep the same annotation citation
     changeBasicProperties.setAnnotationCitation(new AnnotationCitation(article));
 
-
     //change the basic citation info
-    Annotation changeCitationInfo = new Annotation(new UserProfile(), AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation changeCitationInfo = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
     changeCitationInfo.setAnnotationCitation(new AnnotationCitation(article));
     changeCitationInfo.getAnnotationCitation().setTitle("New Citation title");
     changeCitationInfo.getAnnotationCitation().setJournal("New Citation journal");
@@ -95,42 +94,42 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
     changeCitationInfo.getAnnotationCitation().setUrl("New Citation url");
 
     //remove an author
-    Annotation removeAuthor = new Annotation(new UserProfile(), AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation removeAuthor = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
     removeAuthor.setAnnotationCitation(new AnnotationCitation(article));
     removeAuthor.getAnnotationCitation().getAuthors().remove(0);
 
     //add an author
-    Annotation addAuthor = new Annotation(new UserProfile(), AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation addAuthor = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
     addAuthor.setAnnotationCitation(new AnnotationCitation(article));
     addAuthor.getAnnotationCitation().getAuthors().add(new CorrectedAuthor(new ArticleAuthor("New", "Article", "Author")));
 
     //add a collab author
-    Annotation addCollabAuthor = new Annotation(new UserProfile(), AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation addCollabAuthor = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
     addCollabAuthor.setAnnotationCitation(new AnnotationCitation(article));
     addCollabAuthor.getAnnotationCitation().getCollaborativeAuthors().add("New Collab authors");
 
     //add a collab author
-    Annotation removeCollabAuthor = new Annotation(new UserProfile(), AnnotationType.FORMAL_CORRECTION, article.getID());
+    Annotation removeCollabAuthor = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
     removeCollabAuthor.setAnnotationCitation(new AnnotationCitation(article));
     removeCollabAuthor.getAnnotationCitation().getCollaborativeAuthors().remove(0);
 
     //just want to check that parent ids don't get overwritten
     Annotation originalReply = new Annotation(userProfile, AnnotationType.REPLY, article.getID());
-    originalReply.setParentID(originalCorrection.getID());
+    originalReply.setParentID(originalComment.getID());
     dummyDataStore.store(originalReply);
 
     Annotation newReply = new Annotation(new UserProfile(), AnnotationType.REPLY, article.getID());
     newReply.setParentID(originalReply.getID());
 
     return new Object[][]{
-        {originalCorrection, changeBasicProperties},
-        {originalCorrection, changeCitationInfo},
+        {originalComment, changeBasicProperties},
+        {originalComment, changeCitationInfo},
 
-        {originalCorrection, addAuthor},
-        {originalCorrection, removeAuthor},
+        {originalComment, addAuthor},
+        {originalComment, removeAuthor},
 
-        {originalCorrection, addCollabAuthor},
-        {originalCorrection, removeCollabAuthor},
+        {originalComment, addCollabAuthor},
+        {originalComment, removeCollabAuthor},
         {originalReply, newReply}
     };
   }
@@ -189,6 +188,5 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
         }
       }
     }
-
   }
 }

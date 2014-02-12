@@ -24,6 +24,7 @@ package org.ambraproject.article.service;
 import net.sf.saxon.Controller;
 import net.sf.saxon.TransformerFactoryImpl;
 import net.sf.saxon.serialize.MessageWarner;
+import org.ambraproject.ApplicationException;
 import org.ambraproject.article.ArchiveProcessException;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleAsset;
@@ -35,10 +36,11 @@ import org.ambraproject.models.CitedArticle;
 import org.ambraproject.models.CitedArticleAuthor;
 import org.ambraproject.models.CitedArticleEditor;
 import org.ambraproject.models.Journal;
-import org.ambraproject.rhino.shared.Rhino;
 import org.ambraproject.service.article.ArticleClassifier;
 import org.ambraproject.service.article.ArticleService;
+import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.util.XPathUtil;
+import org.ambraproject.views.article.ArticleType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -265,18 +267,22 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
           : archive.getName();
       article.setArchiveName(archiveName);
 
-      // Attempt to assign categories to the article based on the taxonomy server.  However,
+      // Attempt to assign categories to the non-amendment article based on the taxonomy server.  However,
       // we still want to ingest the article even if this process fails.
       List<String> terms = null;
       try {
-        terms = articleClassifier.classifyArticle(articleXml);
+        if (!isAmendment(article)) {
+          terms = articleClassifier.classifyArticle(articleXml);
+          if (terms != null && terms.size() > 0) {
+            articleService.setArticleCategories(article, terms);
+          } else {
+            article.setCategories(new HashSet<Category>());
+          }
+        } else {
+          article.setCategories(new HashSet<Category>());
+        }
       } catch (Exception e) {
         log.warn("Taxonomy server not responding, but ingesting article anyway", e);
-      }
-      if (terms != null && terms.size() > 0) {
-        articleService.setArticleCategories(article, terms);
-      } else {
-        article.setCategories(new HashSet<Category>());
       }
 
       Journal journal = new Journal();
@@ -909,5 +915,28 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
       }
     }
     return text.replaceAll("[\n\t]", "").trim();
+  }
+
+  /**
+   * Check the type of the article for taxonomy classification using the article object
+   * @param article the article
+   * @return true if the article is an amendment (correction, eoc or retraction)
+   * @throws ApplicationException
+   * @throws NoSuchArticleIdException
+   */
+  private boolean isAmendment(Article article) throws ApplicationException, NoSuchArticleIdException {
+    ArticleType articleType = ArticleType.getDefaultArticleType();
+
+    for (String artTypeUri : article.getTypes()) {
+      if (ArticleType.getKnownArticleTypeForURI(URI.create(artTypeUri)) != null) {
+        articleType = ArticleType.getKnownArticleTypeForURI(URI.create(artTypeUri));
+        break;
+      }
+    }
+    if (articleType == null) {
+      throw new ApplicationException("Unable to resolve article type for: " + article.getDoi());
+    }
+
+    return ArticleType.isCorrectionArticle(articleType) || ArticleType.isEocArticle(articleType) || ArticleType.isRetractionArticle(articleType) ;
   }
 }

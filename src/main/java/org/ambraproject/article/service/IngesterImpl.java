@@ -21,6 +21,7 @@
 
 package org.ambraproject.article.service;
 
+import com.google.common.collect.ImmutableBiMap;
 import org.ambraproject.admin.service.DocumentManagementService;
 import org.ambraproject.admin.service.SyndicationService;
 import org.ambraproject.article.ArchiveProcessException;
@@ -399,6 +400,8 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
         if (otherArticleRelationship.getOtherArticleDoi().equals(newArticle.getDoi())) {
           createNewRelationship = false;
           otherArticleRelationship.setOtherArticleID(newArticle.getID());
+          // if new types are defined for the reciprocal link
+          otherArticleRelationship.setType(getReciprocalType(relationship));
           hibernateTemplate.update(otherArticleRelationship);
           break;
         }
@@ -409,7 +412,7 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
         reciprocalLink.setParentArticle(otherArticle);
         reciprocalLink.setOtherArticleID(newArticle.getID());
         reciprocalLink.setOtherArticleDoi(newArticle.getDoi());
-        reciprocalLink.setType(relationship.getType());
+        reciprocalLink.setType(getReciprocalType(relationship));
         otherArticle.getRelatedArticles().add(reciprocalLink);
         hibernateTemplate.update(otherArticle);
       }
@@ -442,7 +445,7 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
           relationship.setParentArticle(newArticle);
           relationship.setOtherArticleID(otherArticle.getID());
           relationship.setOtherArticleDoi(otherArticle.getDoi());
-          relationship.setType(otherRelationship.getType());
+          relationship.setType(getReciprocalType(otherRelationship));
           newArticle.getRelatedArticles().add(relationship);
         }
       }
@@ -452,4 +455,26 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
       hibernateTemplate.update(newArticle);
     }
   }
+
+  /**
+   * Special cases of article relationship types where the reciprocal relationships are asymmetric.
+   * <p/>
+   * For example, if A is a "retracted-article" of B, then B must be a "retraction" of A.
+   */
+  private static final ImmutableBiMap<String, String> RECIPROCAL_TYPES = ImmutableBiMap.<String, String>builder()
+      .put("corrected-article", "correction-forward")
+      .put("retracted-article", "retraction")
+      .put("object-of-concern", "expressed-concern")
+      .build();
+
+  /**
+   * Get the type for a reciprocal relationship, which is the same as the type of the argument except in the special
+   * cases of corrections and retractions.
+   */
+  private static String getReciprocalType(ArticleRelationship relationship) {
+    String relationshipType = relationship.getType();
+    String reciprocalType = RECIPROCAL_TYPES.get(relationshipType);
+    return (reciprocalType == null) ? relationshipType : reciprocalType;
+  }
+
 }
