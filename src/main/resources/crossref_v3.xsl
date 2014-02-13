@@ -172,7 +172,14 @@
             </publisher_item>
             <crossmark>
               <crossmark_version>1</crossmark_version>
-              <xsl:variable name="doi_domain"><xsl:value-of select="substring-before(substring($article_doi, 17), '.')"/></xsl:variable>
+              <xsl:variable name="doi_domain">
+                <xsl:choose>
+                  <xsl:when test="substring($article_doi, 1, 16) = '10.1371/journal.'">
+                    <xsl:value-of select="substring-before(substring($article_doi, 17), '.')"/>
+                  </xsl:when>
+                  <xsl:otherwise>pone</xsl:otherwise>
+                </xsl:choose>
+              </xsl:variable>
               <xsl:choose>
                 <xsl:when test="$article_doi">
                   <crossmark_policy><xsl:value-of select="concat('10.1371/journal.', $doi_domain, '.corrections_policy')"/></crossmark_policy>
