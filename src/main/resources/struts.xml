@@ -4,7 +4,8 @@
     "http://struts.apache.org/dtds/struts-2.0.dtd">
 
 <!--
-  Copyright (c) 2006-2010 by Public Library of Science
+  Copyright (c) 2006-2014 by Public Library of Science
+
   http://plos.org
   http://ambraproject.org
 
@@ -283,6 +284,42 @@
       </result>
       <result name="input" type="freemarker">
         <param name="location">/templates/searchUser.ftl</param>
+      </result>
+    </action>
+
+    <action name="importUsers" class="org.ambraproject.admin.action.BaseAdminActionSupport">
+      <result name="success" type="freemarker">
+        <param name="location">/templates/importUsersUploadForm.ftl</param>
+      </result>
+    </action>
+
+    <action name="importUsersUpload" class="org.ambraproject.user.action.ImportUsersUploadAction">
+      <result name="success" type="freemarker">
+        <param name="location">/templates/importUsersUploaded.ftl</param>
+      </result>
+      <result name="input" type="freemarker">
+        <param name="location">/templates/importUsersUploadForm.ftl</param>
+      </result>
+      <result name="error" type="freemarker">
+        <param name="location">/templates/importUsersUploadForm.ftl</param>
+      </result>
+    </action>
+
+    <action name="importUsersPermission" class="org.ambraproject.user.action.ImportUsersPermissionsAction">
+      <result name="success" type="freemarker">
+        <param name="location">/templates/importUsersPermissions.ftl</param>
+      </result>
+    </action>
+
+    <action name="importUsersEmail" class="org.ambraproject.user.action.ImportUsersEmailAction">
+      <result name="success" type="freemarker">
+        <param name="location">/templates/importUsersEmail.ftl</param>
+      </result>
+    </action>
+
+    <action name="importUsersComplete" class="org.ambraproject.user.action.ImportUsersCompleteAction">
+      <result name="success" type="freemarker">
+        <param name="location">/templates/importUsersComplete.ftl</param>
       </result>
     </action>
 

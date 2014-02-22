@@ -27,7 +27,7 @@ import org.ambraproject.models.Journal;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BaseAdminActionSupport extends BaseActionSupport {
-
+  protected static final String IMPORT_USER_LIST = "IMPORT_USER_LIST";
   protected AdminService adminService;
 
   // Fields Used by template
