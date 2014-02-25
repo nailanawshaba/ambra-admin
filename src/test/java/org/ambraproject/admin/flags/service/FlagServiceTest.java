@@ -15,22 +15,16 @@ package org.ambraproject.admin.flags.service;
 
 import org.ambraproject.admin.AdminBaseTest;
 import org.ambraproject.admin.views.FlagView;
-import org.ambraproject.service.cache.Cache;
 import org.ambraproject.models.Annotation;
-import org.ambraproject.models.AnnotationCitation;
 import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
-import org.ambraproject.models.ArticleAuthor;
-import org.ambraproject.models.CorrectedAuthor;
 import org.ambraproject.models.Flag;
 import org.ambraproject.models.FlagReasonCode;
 import org.ambraproject.models.UserProfile;
+import org.ambraproject.service.cache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.testng.annotations.Test;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 
@@ -125,48 +119,6 @@ public class FlagServiceTest extends AdminBaseTest {
 
     assertNull(dummyDataStore.get(Flag.class, id1), "didn't delete first flag");
     assertNull(dummyDataStore.get(Flag.class, id2), "didn't delete second flag");
-
-  }
-
-  @Test
-  public void testConvertToNote() throws ParseException {
-    UserProfile creator = new UserProfile(
-        "id:creatorForConvertToNoteServiceTest",
-        "email@ConvertToNoteServiceTest.org",
-        "displaynameForConvertToNoteServiceTest");
-    dummyDataStore.store(creator);
-
-    Article article = new Article("id:doi-for-convert-to-note-by-service");
-    article.setTitle("Title for Convert to Note by Service");
-    article.seteLocationId("eLocationId for Convert to Note by Service");
-    article.setJournal("journal for Convert to Note by Service");
-    article.setDate(new SimpleDateFormat("yyyy-mm-dd").parse("2100-03-03"));
-    article.setAuthors(new ArrayList<ArticleAuthor>(2));
-    article.getAuthors().add(new ArticleAuthor("John", "Smith", "MD"));
-    article.getAuthors().add(new ArticleAuthor("Harry", "Potter", "PhD"));
-    dummyDataStore.store(article);
-    //put the article in cache
-    articleHtmlCache.put(article.getDoi(), new Cache.Item(article));
-
-    Annotation annotation = new Annotation(creator, AnnotationType.REPLY, article.getID());
-    annotation.setAnnotationCitation(new AnnotationCitation(article));
-    dummyDataStore.store(annotation);
-
-    Flag flag1 = new Flag(creator, FlagReasonCode.SPAM, annotation);
-    Long id1 = Long.valueOf(dummyDataStore.store(flag1));
-
-    flagService.convertToType(AnnotationType.COMMENT, id1);
-
-    assertNull(dummyDataStore.get(Flag.class, id1), "didn't delete first flag");
-
-    Annotation storedAnnotation = dummyDataStore.get(Annotation.class, annotation.getID());
-    assertNotNull(storedAnnotation, "deleted annotation");
-    assertEquals(storedAnnotation.getType(), AnnotationType.COMMENT, "Didn't set correct type");
-    assertNull(storedAnnotation.getAnnotationCitation(), "Didn't disassociate citation from annotation");
-    assertNull(dummyDataStore.get(AnnotationCitation.class, annotation.getAnnotationCitation().getID()),
-        "Didn't delete citation");
-
-    assertNull(articleHtmlCache.get(article.getDoi()),"article didn't get kicked out of cache");
   }
 
   @Test
