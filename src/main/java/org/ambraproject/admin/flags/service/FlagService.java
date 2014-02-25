@@ -44,13 +44,4 @@ public interface FlagService {
    */
   public void deleteFlagAndComment(Long... commentIds);
 
-  /**
-   * Convert the flagged comments to corrections. Also create and
-   * attach {@link org.ambraproject.models.AnnotationCitation} objects to the annotations
-   *
-   * @param newType the type to convert the flagged annotations to
-   * @param flagIds the ids of the flags on the annotations to convert
-   */
-  public void convertToType(AnnotationType newType, Long... flagIds);
-
 }
