@@ -212,6 +212,15 @@
           <option displayName="Date\, newest first">publication_date desc\, id desc</option>
         </sortOptions>
       </browse>
+
+      <search>
+        <sortOptions>
+          <option displayName="Relevance">score desc\, publication_date desc\, id desc</option>
+        </sortOptions>
+        <keywordFields>
+          <field displayName="Abstract">abstract</field>
+        </keywordFields>
+      </search>
     </services>
     <articleTypeList>
       <articleType>

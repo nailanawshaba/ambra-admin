@@ -22,22 +22,25 @@ import org.ambraproject.ApplicationException;
 import org.ambraproject.admin.service.AdminService;
 import org.ambraproject.admin.service.OnCrossPubListener;
 import org.ambraproject.admin.service.OnPublishListener;
+import org.ambraproject.models.Article;
+import org.ambraproject.models.ArticleList;
 import org.ambraproject.models.Category;
+import org.ambraproject.models.Issue;
+import org.ambraproject.models.Journal;
+import org.ambraproject.models.Volume;
 import org.ambraproject.queue.MessageSender;
+import org.ambraproject.routes.CrossRefLookupRoutes;
+import org.ambraproject.routes.SavedSearchEmailRoutes;
+import org.ambraproject.search.SavedSearchRetriever;
 import org.ambraproject.service.article.ArticleClassifier;
 import org.ambraproject.service.article.ArticleService;
 import org.ambraproject.service.article.FetchArticleService;
 import org.ambraproject.service.article.NoSuchArticleIdException;
-import org.ambraproject.routes.SavedSearchEmailRoutes;
-import org.ambraproject.search.SavedSearchRetriever;
+import org.ambraproject.service.hibernate.HibernateServiceImpl;
+import org.ambraproject.util.XPathUtil;
 import org.ambraproject.views.TOCArticleGroup;
 import org.ambraproject.views.article.ArticleInfo;
 import org.ambraproject.views.article.ArticleType;
-import org.ambraproject.models.Article;
-import org.ambraproject.models.Issue;
-import org.ambraproject.models.Journal;
-import org.ambraproject.models.Volume;
-import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.apache.camel.CamelExecutionException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
@@ -56,8 +59,9 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
-import org.ambraproject.routes.CrossRefLookupRoutes;
 import org.w3c.dom.Document;
+
+import javax.xml.xpath.XPathExpressionException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,9 +71,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AdminServiceImpl extends HibernateServiceImpl implements AdminService, OnPublishListener {
   private static final Logger log = LoggerFactory.getLogger(AdminServiceImpl.class);
@@ -80,6 +86,12 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
   private ArticleClassifier articleClassifier;
   private Configuration configuration;
   private List<OnCrossPubListener> onCrossPubListener;
+  private final static Set<String> ARTICLE_TYPE = new HashSet<String>();
+  static {
+    ARTICLE_TYPE.add("correction");
+    ARTICLE_TYPE.add("expression-of-concern");
+    ARTICLE_TYPE.add("retraction");
+  }
 
   public void setOnCrossPubListener(List<OnCrossPubListener> onCrossPubListener) {
     this.onCrossPubListener = onCrossPubListener;
@@ -622,8 +634,12 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       return;
     }
     for (String doi : articleDois) {
-      if (!issue.getArticleDois().contains(doi)) {
-        issue.getArticleDois().add(doi);
+      if(!doi.isEmpty()) {
+        //Trim off extra spaces.  AMEC-2225
+        doi = doi.trim();
+        if (!issue.getArticleDois().contains(doi)) {
+          issue.getArticleDois().add(doi);
+        }
       }
     }
     hibernateTemplate.update(issue);
@@ -755,23 +771,25 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
   @Override
   @Transactional
-  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException {
+  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException {
     // Attempt to assign categories to the article based on the taxonomy server.
 
     Document articleXml = fetchArticleService.getArticleDocument(new ArticleInfo(articleDoi));
-    List<String> terms = null;
+    // update categories for non-amendment articles
+    if (articleXml != null && !isAmendment(articleXml)) {
+      List<String> terms = null;
 
-    try {
-      terms = articleClassifier.classifyArticle(articleXml);
-    } catch (Exception e) {
-      log.warn("Taxonomy server not responding, but ingesting article anyway", e);
+      try {
+        terms = articleClassifier.classifyArticle(articleXml);
+      } catch (Exception e) {
+        log.warn("Taxonomy server not responding, but ingesting article anyway", e);
+      }
+
+      if (terms != null && terms.size() > 0) {
+        Article article = articleService.getArticle(articleDoi, authID);
+        return articleService.setArticleCategories(article, terms);
+      }
     }
-
-    if (terms != null && terms.size() > 0) {
-      Article article = articleService.getArticle(articleDoi, authID);
-      return articleService.setArticleCategories(article, terms);
-    }
-
     return Collections.emptyList();
   }
 
@@ -781,5 +799,280 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
         listener.articleCrossPublished(articleDoi);
       }
     }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Transactional
+  @Override
+  public ArticleList createArticleList(final String journalKey, final String listCode, final String displayName) {
+    if (StringUtils.isEmpty(journalKey)) {
+      throw new IllegalArgumentException("No journal specified");
+    } else if (StringUtils.isEmpty(listCode)) {
+      throw new IllegalArgumentException("No listCode specified");
+    }
+    return hibernateTemplate.execute(new HibernateCallback<ArticleList>() {
+      @Override
+      public ArticleList doInHibernate(Session session) throws HibernateException, SQLException {
+        Journal journal = (Journal) session.createCriteria(Journal.class)
+            .add(Restrictions.eq("journalKey", journalKey))
+            .uniqueResult();
+        //if the journal doesn't exist, return null
+        if (journal == null) {
+          return null;
+        } else {
+          //check if a list with the same listcode exists, and if so, return null
+          for (ArticleList existingList : journal.getArticleList()) {
+            if (existingList.getListCode().equals(listCode)) {
+              return null;
+            }
+          }
+          ArticleList newArticleList = new ArticleList();
+          newArticleList.setListCode(listCode);
+          newArticleList.setDisplayName(displayName);
+          journal.getArticleList().add(newArticleList);
+          session.update(journal);
+          return newArticleList;
+        }
+      }
+    });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  @Transactional(readOnly = true)
+  public List<ArticleList> getArticleList(final String journalKey) {
+    //article list are lazy so we need to access them in a session
+    return hibernateTemplate.execute(new HibernateCallback<List<ArticleList>>() {
+      @Override
+      public List<ArticleList> doInHibernate(Session session) throws HibernateException, SQLException {
+        Journal journal = (Journal) session.createCriteria(Journal.class)
+            .add(Restrictions.eq("journalKey", journalKey))
+            .uniqueResult();
+        if (journal == null) {
+          log.debug("No journal existed for key: " + journalKey);
+          return Collections.emptyList();
+        } else {
+          //bring up all the article list
+          for (int i = 0; i < journal.getArticleList().size(); i++) {
+            journal.getArticleList().get(i);
+          }
+          return journal.getArticleList();
+        }
+      }
+    });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Transactional
+  @Override
+  public String[] deleteArticleList(final String journalKey, final String... listCode) {
+    //article list are lazy, so we have to access them in a session
+    return hibernateTemplate.execute(new HibernateCallback<String[]>() {
+      @Override
+      public String[] doInHibernate(Session session) throws HibernateException, SQLException {
+        Journal journal = (Journal) session.createCriteria(Journal.class)
+            .add(Restrictions.eq("journalKey", journalKey))
+            .uniqueResult();
+        if (journal == null) {
+          throw new IllegalArgumentException("No such journal: " + journalKey);
+        }
+        List<String> deletedArticleList = new ArrayList<String>(listCode.length);
+        Iterator<ArticleList> iterator = journal.getArticleList().iterator();
+        while (iterator.hasNext()) {
+          ArticleList articleList = iterator.next();
+          if (ArrayUtils.indexOf(listCode, articleList.getListCode()) != -1) {
+            iterator.remove();
+            session.delete(articleList);
+            deletedArticleList.add(articleList.getListCode());
+          }
+        }
+        session.update(journal);
+        return deletedArticleList.toArray(new String[deletedArticleList.size()]);
+      }
+    });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  @Transactional(readOnly = true)
+  public ArticleList getList(String listCode) {
+    log.debug("Retrieving list with listCode '{}'", listCode);
+    try {
+      return (ArticleList) hibernateTemplate.findByCriteria(
+          DetachedCriteria.forClass(ArticleList.class)
+              .add(Restrictions.eq("listCode", listCode))
+              .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+      ).get(0);
+    } catch (IndexOutOfBoundsException e) {
+      return null;
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  @Transactional
+  public void addArticlesToList(String listCode, String... articleDois) {
+    log.debug("Adding articles {} to list '{}'", Arrays.toString(articleDois), listCode);
+    ArticleList articleList = getList(listCode);
+    for (String doi : articleDois) {
+      if (!doi.isEmpty()) {
+        //Trim off extra spaces.  AMEC-2225
+        doi = doi.trim();
+        if(!articleList.getArticleDois().contains(doi)) {
+          articleList.getArticleDois().add(doi);
+        }
+      }
+    }
+    hibernateTemplate.update(articleList);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  @Transactional
+  public void removeArticlesFromList(String listCode, String... articleDois) {
+    log.debug("Removing articles {} to article list '{}'", Arrays.toString(articleDois), listCode);
+    ArticleList articleList = getList(listCode);
+    for (String doi : articleDois) {
+      //Trim off extra spaces.  AMEC-2225
+      articleList.getArticleDois().remove(doi.trim());
+    }
+    hibernateTemplate.update(articleList);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  @Transactional
+  public void updateList(String listCode, String displayName, List<String> articleDois) {
+    log.debug("Updating list '{}'", listCode);
+    ArticleList articleList = getList(listCode);
+    //check that we aren't adding or removing an article here
+    Set<String> articleDoisSet = new HashSet<String>();
+    for (String doi: articleDois) {
+      if (!doi.isEmpty()) {
+        //Trim off extra spaces.  AMEC-2225
+        articleDoisSet.add(doi.trim());
+      }
+    }
+
+    Set<String> articleListSet = new HashSet<String>();
+    for (String doi: articleList.getArticleDois()) {
+      articleListSet.add(doi);
+    }
+
+    for (String oldDoi : articleList.getArticleDois()) {
+      if (!articleDoisSet.contains(oldDoi)) {
+        throw new IllegalArgumentException("Removed article '" + oldDoi + "' when updating list");
+      }
+    }
+
+    for (String newDoi : articleDois) {
+      if (!newDoi.isEmpty() && !articleListSet.contains(newDoi)) {
+        throw new IllegalArgumentException("Added article '" + newDoi + "' when updating list");
+      }
+    }
+
+    articleList.getArticleDois().clear();
+    articleList.getArticleDois().addAll(articleDois);
+    articleList.setDisplayName(displayName);
+
+    hibernateTemplate.update(articleList);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  @Transactional(readOnly = true)
+  @SuppressWarnings("unchecked")
+  public List<ArticleInfo> getArticleList(final ArticleList articleList) {
+    //if the list doesn't have any dois, return an empty list of groups
+    if (articleList.getArticleDois() == null || articleList.getArticleDois().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final Map<String, Integer> indices = new HashMap<String, Integer>();
+    int i=0;
+    for (String doi: articleList.getArticleDois()) {
+      indices.put(doi, Integer.valueOf(i++));
+    }
+
+    //Create a comparator to sort articles
+    Comparator<ArticleInfo> comparator;
+
+    comparator = new Comparator<ArticleInfo>() {
+      @Override
+      public int compare(ArticleInfo left, ArticleInfo right) {
+        Integer leftIndex = indices.get(left.getDoi());
+        Integer rightIndex = indices.get(right.getDoi());
+        return leftIndex.compareTo(rightIndex);
+      }
+    };
+
+    List<Object[]> rows = hibernateTemplate.findByNamedParam(
+        "select a.doi, a.title from Article a where a.doi in :dois",
+        new String[]{"dois"},
+        new Object[]{articleList.getArticleDois()}
+    );
+
+    List<ArticleInfo> result = new ArrayList<ArticleInfo>();
+
+    for (Object[] row: rows) {
+      ArticleInfo articleInfo = new ArticleInfo();
+      articleInfo.setDoi((String) row[0]);
+      articleInfo.setTitle((String) row[1]);
+      result.add(articleInfo);
+    }
+    Collections.sort(result, comparator);
+
+    return result;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  public List<String> getOrphanArticleList(final ArticleList articleList, final List<ArticleInfo> validArticles) {
+    Set<String> validDois = new HashSet<String>();
+    for (ArticleInfo validArticle: validArticles) {
+      validDois.add(validArticle.getDoi());
+    }
+    List<String> orphans = new ArrayList<String>();
+    for (String doi: articleList.getArticleDois()) {
+      if (!validDois.contains(doi)) {
+        orphans.add(doi);
+      }
+    }
+    return orphans;
+  }
+
+  /**
+   * Checks whether an article is an amendment using the article-type attribute in the article xml
+   * @param articleXml the article xml
+   * @return true if the article is an amendment; false, otherwise
+   * @throws XPathExpressionException
+   */
+  private boolean isAmendment(Document articleXml) throws XPathExpressionException {
+    XPathUtil xPathUtil = new XPathUtil();
+    String expression = "/article/@article-type";
+    String articleType = xPathUtil.evaluate(articleXml, expression);
+    if (ARTICLE_TYPE.contains(articleType.toLowerCase())) {
+      return true;
+    }
+    return false;
   }
 }

@@ -56,9 +56,6 @@ public class ProcessFlagsActionTest extends AdminWebTest {
   public void resetAction() {
     action.setCommentsToDelete(EMPTY_ARRAY);
     action.setCommentsToUnflag(EMPTY_ARRAY);
-    action.setConvertToFormalCorrection(EMPTY_ARRAY);
-    action.setConvertToMinorCorrection(EMPTY_ARRAY);
-    action.setConvertToRetraction(EMPTY_ARRAY);
   }
 
   @DataProvider(name = "flags")
@@ -83,18 +80,9 @@ public class ProcessFlagsActionTest extends AdminWebTest {
     dummyDataStore.store(comment);
     annotationIds.add(comment.getID());
 
-    Flag flagComment = new Flag(creator, FlagReasonCode.CORRECTION, comment);
+    Flag flagComment = new Flag(creator, FlagReasonCode.INAPPROPRIATE, comment);
     dummyDataStore.store(flagComment);
     flagIds.add(flagComment.getID());
-
-    Annotation correction = new Annotation(creator, AnnotationType.MINOR_CORRECTION, article.getID());
-    correction.setAnnotationCitation(new AnnotationCitation());
-    dummyDataStore.store(correction);
-    annotationIds.add(correction.getID());
-
-    Flag flagCorrection = new Flag(creator, FlagReasonCode.INAPPROPRIATE, correction);
-    dummyDataStore.store(flagCorrection);
-    flagIds.add(flagCorrection.getID());
 
     Annotation reply = new Annotation(creator, AnnotationType.REPLY, article.getID());
     dummyDataStore.store(reply);
@@ -127,71 +115,4 @@ public class ProcessFlagsActionTest extends AdminWebTest {
       assertNotNull(dummyDataStore.get(Annotation.class, annotationId), "Deleted annotation: " + annotationId);
     }
   }
-
-  @Test(dataProvider = "flags")
-  public void testConvertToFormalCorrection(List<Long> flagIds, List<Long> annotationIds) throws Exception {
-    action.setConvertToFormalCorrection(flagIds.toArray(new Long[flagIds.size()]));
-
-    String result = action.execute();
-    assertEquals(result, Action.SUCCESS, "action didn't return success");
-    assertEquals(action.getActionErrors().size(), 0,
-        "Action had error messages: " + StringUtils.join(action.getActionErrors(), ";"));
-    assertEquals(action.getFieldErrors().size(), 0,
-        "Action had field error messages: " + StringUtils.join(action.getFieldErrors().values(), ";"));
-
-    for (Long flagId : flagIds) {
-      assertNull(dummyDataStore.get(Flag.class, flagId), "Didn't delete flag: " + flagId);
-    }
-    for (Long annotationId : annotationIds) {
-      Annotation storedAnnotation = dummyDataStore.get(Annotation.class, annotationId);
-      assertNotNull(storedAnnotation, "deleted annotation");
-      assertEquals(storedAnnotation.getType(), AnnotationType.FORMAL_CORRECTION, "Didn't convert to correct type");
-      assertNotNull(storedAnnotation.getAnnotationCitation(), "Didn't create a citation");
-    }
-  }
-
-  @Test(dataProvider = "flags")
-  public void testConvertToMinorCorrection(List<Long> flagIds, List<Long> annotationIds) throws Exception {
-    action.setConvertToMinorCorrection(flagIds.toArray(new Long[flagIds.size()]));
-
-    String result = action.execute();
-    assertEquals(result, Action.SUCCESS, "action didn't return success");
-    assertEquals(action.getActionErrors().size(), 0,
-        "Action had error messages: " + StringUtils.join(action.getActionErrors(), ";"));
-    assertEquals(action.getFieldErrors().size(), 0,
-        "Action had field error messages: " + StringUtils.join(action.getFieldErrors().values(), ";"));
-
-    for (Long flagId : flagIds) {
-      assertNull(dummyDataStore.get(Flag.class, flagId), "Didn't delete flag: " + flagId);
-    }
-    for (Long annotationId : annotationIds) {
-      Annotation storedAnnotation = dummyDataStore.get(Annotation.class, annotationId);
-      assertNotNull(storedAnnotation, "deleted annotation");
-      assertEquals(storedAnnotation.getType(), AnnotationType.MINOR_CORRECTION, "Didn't convert to correct type");
-      assertNull(storedAnnotation.getAnnotationCitation(), "Minor corrections shouldn't get citation created");
-    }
-  }
-
-  @Test(dataProvider = "flags")
-  public void testConvertToRetraction(List<Long> flagIds, List<Long> annotationIds) throws Exception {
-    action.setConvertToRetraction(flagIds.toArray(new Long[flagIds.size()]));
-
-    String result = action.execute();
-    assertEquals(result, Action.SUCCESS, "action didn't return success");
-    assertEquals(action.getActionErrors().size(), 0,
-        "Action had error messages: " + StringUtils.join(action.getActionErrors(), ";"));
-    assertEquals(action.getFieldErrors().size(), 0,
-        "Action had field error messages: " + StringUtils.join(action.getFieldErrors().values(), ";"));
-
-    for (Long flagId : flagIds) {
-      assertNull(dummyDataStore.get(Flag.class, flagId), "Didn't delete flag: " + flagId);
-    }
-    for (Long annotationId : annotationIds) {
-      Annotation storedAnnotation = dummyDataStore.get(Annotation.class, annotationId);
-      assertNotNull(storedAnnotation, "deleted annotation");
-      assertEquals(storedAnnotation.getType(), AnnotationType.RETRACTION, "Didn't convert to correct type");
-      assertNotNull(storedAnnotation.getAnnotationCitation(), "Didn't create a citation");
-    }
-  }
-
 }

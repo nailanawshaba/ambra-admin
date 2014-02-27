@@ -193,7 +193,9 @@
               <xsl:for-each select="//fig">
                 <xsl:if test="object-id[@pub-id-type='doi']">
                   <component parent_relation="isPartOf">
-                    <description><xsl:for-each select="label"/></description>
+                    <description>
+                      <xsl:value-of select="caption/title"/>
+                    </description>
                     <doi_data>
                       <doi><xsl:value-of select="object-id[@pub-id-type='doi']"/></doi>
                       <resource><xsl:value-of select="$plosDoiUrl"/><xsl:value-of select="object-id[@pub-id-type='doi']"/></resource>

@@ -24,9 +24,12 @@
 <@s.url id="manageVirtualJournalsURL" namespace="/" action="manageVirtualJournals" />
 <@s.url id="manageSearchIndexing" namespace="/" action="manageSearchIndexing" />
 <@s.url id="manageCaches" namespace="/" action="manageCaches" />
+<@s.url id="manageArticleList" namespace="/" action="manageArticleList"/>
 <@s.url id="manageEmailAlerts" namespace="/" action="manageEmailAlerts" />
 <@s.url id="manageRoles" namespace="/" action="manageRoles" />
 <@s.url id="deleteArticle" namespace="/" action="deleteArticle" />
+<@s.url id="manageFeaturedArticles" namespace="/" action="featuredArticle"/>
+
 <@s.url id="logout" includeParams="none" namespace="/" action="secureRedirect"
   goTo="${freemarker_config.casLogoutURL}?" +
   "service=${Request[freemarker_config.journalContextAttributeKey].baseUrl}/" +
@@ -53,6 +56,12 @@
   </#if>
   <#if permissions?seq_contains("MANAGE_CACHES")>
     <@s.a href="${manageCaches}">Caches</@s.a>,&nbsp;
+  </#if>
+  <#if permissions?seq_contains("MANAGE_ARTICLE_LISTS")>
+    <@s.a href="${manageArticleList}">Article Lists</@s.a>,&nbsp;
+  </#if>
+  <#if permissions?seq_contains("MANAGE_FEATURED_ARTICLES")>
+    <@s.a href="${manageFeaturedArticles}">Featured Articles</@s.a>,&nbsp;
   </#if>
   <#if permissions?seq_contains("RESEND_EMAIL_ALERTS")>
     <@s.a href="${manageEmailAlerts}">Manage Email Alerts</@s.a>,&nbsp;

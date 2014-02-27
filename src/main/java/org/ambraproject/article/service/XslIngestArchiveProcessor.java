@@ -24,6 +24,7 @@ package org.ambraproject.article.service;
 import net.sf.saxon.Controller;
 import net.sf.saxon.TransformerFactoryImpl;
 import net.sf.saxon.serialize.MessageWarner;
+import org.ambraproject.ApplicationException;
 import org.ambraproject.article.ArchiveProcessException;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleAsset;
@@ -37,8 +38,9 @@ import org.ambraproject.models.CitedArticleEditor;
 import org.ambraproject.models.Journal;
 import org.ambraproject.service.article.ArticleClassifier;
 import org.ambraproject.service.article.ArticleService;
-import org.ambraproject.util.Rhino;
+import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.util.XPathUtil;
+import org.ambraproject.views.article.ArticleType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -265,18 +267,22 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
           : archive.getName();
       article.setArchiveName(archiveName);
 
-      // Attempt to assign categories to the article based on the taxonomy server.  However,
+      // Attempt to assign categories to the non-amendment article based on the taxonomy server.  However,
       // we still want to ingest the article even if this process fails.
       List<String> terms = null;
       try {
-        terms = articleClassifier.classifyArticle(articleXml);
+        if (!isAmendment(article)) {
+          terms = articleClassifier.classifyArticle(articleXml);
+          if (terms != null && terms.size() > 0) {
+            articleService.setArticleCategories(article, terms);
+          } else {
+            article.setCategories(new HashSet<Category>());
+          }
+        } else {
+          article.setCategories(new HashSet<Category>());
+        }
       } catch (Exception e) {
         log.warn("Taxonomy server not responding, but ingesting article anyway", e);
-      }
-      if (terms != null && terms.size() > 0) {
-        articleService.setArticleCategories(article, terms);
-      } else {
-        article.setCategories(new HashSet<Category>());
       }
 
       Journal journal = new Journal();
@@ -330,8 +336,7 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
 
     //properties that used to be in dublin core
     if (xPathUtil.selectSingleNode(transformedXml, "//Article/dublinCore/title") != null) {
-      article.setTitle(Rhino.getAllText(xPathUtil.selectSingleNode(
-          transformedXml, "//Article/dublinCore/title")));
+      article.setTitle(getAllText(xPathUtil.selectSingleNode(transformedXml, "//Article/dublinCore/title")));
     }
     if (!xPathUtil.evaluate(transformedXml, "//Article/dublinCore/format/text()").isEmpty()) {
       article.setFormat(xPathUtil.evaluate(transformedXml, "//Article/dublinCore/format/text()"));
@@ -340,7 +345,7 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
       article.setLanguage(xPathUtil.evaluate(transformedXml, "//Article/dublinCore/language/text()"));
     }
     if (xPathUtil.selectSingleNode(transformedXml, "//Article/dublinCore/description") != null) {
-      article.setDescription(Rhino.getAllText(xPathUtil.selectSingleNode(transformedXml,
+      article.setDescription(getAllText(xPathUtil.selectSingleNode(transformedXml,
           "//Article/dublinCore/description")));
     }
     if (!xPathUtil.evaluate(transformedXml, "//Article/dublinCore/rights/text()").isEmpty()) {
@@ -516,15 +521,15 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
 
       Node noteNode = xPathUtil.selectSingleNode(transformedXml, nodeXpath + "/note");
       if (noteNode != null) {
-        citedArticle.setNote(Rhino.getAllText(noteNode));
+        citedArticle.setNote(getAllText(noteNode));
       }
       Node titleNode = xPathUtil.selectSingleNode(transformedXml, nodeXpath + "/title");
       if (titleNode != null) {
-        citedArticle.setTitle(Rhino.getAllText(titleNode));
+        citedArticle.setTitle(getAllText(titleNode));
       }
       Node summaryNode = xPathUtil.selectSingleNode(transformedXml, nodeXpath + "/summary");
       if (summaryNode != null) {
-        citedArticle.setSummary(Rhino.getAllText(summaryNode));
+        citedArticle.setSummary(getAllText(summaryNode));
       }
 
       //Set the people referenced by the article in this citation
@@ -557,31 +562,6 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
       references.add(citedArticle);
     }
     return references;
-  }
-
-  // TODO: consider deleting this method.  It is not presently called.  This is the old taxonomy,
-  // where we get category information from the article XML.  We are changing this over to the
-  // new AI taxonomy, which we get from a call to an external server.  I'm keeping this method
-  // around for the time being since it's not clear what we should do if the taxonomy server
-  // is down (perhaps fall back to this)?
-  private Set<Category> parseArticleCategories(Document transformedXml) throws XPathExpressionException {
-    int categoryCount = Integer.valueOf(xPathUtil.evaluate(transformedXml, "count(//Article/categories)"));
-    Set<Category> categories = new HashSet<Category>(categoryCount);
-    for (int i = 1; i <= categoryCount; i++) {
-      String mainCategory = xPathUtil.evaluate(transformedXml, "//Article/categories[" + i + "]/mainCategory/text()");
-      String subCategory = xPathUtil.evaluate(transformedXml, "//Article/categories[" + i + "]/subCategory/text()");
-      String categoryStr = "";
-      Category category = new Category();
-      if (!mainCategory.isEmpty()) {
-        categoryStr = "/" + mainCategory;
-      }
-      if (!subCategory.isEmpty()) {
-        categoryStr = categoryStr + "/" + subCategory;
-      }
-      category.setPath(categoryStr);
-      categories.add(category);
-    }
-    return categories;
   }
 
   private Set<String> parseArticleTypes(Document transformedXml) throws XPathExpressionException {
@@ -913,5 +893,50 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
 
     Templates translet = tFactory.newTemplates(new StreamSource(templateStream));
     return translet.newTransformer();
+  }
+
+  /**
+   * Helper method to get all the text of child nodes of a given node
+   *
+   * @param node - the node to use as base
+   * @return - all nested text in the node
+   */
+  private static String getAllText(Node node) {
+
+    String text = "";
+    for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+      Node childNode = node.getChildNodes().item(i);
+      if (Node.TEXT_NODE == childNode.getNodeType()) {
+        text += childNode.getNodeValue();
+      } else if (Node.ELEMENT_NODE == childNode.getNodeType()) {
+        text += "<" + childNode.getNodeName() + ">";
+        text += getAllText(childNode);
+        text += "</" + childNode.getNodeName() + ">";
+      }
+    }
+    return text.replaceAll("[\n\t]", "").trim();
+  }
+
+  /**
+   * Check the type of the article for taxonomy classification using the article object
+   * @param article the article
+   * @return true if the article is an amendment (correction, eoc or retraction)
+   * @throws ApplicationException
+   * @throws NoSuchArticleIdException
+   */
+  private boolean isAmendment(Article article) throws ApplicationException, NoSuchArticleIdException {
+    ArticleType articleType = ArticleType.getDefaultArticleType();
+
+    for (String artTypeUri : article.getTypes()) {
+      if (ArticleType.getKnownArticleTypeForURI(URI.create(artTypeUri)) != null) {
+        articleType = ArticleType.getKnownArticleTypeForURI(URI.create(artTypeUri));
+        break;
+      }
+    }
+    if (articleType == null) {
+      throw new ApplicationException("Unable to resolve article type for: " + article.getDoi());
+    }
+
+    return ArticleType.isCorrectionArticle(articleType) || ArticleType.isEocArticle(articleType) || ArticleType.isRetractionArticle(articleType) ;
   }
 }

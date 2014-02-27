@@ -19,14 +19,17 @@
 package org.ambraproject.admin.service;
 
 import org.ambraproject.ApplicationException;
+import org.ambraproject.models.ArticleList;
 import org.ambraproject.models.Category;
-import org.ambraproject.service.article.NoSuchArticleIdException;
-import org.ambraproject.search.SavedSearchRetriever;
-import org.ambraproject.views.article.ArticleInfo;
-import org.ambraproject.views.TOCArticleGroup;
 import org.ambraproject.models.Issue;
 import org.ambraproject.models.Journal;
 import org.ambraproject.models.Volume;
+import org.ambraproject.search.SavedSearchRetriever;
+import org.ambraproject.service.article.NoSuchArticleIdException;
+import org.ambraproject.views.TOCArticleGroup;
+import org.ambraproject.views.article.ArticleInfo;
+
+import javax.xml.xpath.XPathExpressionException;
 import java.util.Date;
 import java.util.List;
 
@@ -138,8 +141,7 @@ public interface AdminService {
    * @param displayName the display name of the volume.
    * @return the volume object that was created. ( returns null if there is no journal or volumeUri already exists ).
    */
-  public Volume createVolume(String journalName, String volumeUri, String displayName)
-  ;
+  public Volume createVolume(String journalName, String volumeUri, String displayName);
 
   /**
    * Remove volumes from the journal and delete them.
@@ -262,5 +264,83 @@ public interface AdminService {
    *
    * @throws NoSuchArticleIdException
    */
-  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException;
+  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException;
+
+  /**
+   * Create a new article list and add it to the current Journal's.
+   *
+   * @param journalName Keyname of the current journal
+   * @param listCode  the code of the new article list.
+   * @param displayName the display name of the article list.
+   * @return the article list object that was created. ( returns null if there is no journal already
+   * exists).
+   */
+  public ArticleList createArticleList(String journalName, String listCode, String displayName);
+
+  /**
+   * Uses the list of article listCode  maintained by the journal to create a list of ArticleList objects.
+   *
+   * @param journalName Keyname of the current journal
+   * @return the list of articleList for the current journal (never null)
+   * @throws RuntimeException throws RuntimeException if any one of the ArticleList listCode supplied by the journal
+   * does not exist.
+   */
+  public List<ArticleList> getArticleList(String journalName);
+
+  /**
+   * Remove article list from the journal and delete them.
+   *
+   * @param journalKey Keyname of the current journal
+   * @param listCode the listcode of the article list to delete
+   * @return the listCode of the article list that were actually deleted
+   */
+  public String[] deleteArticleList(String journalKey, String... listCode);
+
+  /**
+   * Get an Article List specified by listCode.
+   *
+   * @param listCode of the articleList to retrieve
+   * @return the ArticleList object specified by listCode.
+   */
+  public ArticleList getList(String listCode);
+
+  /**
+   * Add article dois to an article List. If any dois are already in the list, they will not be added again.
+   *
+   * @param listCode of the article list to update
+   * @param articleDois the dois to add to the issue.
+   */
+  public void addArticlesToList(String listCode, String... articleDois);
+
+  /**
+   * Remove articles from an article list
+   *
+   * @param listCode of the article list to update
+   * @param articleDois the dois of articles to remove from the issue
+   */
+  public void removeArticlesFromList(String listCode, String... articleDois);
+
+  /**
+   * Update a Article List. This will only allow reordering
+   *
+   * @param listCode of the articleList to update
+   * @param displayName to set on the article list
+   * @param articleDois  a list of article dois to set on the articleList
+   */
+  public void updateList(String listCode, String displayName, List<String> articleDois);
+
+  /**
+   * Get a list of the articles in a list
+   * @param articleList is the articlelist
+   */
+  public List<ArticleInfo> getArticleList(ArticleList articleList);
+
+  /**
+   * Get a list of orphaned article
+   * @param articleList
+   * @param validArticles
+   * @return dois of article list
+   */
+  public List<String> getOrphanArticleList(ArticleList articleList, List<ArticleInfo> validArticles);
+
 }

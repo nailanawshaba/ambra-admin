@@ -75,11 +75,11 @@
 
   <fieldset>
     <legend><b>Annotation Details</b></legend>
-    <@s.hidden name="annotationId" label="hiddenAnnotationId" required="true" value="${annotation.ID?c}"/>
+    <@s.hidden name="annotationId" label="hiddenAnnotationId" requiredLabel="true" value="${annotation.ID?c}"/>
     <table>
       <tr>
         <td><b>Title</b></td>
-        <@s.hidden name="title" label="title" required="true" value="${annotation.originalTitle!}"/>
+        <@s.hidden name="title" label="title" requiredLabel="true" value="${annotation.originalTitle!}"/>
         <td>${annotation.originalTitle!"No Title for this Annotation"}</td>
       </tr>
       <tr>
@@ -123,125 +123,7 @@
       </tr>
     </table>
   </fieldset>
-
     <@s.submit value="Save Annotation" />
-    <#if annotation.correction>
-      <#if ! annotation.citation??>
-      <b>No Citation for this Annotation<b>
-      <#else>
-        <#assign citation = annotation.citation/>
-        <fieldset>
-          <legend><b>Annotation Citation</b></legend>
-          <table>
-            <tr>
-              <td><b>Citation Title</b></td>
-              <td><@s.textfield name="annotationCitation.title" value="${citation.title!}" size="40"/></td>
-            </tr>
-            <tr>
-              <td><b>Year</b></td>
-              <td><@s.textfield name="annotationCitation.year" value="${citation.year!}" size="10"/></td>
-            </tr>
-            <tr>
-              <td><b>Volume</b></td>
-              <td><@s.textfield name="annotationCitation.volume" value="${citation.volume!}" size="10"/></td>
-            </tr>
-            <tr>
-              <td><b>Issue</b></td>
-              <td><@s.textfield name="annotationCitation.issue" value="${citation.issue!}" size="10"/></td>
-            </tr>
-            <tr>
-              <td><b>Journal</b></td>
-              <td><@s.textfield name="annotationCitation.journal" value="${citation.journal!}" size="20"/></td>
-            </tr>
-            <tr>
-              <td><b>eLocationId</b></td>
-              <td><@s.textfield name="annotationCitation.eLocationId" value="${citation.eLocationId!}" size="20"/></td>
-            </tr>
-            <tr>
-              <td><b>DOI</b></td>
-              <td><@s.textfield name="annotationUri" value="info:doi/${annotation.annotationUri!}" size="40"/></td>
-            </tr>
-            <tr>
-              <td><b>URL</b></td>
-              <@s.hidden name="annotationCitation.url" label="annotationCitation.url" required="true" value="${citation.url!}"/>
-              <td>${citation.url!"No URL"}</td>
-            </tr>
-            <tr>
-              <td><b>Note</b></td>
-              <@s.hidden name="annotationCitation.note" label="annotationCitation.note" required="true" value="${citation.note!}"/>
-              <td>${citation.note!"No Note"}</td>
-            </tr>
-            <tr>
-              <td><b>Summary</b></td>
-              <@s.hidden name="annotationCitation.summary" label="annotationCitation.summary" required="true" value="${citation.summary!}"/>
-              <td>${citation.summary!"No Summary"}</td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <fieldset>
-                  <legend><b>Citation Authors</b></legend>
-                  <table id="authors">
-                    <#if citation.authors?? && citation.authors?size gt 0>
-                      <tr>
-                        <td><b>Given Names</b></td>
-                        <td><b>Surnames</b></td>
-                        <td><b>Suffixes</b></td>
-                      </tr>
-                      <#list citation.authors as author>
-                        <tr id="author_${author_index}">
-                          <td><@s.textfield name="authorGivenNames" value="${author.givenNames!}" size="20"/></td>
-                          <td><@s.textfield name="authorSurnames" value="${author.surnames!}" size="20"/></td>
-                          <td><@s.textfield name="authorSuffixes" value="${author.suffix!}" size="20"/></td>
-                          <td><a href="#"
-                                 onClick="deleteAuthor('author_${author_index}','${author.givenNames!} ${author.surnames!}', false);return false;">
-                            Delete Author</a></td>
-                        </tr>
-                      </#list>
-                    <#else>
-                      There are currently no Authors associated with this Citation.
-                    </#if>
-                    <tr id="addAuthor">
-                      <td><@s.textfield name="authorGivenNames" value="" size="20"/></td>
-                      <td><@s.textfield name="authorSurnames" value="" size="20"/></td>
-                      <td><@s.textfield name="authorSuffixes" value="" size="20"/></td>
-                      <td><a href="#" onClick="document.getElementById('manageAnnotationSave').submit()">Add Author</a></td>
-                    </tr>
-                  </table>
-                </fieldset>
-              </td>
-            </tr>
-
-            <tr>
-              <td colspan="2">
-                <fieldset>
-                  <legend><b>Citation Collaborative Authors</b></legend>
-                  <table id="collabAuthors">
-                    <#if citation.collabAuthors?? && (citation.collabAuthors?size > 0)>
-                      <#list citation.collabAuthors as collabAuthor>
-                        <tr id="collabAuthor_${collabAuthor_index}">
-                          <td><@s.textfield name="collabAuthors" value="${collabAuthor!}" size="75"/></td>
-                          <td><a href="#"
-                                 onClick="deleteAuthor('collabAuthor_${collabAuthor_index}', '${collabAuthor}', true);return false;">Delete
-                            Collaborative Author</a></td>
-                        </tr>
-                      </#list>
-                    <#else>
-                      There are currently no Collaborative Authors associated with this Citation.
-                    </#if>
-                    <tr>
-                      <td><@s.textfield name="collabAuthors" value="" size="75"/></td>
-                      <td><a href="#" onClick="document.getElementById('manageAnnotationSave').submit()">Add Collaborative Author</a></td>
-                    </tr>
-                  </table>
-                </fieldset>
-              </td>
-            </tr>
-
-          </table>
-        </fieldset>
-        <@s.submit value="Save Annotation" />
-      </#if>
-    </#if>
   </@s.form>
 </#if>
 </body>
