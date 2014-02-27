@@ -34,14 +34,11 @@
 
   <b>Send a password reset message</b><br/>
 
-  <@s.textfield name="emailTite" label="Email Title" requiredLabel="true" size="50" value="PLOS New account password Reset" /><br/>
+  <@s.textfield name="subject" label="Email Title" requiredLabel="true" size="50" value="${subject}" /><br/>
 
-  <@s.textarea name="emailBody" rows="15" cols="120" label="Email Body" value="A new account has been created for you at PLOS.
+  <@s.textarea name="textBody" rows="15" cols="120" label="Email HTML Body" value="${htmlBody}"/>
 
-  Please click here or go to the following URL to confirm your email address and enter a new password:
-
-  https://register-stage.plos.org/ambra-registration/forgotPasswordVerify.action?email={email}&verificationToken={verificationToken}
-  "/>
+  <@s.textarea name="htmlBody" rows="15" cols="120" label="Email Text Body" value="${textBody}"/>
 
   <@s.submit value="Save" />
 </fieldset>

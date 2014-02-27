@@ -34,7 +34,8 @@
 
   <table>
     <tr>
-      <td><a name="checkAll" id="checkAll">Check / Uncheck all</a></td>
+      <#-- TODO: Only allow checks for items that have a 'good' status -->
+      <td><a name="hashCode" id="checkAll">Check / Uncheck all</a></td>
       <th>First Name</th>
       <th>Last Name</th>
       <th>Display Name</th>
@@ -44,7 +45,7 @@
     </tr>
     <#list users as user>
       <tr>
-        <td><input type="checkbox" name="user" label="User" value="1" checked="checked" /></td>
+        <td><input type="checkbox" name="hashCodes" label="User" value="${user.hashCode()?c}" checked="checked" /></td>
         <td>${user.givenNames}</td>
         <td>${user.surName}</td>
         <td>${user.displayName}</td>

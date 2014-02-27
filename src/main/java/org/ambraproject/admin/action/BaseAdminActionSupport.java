@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class BaseAdminActionSupport extends BaseActionSupport {
   protected static final String IMPORT_USER_LIST = "IMPORT_USER_LIST";
+  protected static final String IMPORT_USER_LIST_PERMISSIONS = "IMPORT_USER_LIST_PERMISSIONS";
+
   protected AdminService adminService;
 
   // Fields Used by template

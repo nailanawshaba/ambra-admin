@@ -181,8 +181,20 @@
     *
     *****************************************-->
 
+  <!-- email configuration -->
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="${ambra.network.hosts.mailhost}"/>
+  </bean>
+
+  <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+    <property name="templateLoaderPath" value="/WEB-INF/"/>
+    <property name="defaultEncoding" ref="defaultEncodingCharset"/>
+  </bean>
+
   <bean id="ambraMailer" class="org.ambraproject.service.mailer.AmbraMailerImpl">
     <property name="fromEmailAddress" value="application@plosone.org"/>
+    <property name="mailSender" ref="mailSender"/>
+    <property name="freemarkerConfig" ref="freemarkerConfig"/>
     <property name="feedbackEmailMap">
       <map>
         <entry key="text" value="feedback-text.ftl"/>
@@ -520,4 +532,16 @@
     <property name="cache" ref="taxonomyCache"/>
   </bean>
 
+  <bean id="importUsersService" class="org.ambraproject.admin.service.impl.ImportUsersServiceImpl">
+    <property name="sessionFactory" ref="hibernateSessionFactory"/>
+  </bean>
+
+    <!--<property name="registrationEmailMap">-->
+        <!--<map>-->
+            <!--<entry key="text" value="verifyEmail-text.ftl"/>-->
+            <!--<entry key="html" value="verifyEmail-html.ftl"/>-->
+            <!--<entry key="url" value="${ambra.services.registration.url.base}/emailVerification.action"/>-->
+            <!--<entry key="subject" value="${ambra.services.registration.verificationMessage}"/>-->
+        <!--</map>-->
+    <!--</property>-->
 </beans>

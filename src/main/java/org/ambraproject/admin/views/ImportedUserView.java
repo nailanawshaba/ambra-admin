@@ -19,17 +19,18 @@
 package org.ambraproject.admin.views;
 
 /**
- * TODO: Write me
+ * Used for importing new users
  */
-public class UserProfileView {
+public class ImportedUserView {
   private final String email;
   private final String givenNames;
   private final String surName;
   private final String displayName;
   private final String city;
   private String status;
+  private String token;
 
-  private UserProfileView(final Builder builder) {
+  private ImportedUserView(final Builder builder) {
     this.email = builder.email;
     this.givenNames = builder.givenNames;
     this.surName = builder.surName;
@@ -61,6 +62,42 @@ public class UserProfileView {
 
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public String getToken() {
+    return token;
+  }
+
+  public void setToken(String token) {
+    this.token = token;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ImportedUserView that = (ImportedUserView) o;
+
+    if (city != null ? !city.equals(that.city) : that.city != null) return false;
+    if (!displayName.equals(that.displayName)) return false;
+    if (!email.equals(that.email)) return false;
+    if (!givenNames.equals(that.givenNames)) return false;
+    if (status != null ? !status.equals(that.status) : that.status != null) return false;
+    if (!surName.equals(that.surName)) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = email.hashCode();
+    result = 31 * result + givenNames.hashCode();
+    result = 31 * result + surName.hashCode();
+    result = 31 * result + displayName.hashCode();
+    result = 31 * result + (city != null ? city.hashCode() : 0);
+    result = 31 * result + (status != null ? status.hashCode() : 0);
+    return result;
   }
 
   public static Builder builder() {
@@ -103,8 +140,8 @@ public class UserProfileView {
       return this;
     }
 
-    public UserProfileView build() {
-      return new UserProfileView(this);
+    public ImportedUserView build() {
+      return new ImportedUserView(this);
     }
   }
 

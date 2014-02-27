@@ -19,7 +19,7 @@
 package org.ambraproject.user.action;
 
 import org.ambraproject.admin.action.BaseAdminActionSupport;
-import org.ambraproject.admin.views.UserProfileView;
+import org.ambraproject.admin.views.ImportedUserView;
 import org.ambraproject.models.UserProfile;
 import org.ambraproject.models.UserRole;
 import org.ambraproject.service.user.UserService;
@@ -27,35 +27,46 @@ import org.apache.struts2.ServletActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO: Write me
+ * Allow the user to set up roles to be assigned to the new accounts
  */
 public class ImportUsersPermissionsAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersPermissionsAction.class);
 
   private UserService userService;
   private int accountsToImport = 0;
+  private Long[] hashCodes;
   private Set<UserRole> userRoles;
 
   @Override
   public String execute() {
     Map<String, Object> session = ServletActionContext.getContext().getSession();
 
-    List<UserProfileView> users = (List<UserProfileView>)session.get(IMPORT_USER_LIST);
-    accountsToImport = users.size();
+    List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
+    List<Long> hashCodeList = Arrays.asList(hashCodes);
 
-    //TODO: Place selections from last screen in session
-    //TODO: Adjust count;
+    for(ImportedUserView user : users) {
+      if(!hashCodeList.contains(Long.valueOf(user.hashCode()))) {
+        //TODO: MOVE to a constant or an ENUM?
+        user.setStatus("IGNORE");
+      }
+    }
+
+    accountsToImport = hashCodes.length;
 
     UserProfile userProfile = userService.getUserByAuthId(this.getAuthId());
     userRoles = userProfile.getRoles();
 
     return SUCCESS;
+  }
+
+  public void setHashCodes(Long[] hashCodes) {
+    this.hashCodes = hashCodes;
   }
 
   public Set<UserRole> getUserRoles() {

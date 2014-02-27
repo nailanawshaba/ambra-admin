@@ -19,22 +19,59 @@
 package org.ambraproject.user.action;
 
 import org.ambraproject.admin.action.BaseAdminActionSupport;
+import org.apache.commons.io.IOUtils;
+import org.apache.struts2.ServletActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
- * TODO: Write me
+ * Presents the user with a sample email to send the user during account creation.  The user can override the contents
+ * of the email
  */
 public class ImportUsersEmailAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersEmailAction.class);
 
-  @Override
-  public String execute() {
+  private long[] roleIDs;
 
-    //TODO: Place selections from last screen in session
-    //TODO: get default text of email
+  //TODO: Config value?
+  private String subject = "TODO: Fill me in";
+  private String htmlBody;
+  private String textBody;
+
+  @Override
+  public String execute() throws IOException {
+    Map<String, Object> session = ServletActionContext.getContext().getSession();
+
+    session.put(IMPORT_USER_LIST_PERMISSIONS, this.roleIDs);
+
+    htmlBody = loadResource("email/templates/newAccountEmail-html.ftl");
+    textBody = loadResource("email/templates/newAccountEmail-text.ftl");
 
     return SUCCESS;
+  }
+
+  private String loadResource(String location) throws IOException {
+    InputStream is = this.getClass().getClassLoader().getResourceAsStream(location);
+    return IOUtils.toString(is);
+  }
+
+  public void setRoleIDs(long[] roleIDs) {
+    this.roleIDs = roleIDs;
+  }
+
+  public String getSubject() {
+    return subject;
+  }
+
+  public String getHtmlBody() {
+    return htmlBody;
+  }
+
+  public String getTextBody() {
+    return textBody;
   }
 }
 

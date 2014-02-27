@@ -23,7 +23,7 @@ import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.googlecode.jcsv.reader.CSVReader;
 import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
-import org.ambraproject.admin.views.UserProfileView;
+import org.ambraproject.admin.views.ImportedUserView;
 import org.apache.struts2.ServletActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,14 @@ import java.util.Map;
 /**
  * Action to support uploading of a file/CSV of users
  *
- * TODO: Write me
+ * Accepts a CSV in a very specific format
+ *
+ * Stores these new users in session and begins to walk the user through the user flow of creating new accounts.
+ *
+ * Note: One day we should enhance this to display a paged form for larger uploads.  To keep this initial release simple
+ * I always assume the upload CSV will be relatively small (less then a few hundred accounts)
+ *
+ * TODO: Refine / define format
  */
 public class ImportUsersUploadAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersUploadAction.class);
@@ -48,16 +55,15 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
   private String contentType;
   private String filename;
 
-  List<UserProfileView> users;
+  List<ImportedUserView> users;
 
   @Override
   @SuppressWarnings("unchecked")
   public String execute() {
-    //TODO: Display paged form for larger uploads
     Map<String, Object> session = ServletActionContext.getContext().getSession();
 
     try {
-      CSVReader<UserProfileView> csvParser = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(file)))
+      CSVReader<ImportedUserView> csvParser = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(file)))
         .strategy(new CSVStrategy(',', '\"', '#', true, true))
         .entryParser(new UserProfileViewParser())
         .build();
@@ -66,10 +72,11 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
 
       log.debug("Parsed {} records", users.size());
 
-      for(UserProfileView userProfileView : users) {
+      for(ImportedUserView userProfileView : users) {
         //TODO: Confirm items in list are valid:
+        //TODO: Confirm email does not appear twice in list
         //Can be "DUPE EMAIL", DUPE "Display Name", OR "OK TO IMPORT"
-        userProfileView.setStatus("GO TO GO");
+        userProfileView.setStatus("GOOD TO GO");
       }
 
       session.put(IMPORT_USER_LIST, users);
@@ -93,19 +100,18 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
   /**
    * A parser class for the csv engine
    */
-  private class UserProfileViewParser implements CSVEntryParser<UserProfileView> {
-    public UserProfileView parseEntry(String[] line) {
-      //TODO: Make structure of file more sane
+  private class UserProfileViewParser implements CSVEntryParser<ImportedUserView> {
+    public ImportedUserView parseEntry(String[] line) {
       //TODO: How do we handle EM Ids and make sure systems are linked?
       //TODO: Do we need to store their EM user names for disambiguation?
       if(line.length != 10) {
         throw new UserProfileParserException("Bad CSV received, wrong number of columns: " + line.length);
       } else {
-        return UserProfileView.builder()
+        return ImportedUserView.builder()
           .setEmail(line[0])
           .setSurName(line[1])
           .setGivenNames(line[2])
-          //TODO: Set Display name to be the first and last names concatonated
+          //TODO: Set Display name to be the first and last names once file format is more defined
           .setDisplayName(line[3])
           .setCity(line[9])
           .build();
@@ -119,7 +125,7 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
     }
   }
 
-  public List<UserProfileView> getUsers() {
+  public List<ImportedUserView> getUsers() {
     return users;
   }
 
