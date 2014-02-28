@@ -158,30 +158,4 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
     //now delete the annotation
     hibernateTemplate.delete(annotation);
   }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public void convertToType(AnnotationType newType, Long... flagIds) {
-    List<Flag> flags = hibernateTemplate.findByCriteria(
-        DetachedCriteria.forClass(Flag.class)
-            .add(Restrictions.in("ID", flagIds))
-            .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-    );
-
-    for (Flag flag : flags) {
-      Annotation annotation = flag.getFlaggedAnnotation();
-      annotation.setType(newType);
-      log.debug("Converting annotation {} to {}", annotation.getID(), newType);
-
-      if (annotation.getAnnotationCitation() != null) {
-        //if this is already a correction and we're converting back to a note, delete the citation
-        hibernateTemplate.delete(annotation.getAnnotationCitation());
-        annotation.setAnnotationCitation(null);
-      }
-
-      hibernateTemplate.delete(flag);
-      hibernateTemplate.update(annotation);
-      articleHtmlCache.remove(getArticleDoi(annotation));
-    }
-  }
 }

@@ -15,7 +15,6 @@ package org.ambraproject.admin.service.impl;
 
 import org.ambraproject.admin.service.AdminAnnotationService;
 import org.ambraproject.models.Annotation;
-import org.ambraproject.models.AnnotationCitation;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,31 +43,6 @@ public class AdminAnnotationServiceImpl extends HibernateServiceImpl implements 
     storedAnnotation.setTitle(properties.getTitle());
     storedAnnotation.setBody(properties.getBody());
     storedAnnotation.setCompetingInterestBody(properties.getCompetingInterestBody());
-
-    if (storedAnnotation.getAnnotationCitation() != null && properties.getAnnotationCitation() != null) {
-      AnnotationCitation storedCitation = storedAnnotation.getAnnotationCitation();
-      AnnotationCitation newCitation = properties.getAnnotationCitation();
-      storedCitation.setTitle(newCitation.getTitle());
-      storedCitation.setVolume(newCitation.getVolume());
-      storedCitation.setIssue(newCitation.getIssue());
-      storedCitation.setJournal(newCitation.getJournal());
-
-      storedCitation.setPublisher(newCitation.getPublisher());
-      storedCitation.setYear(newCitation.getYear());
-      storedCitation.setELocationId(newCitation.getELocationId());
-      storedCitation.setUrl(newCitation.getUrl());
-      storedCitation.setNote(newCitation.getNote());
-      storedCitation.setSummary(newCitation.getSummary());
-
-      storedCitation.getCollaborativeAuthors().clear();
-      if (newCitation.getCollaborativeAuthors() != null) {
-        storedCitation.getCollaborativeAuthors().addAll(newCitation.getCollaborativeAuthors());
-      }
-      storedCitation.getAuthors().clear();
-      if (newCitation.getAuthors() != null) {
-        storedCitation.getAuthors().addAll(newCitation.getAuthors());
-      }
-    }
 
     hibernateTemplate.update(storedAnnotation); //cascade updates to citation
 
