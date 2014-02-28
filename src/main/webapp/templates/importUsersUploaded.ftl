@@ -51,7 +51,7 @@
         <td>${user.displayName}</td>
         <td>${user.email}</td>
         <td>${user.city}</td>
-        <td>${user.status}</td>
+        <td>${user.state}</td>
       </tr>
     </#list>
   </table>

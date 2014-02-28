@@ -318,6 +318,9 @@
     </action>
 
     <action name="importUsersComplete" class="org.ambraproject.user.action.ImportUsersCompleteAction">
+      <result name="input" type="freemarker">
+        <param name="location">/templates/importUsersEmail.ftl</param>
+      </result>
       <result name="success" type="freemarker">
         <param name="location">/templates/importUsersComplete.ftl</param>
       </result>

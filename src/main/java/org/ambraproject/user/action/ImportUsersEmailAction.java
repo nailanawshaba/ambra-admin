@@ -36,8 +36,8 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
 
   private long[] roleIDs;
 
-  //TODO: Config value?
-  private String subject = "TODO: Fill me in";
+  private String subject;
+  private String emailFrom;
   private String htmlBody;
   private String textBody;
 
@@ -45,8 +45,16 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
   public String execute() throws IOException {
     Map<String, Object> session = ServletActionContext.getContext().getSession();
 
+    if(this.roleIDs != null) {
+      for(long roleID : this.roleIDs) {
+        log.debug("New users will be assigned RoleID : {}", roleID);
+      }
+    }
+
     session.put(IMPORT_USER_LIST_PERMISSIONS, this.roleIDs);
 
+    subject = configuration.getString("ambra.services.importUsers.defaultEmailTitle");
+    emailFrom = configuration.getString("ambra.services.importUsers.defaultFromEmail");
     htmlBody = loadResource("email/templates/newAccountEmail-html.ftl");
     textBody = loadResource("email/templates/newAccountEmail-text.ftl");
 
@@ -64,6 +72,10 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
 
   public String getSubject() {
     return subject;
+  }
+
+  public String getEmailFrom() {
+    return emailFrom;
   }
 
   public String getHtmlBody() {

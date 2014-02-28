@@ -22,12 +22,19 @@ package org.ambraproject.admin.views;
  * Used for importing new users
  */
 public class ImportedUserView {
+  public enum USER_STATES {
+    VALID,
+    DUPE_EMAIL,
+    DUPE_DISPLAYNAME,
+    IGNORE
+  }
+
   private final String email;
   private final String givenNames;
   private final String surName;
   private final String displayName;
   private final String city;
-  private String status;
+  private USER_STATES state;
   private String token;
 
   private ImportedUserView(final Builder builder) {
@@ -58,10 +65,10 @@ public class ImportedUserView {
     return city;
   }
 
-  public String getStatus() { return status; }
+  public USER_STATES getState() { return this.state; }
 
-  public void setStatus(String status) {
-    this.status = status;
+  public void setState(USER_STATES state) {
+    this.state = state;
   }
 
   public String getToken() {
@@ -83,7 +90,7 @@ public class ImportedUserView {
     if (!displayName.equals(that.displayName)) return false;
     if (!email.equals(that.email)) return false;
     if (!givenNames.equals(that.givenNames)) return false;
-    if (status != null ? !status.equals(that.status) : that.status != null) return false;
+    if (state != null ? !state.equals(that.state) : that.state != null) return false;
     if (!surName.equals(that.surName)) return false;
 
     return true;
@@ -96,7 +103,7 @@ public class ImportedUserView {
     result = 31 * result + surName.hashCode();
     result = 31 * result + displayName.hashCode();
     result = 31 * result + (city != null ? city.hashCode() : 0);
-    result = 31 * result + (status != null ? status.hashCode() : 0);
+    result = 31 * result + (state != null ? state.hashCode() : 0);
     return result;
   }
 

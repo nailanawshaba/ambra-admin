@@ -24,9 +24,12 @@ import com.googlecode.jcsv.reader.CSVReader;
 import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.views.ImportedUserView;
+import org.ambraproject.models.UserProfile;
+import org.ambraproject.search.service.SearchUserService;
 import org.apache.struts2.ServletActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,6 +54,8 @@ import java.util.Map;
 public class ImportUsersUploadAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersUploadAction.class);
 
+  private SearchUserService searchUserService;
+
   private File file;
   private String contentType;
   private String filename;
@@ -72,11 +77,36 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
 
       log.debug("Parsed {} records", users.size());
 
-      for(ImportedUserView userProfileView : users) {
-        //TODO: Confirm items in list are valid:
-        //TODO: Confirm email does not appear twice in list
-        //Can be "DUPE EMAIL", DUPE "Display Name", OR "OK TO IMPORT"
-        userProfileView.setStatus("GOOD TO GO");
+      for(ImportedUserView importUserView : users) {
+        //Confirm items in list are valid
+        ImportedUserView.USER_STATES state = ImportedUserView.USER_STATES.VALID;
+
+        //Confirm email is not already in the database
+        List<UserProfile> matchingUsers = searchUserService.findUsersByEmail(importUserView.getEmail());
+        if(!matchingUsers.isEmpty()) {
+          state = ImportedUserView.USER_STATES.DUPE_EMAIL;
+        }
+
+        //Confirm display name is not already in the database
+        matchingUsers = searchUserService.findUsersByDisplayName(importUserView.getDisplayName());
+        if(!matchingUsers.isEmpty()) {
+          state = ImportedUserView.USER_STATES.DUPE_DISPLAYNAME;
+        }
+
+        //Confirm display and email are unique for the given set
+        for(ImportedUserView importUserView2 : users) {
+          if(importUserView2.hashCode() != importUserView.hashCode()) {
+            if(importUserView2.getEmail().equals(importUserView.getEmail())) {
+              state = ImportedUserView.USER_STATES.DUPE_EMAIL;
+            }
+
+            if(importUserView2.getDisplayName().equals(importUserView.getDisplayName())) {
+              state = ImportedUserView.USER_STATES.DUPE_DISPLAYNAME;
+            }
+          }
+        }
+
+        importUserView.setState(state);
       }
 
       session.put(IMPORT_USER_LIST, users);
@@ -108,12 +138,12 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
         throw new UserProfileParserException("Bad CSV received, wrong number of columns: " + line.length);
       } else {
         return ImportedUserView.builder()
-          .setEmail(line[0])
-          .setSurName(line[1])
-          .setGivenNames(line[2])
+          .setEmail(line[0].trim())
+          .setSurName(line[1].trim())
+          .setGivenNames(line[2].trim())
           //TODO: Set Display name to be the first and last names once file format is more defined
-          .setDisplayName(line[3])
-          .setCity(line[9])
+          .setDisplayName(line[3].trim())
+          .setCity(line[9].trim())
           .build();
       }
     }
@@ -139,5 +169,10 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
 
   public void setFileFileName(String filename) {
     this.filename = filename;
+  }
+
+  @Required
+  public void setSearchUserService(SearchUserService searchUserService) {
+    this.searchUserService = searchUserService;
   }
 }

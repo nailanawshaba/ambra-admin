@@ -221,6 +221,11 @@
           <field displayName="Abstract">abstract</field>
         </keywordFields>
       </search>
+
+      <importUsers>
+        <defaultEmailTitle>A new Ambra account has been created</defaultEmailTitle>
+        <defaultFromEmail>admin@foo.org</defaultFromEmail>
+      </importUsers>
     </services>
     <articleTypeList>
       <articleType>

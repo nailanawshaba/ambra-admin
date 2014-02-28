@@ -50,6 +50,7 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
   private Configuration freeMarkerConfig;
 
   private String subject;
+  private String emailFrom;
   private String htmlBody;
   private String textBody;
 
@@ -60,13 +61,32 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
     long[] roleIDs = (long[])session.get(IMPORT_USER_LIST_PERMISSIONS);
 
-    //TODO: Validate freemarker in both templates
-    Template textTemplate = new Template("textMail", new StringReader(textBody), freeMarkerConfig);
-    Template htmlTemplate = new Template("htmlMail", new StringReader(htmlBody), freeMarkerConfig);
+    Template textTemplate = null;
+    Template htmlTemplate = null;
+
+    //TODO: Validate input freemarker in both templates, make sure has the right variables?
+    try {
+      textTemplate = new Template("textMail", new StringReader(textBody), freeMarkerConfig);
+    } catch(Exception ex) {
+      log.error(ex.getMessage(), ex);
+      //Would like to just pass the exception message, but it's obnoxiously large
+      addFieldError("textBody", "Invalid freemarker syntax");
+    }
+
+    try {
+      htmlTemplate = new Template("htmlMail", new StringReader(htmlBody), freeMarkerConfig);
+    } catch(Exception ex) {
+      log.error(ex.getMessage(), ex);
+      //Would like to just pass the exception message, but it's obnoxiously large
+      addFieldError("htmlBody", "Invalid freemarker syntax");
+    }
+
+    if(this.hasFieldErrors()) {
+      return INPUT;
+    }
 
     for(ImportedUserView user : users) {
-      //TODO: Move to a constant
-      if(user.getStatus().equals("GOOD TO GO")) {
+      if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
         user = importUsersService.saveAccount(user, roleIDs);
         sendEmailInvite(user, textTemplate, htmlTemplate);
       }
@@ -89,17 +109,36 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     fieldMap.put("email", user.getEmail());
 
     Multipart content = mailer.createContent(textTemplate, htmlTemplate, fieldMap);
-
-    //TODO fix from address
-    mailer.mail(user.getEmail(), "from@todo.com", this.subject, fieldMap, content);
+    mailer.mail(user.getEmail(), this.emailFrom, this.subject, fieldMap, content);
   }
 
+  //TODO: Input validation
   public void setSubject(String subject) {
     this.subject = subject;
   }
 
+  public String getSubject() {
+    return subject;
+  }
+
+  public String getEmailFrom() {
+    return emailFrom;
+  }
+
+  public void setEmailFrom(String emailFrom) {
+    this.emailFrom = emailFrom;
+  }
+
+  public String getHtmlBody() {
+    return htmlBody;
+  }
+
   public void setHtmlBody(String htmlBody) {
     this.htmlBody = htmlBody;
+  }
+
+  public String getTextBody() {
+    return textBody;
   }
 
   public void setTextBody(String textBody) {

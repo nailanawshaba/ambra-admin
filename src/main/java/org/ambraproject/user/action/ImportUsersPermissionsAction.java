@@ -52,8 +52,8 @@ public class ImportUsersPermissionsAction extends BaseAdminActionSupport {
 
     for(ImportedUserView user : users) {
       if(!hashCodeList.contains(Long.valueOf(user.hashCode()))) {
-        //TODO: MOVE to a constant or an ENUM?
-        user.setStatus("IGNORE");
+        user.setState(ImportedUserView.USER_STATES.IGNORE);
+        log.debug("Ignoring user: {}", user.getDisplayName());
       }
     }
 
