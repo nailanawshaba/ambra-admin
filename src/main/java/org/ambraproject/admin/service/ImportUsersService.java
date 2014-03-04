@@ -18,7 +18,12 @@
  */
 package org.ambraproject.admin.service;
 
+import freemarker.template.Template;
 import org.ambraproject.admin.views.ImportedUserView;
+import org.ambraproject.admin.views.UserRoleView;
+
+import javax.mail.MessagingException;
+import java.io.IOException;
 
 /**
  * Method for creating new users automatically from a list / CSV
@@ -39,4 +44,25 @@ public interface ImportUsersService {
    * @return the userView (modified)
    */
   public ImportedUserView saveAccount(ImportedUserView user, long[] roleIDs);
+
+  /**
+   * Get a view of a user role record
+   *
+   * @param roleID
+
+   * @return immutable view of user role
+   */
+  public UserRoleView getRole(long roleID);
+
+  /**
+   * Send the the current user view the passed in email templates
+   *
+   * @param user
+   * @param emailFrom
+   * @param subject
+   * @param textTemplate
+   * @param htmlTemplate
+   */
+  public void sendEmailInvite(ImportedUserView user, String emailFrom, String subject, Template textTemplate, Template htmlTemplate)
+    throws IOException, MessagingException;
 }

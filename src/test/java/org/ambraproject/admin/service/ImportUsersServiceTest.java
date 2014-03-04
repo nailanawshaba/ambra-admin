@@ -20,6 +20,7 @@ package org.ambraproject.admin.service;
 
 import org.ambraproject.admin.AdminBaseTest;
 import org.ambraproject.admin.views.ImportedUserView;
+import org.ambraproject.admin.views.UserRoleView;
 import org.ambraproject.models.UserProfile;
 import org.ambraproject.models.UserRole;
 import org.hibernate.criterion.DetachedCriteria;
@@ -30,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 /*
 * Test the import users service
@@ -73,5 +75,23 @@ public class ImportUsersServiceTest extends AdminBaseTest {
     assertNotNull(userList.get(0).getAuthId());
     assertNotNull(userList.get(0).getPassword());
     assertNotNull(userList.get(0).getVerificationToken());
+  }
+
+  @Test
+  public void setImportUsersServiceGetRole() {
+    UserRole role = new UserRole();
+
+    role.setRoleName("ROLENAME");
+    dummyDataStore.store(role);
+
+    UserRoleView userRoleView = importUsersService.getRole(role.getID());
+
+    assertEquals(userRoleView.getID(), role.getID());
+    assertEquals(userRoleView.getRoleName(), role.getRoleName());
+    assertEquals(userRoleView.getAssigned(), false);
+
+    //Test to make sure bad role ID is handled
+    userRoleView = importUsersService.getRole(40404);
+    assertNull(userRoleView);
   }
 }

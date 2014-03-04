@@ -534,6 +534,8 @@
 
   <bean id="importUsersService" class="org.ambraproject.admin.service.impl.ImportUsersServiceImpl">
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
+    <property name="mailer" ref="ambraMailer"/>
+    <property name="configuration" ref="ambraConfiguration"/>
   </bean>
 
     <!--<property name="registrationEmailMap">-->
