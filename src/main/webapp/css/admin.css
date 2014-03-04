@@ -83,5 +83,7 @@ fieldset.syndicationHistory span.failure, table.syndications span.failure { padd
 
 form#importUsersComplete li { list-style: none; }
 form#importUsersComplete li label { display: block; }
+form#importUsersComplete fieldset li.form-error span.fieldError { display: block; }
+form#importUsersComplete fieldset li.form-error { padding-bottom: 15px; }
+.form-error { color: red; }
 
-.form-error { color: red }
