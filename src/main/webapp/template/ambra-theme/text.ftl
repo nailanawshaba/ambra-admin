@@ -22,7 +22,7 @@
     <#include "/${parameters.templateDir}/${parameters.theme}/text-core.ftl" /><#nt/>
 <#if hasFieldErrors>
 <#list fieldErrors[parameters.name] as error>
-${error?html}
+<span class="fieldError">${error?html}</span>
 </#list>
 </#if>
 <#include "/${parameters.templateDir}/${parameters.theme}/controlfooter.ftl" /><#lt/>
