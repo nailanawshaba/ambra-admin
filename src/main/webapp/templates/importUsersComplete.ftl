@@ -29,9 +29,13 @@
 <#--<@messages />-->
 
 <fieldset>
-  <legend><b>${accountsToImport} New accounts to created!</b></legend>
+  <legend><b>${accountsToImported} New accounts to created!</b></legend>
 
-  <b>These roles were assigned: <#list userRoles as role>${role.roleName}<#if role_has_next>, </#if></#list></b><br/>
+  <#if userRoles?size gt 0>
+    <b>These roles were assigned: <#list userRoles as role>${role.roleName}<#if role_has_next>, </#if></#list></b>
+  <#else>
+    <b>No roles were assigned</b>
+  </#if><br/>
 
   <b>Password reset emails have been sent!</b><br/>
 

@@ -34,7 +34,7 @@
 
   <table>
     <tr>
-      <td>&nbsp;</td>
+      <td>Import?</td>
       <th>First Name</th>
       <th>Last Name</th>
       <th>Display Name</th>

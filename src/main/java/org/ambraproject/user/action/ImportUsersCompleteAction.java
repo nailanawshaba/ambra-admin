@@ -52,6 +52,7 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
   private ImportUsersService importUsersService;
   private Configuration freeMarkerConfig;
 
+  private int accountsToImported = 0;
   private String subject;
   private String emailFrom;
   private String htmlBody;
@@ -64,6 +65,11 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
 
     long[] roleIDs = new long[] {};
     List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
+
+    if(users == null) {
+      addActionError("No users to import found in session, please start again to import the list of users.");
+      return INPUT;
+    }
 
     if(session.get(IMPORT_USER_LIST_PERMISSIONS) != null) {
       roleIDs = (long[])session.get(IMPORT_USER_LIST_PERMISSIONS);
@@ -100,6 +106,7 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
       if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
         user = importUsersService.saveAccount(user, roleIDs);
         importUsersService.sendEmailInvite(user, this.emailFrom, this.subject, textTemplate, htmlTemplate);
+        accountsToImported++;
       }
     }
 
@@ -126,8 +133,8 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
       addFieldError(field, field + " is missing ${email?url} variable, email will not function correctly.");
     }
 
-    if(!text.contains("${verificationToken}")) {
-      addFieldError(field, field + " is missing ${verificationToken} variable, email will not function correctly.");
+    if(!text.contains("${verificationToken?url}")) {
+      addFieldError(field, field + " is missing ${verificationToken?url} variable, email will not function correctly.");
     }
   }
 
@@ -181,6 +188,10 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     }
 
     return accountsToImport;
+  }
+
+  public int getAccountsToImported() {
+    return accountsToImported;
   }
 
   @Required

@@ -26,21 +26,18 @@
 <h1 style="text-align: center">Ambra: Administration: Manage Users</h1>
 <#include "includes/navigation.ftl">
 
-<#--<@messages />-->
+<@messages />
 
 <@s.form name="importUsersComplete" action="importUsersComplete" method="post" namespace="/">
 <fieldset>
-  <legend><b>${accountsToImport} New accounts to create:</b></legend>
+  <legend><b>${accountsToImport!0} New accounts to create:</b></legend>
 
   <b>Send a password reset message</b><br/>
   <br/>
 
   <@s.textfield name="subject" label="Email Title" size="50" value="${subject}" /><br/>
-
   <@s.textfield name="emailFrom" label="Email From" size="25" value="${emailFrom}" /><br/>
-
   <@s.textarea name="htmlBody" rows="15" cols="120" label="Email HTML Body" value="${htmlBody}"/>
-
   <@s.textarea name="textBody" rows="15" cols="120" label="Email Text Body" value="${textBody}"/>
 
   <@s.submit value="Save" />
