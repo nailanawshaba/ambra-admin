@@ -64,8 +64,6 @@
   <@s.submit value="Next" />
 </fieldset>
 
-
-
 </@s.form>
 
 </body>

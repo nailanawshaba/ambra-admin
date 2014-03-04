@@ -26,18 +26,15 @@ import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.service.ImportUsersService;
 import org.ambraproject.admin.views.ImportedUserView;
 import org.ambraproject.admin.views.UserRoleView;
-import org.ambraproject.email.TemplateMailer;
 import org.apache.camel.spi.Required;
 import org.apache.struts2.ServletActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

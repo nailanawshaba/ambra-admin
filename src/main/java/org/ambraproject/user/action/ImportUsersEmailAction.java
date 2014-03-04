@@ -18,7 +18,6 @@
  */
 package org.ambraproject.user.action;
 
-import com.opensymphony.xwork2.validator.annotations.RequiredStringValidator;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.views.ImportedUserView;
 import org.apache.commons.io.IOUtils;
