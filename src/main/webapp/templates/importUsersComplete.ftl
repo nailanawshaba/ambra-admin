@@ -31,7 +31,7 @@
 <fieldset>
   <legend><b>${accountsToImport} New accounts to created!</b></legend>
 
-  <b>These roles were assigned: FOO, FOO</b><br/>
+  <b>These roles were assigned: <#list userRoles as role>${role.roleName}<#if role_has_next>, </#if></#list></b><br/>
 
   <b>Password reset emails have been sent!</b><br/>
 

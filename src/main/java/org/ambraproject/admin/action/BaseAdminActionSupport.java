@@ -29,9 +29,9 @@ import org.springframework.beans.factory.annotation.Required;
 public class BaseAdminActionSupport extends BaseActionSupport {
   protected static final String IMPORT_USER_LIST = "IMPORT_USER_LIST";
   protected static final String IMPORT_USER_LIST_PERMISSIONS = "IMPORT_USER_LIST_PERMISSIONS";
-  protected static final String IMPORT_PROFILE_PASSWORD_URL = "ambra.services.registration.url.change-password-imported-profile";
   protected static final String IMPORT_USERS_EMAIL_TITLE = "ambra.services.importUsers.defaultEmailTitle";
   protected static final String IMPORT_USERS_EMAIL_FROM = "ambra.services.importUsers.defaultFromEmail";
+  protected static final String EMAIL_REGEX = "^[a-zA-Z0-9!#$%&?'`{|/}*+=^._~-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
 
   protected AdminService adminService;
 

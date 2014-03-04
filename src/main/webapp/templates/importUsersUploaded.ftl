@@ -34,8 +34,7 @@
 
   <table>
     <tr>
-      <#-- TODO: Only allow checks for items that have a 'good' status -->
-      <td><a name="hashCode" id="checkAll">Check / Uncheck all</a></td>
+      <td>&nbsp;</td>
       <th>First Name</th>
       <th>Last Name</th>
       <th>Display Name</th>

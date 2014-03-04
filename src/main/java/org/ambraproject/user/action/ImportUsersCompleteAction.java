@@ -18,12 +18,14 @@
  */
 package org.ambraproject.user.action;
 
+import com.opensymphony.xwork2.validator.annotations.RegexFieldValidator;
 import com.opensymphony.xwork2.validator.annotations.RequiredStringValidator;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.service.ImportUsersService;
 import org.ambraproject.admin.views.ImportedUserView;
+import org.ambraproject.admin.views.UserRoleView;
 import org.ambraproject.email.TemplateMailer;
 import org.apache.camel.spi.Required;
 import org.apache.struts2.ServletActionContext;
@@ -34,6 +36,7 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,13 +50,13 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersCompleteAction.class);
 
   private ImportUsersService importUsersService;
-  private TemplateMailer mailer;
   private Configuration freeMarkerConfig;
 
   private String subject;
   private String emailFrom;
   private String htmlBody;
   private String textBody;
+  private List<UserRoleView> userRoleViews = new ArrayList<UserRoleView>();
 
   @Override
   public String execute() throws IOException, MessagingException {
@@ -62,21 +65,14 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     long[] roleIDs = new long[] {};
     List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
 
-     if(session.get(IMPORT_USER_LIST_PERMISSIONS) != null) {
+    if(session.get(IMPORT_USER_LIST_PERMISSIONS) != null) {
       roleIDs = (long[])session.get(IMPORT_USER_LIST_PERMISSIONS);
     }
 
-    Template textTemplate = null;
     Template htmlTemplate = null;
+    Template textTemplate = null;
 
-    //TODO: Validate input freemarker in both templates, make sure has the right variables?
-    try {
-      textTemplate = new Template("textMail", new StringReader(textBody), freeMarkerConfig);
-    } catch(Exception ex) {
-      log.error(ex.getMessage(), ex);
-      //Would like to just pass the exception message, but it's obnoxiously large
-      addFieldError("textBody", "Invalid freemarker syntax");
-    }
+    checkEmailBody(htmlBody, "htmlBody");
 
     try {
       htmlTemplate = new Template("htmlMail", new StringReader(htmlBody), freeMarkerConfig);
@@ -86,6 +82,16 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
       addFieldError("htmlBody", "Invalid freemarker syntax");
     }
 
+    checkEmailBody(textBody, "textBody");
+
+    try {
+      textTemplate = new Template("textMail", new StringReader(textBody), freeMarkerConfig);
+    } catch(Exception ex) {
+      log.error(ex.getMessage(), ex);
+      //Would like to just pass the exception message, but it's obnoxiously large
+      addFieldError("textBody", "Invalid freemarker syntax");
+    }
+
     if(this.hasFieldErrors()) {
       return INPUT;
     }
@@ -93,7 +99,15 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     for(ImportedUserView user : users) {
       if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
         user = importUsersService.saveAccount(user, roleIDs);
-        sendEmailInvite(user, textTemplate, htmlTemplate);
+        importUsersService.sendEmailInvite(user, this.emailFrom, this.subject, textTemplate, htmlTemplate);
+      }
+    }
+
+    for(long roleID : roleIDs) {
+      UserRoleView view = importUsersService.getRole(roleID);
+
+      if(view != null) {
+        userRoleViews.add(view);
       }
     }
 
@@ -103,21 +117,20 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     return SUCCESS;
   }
 
-  private void sendEmailInvite(ImportedUserView user, Template textTemplate, Template htmlTemplate)
-    throws IOException, MessagingException {
+  private void checkEmailBody(String text, String field) {
+    if(!text.contains("${url}")) {
+      addFieldError(field, field + " is missing ${url} variable, email will not function correctly.");
+    }
 
-    Map<String, Object> fieldMap = new HashMap<String, Object>();
+    if(!text.contains("${email?url}")) {
+      addFieldError(field, field + " is missing ${email?url} variable, email will not function correctly.");
+    }
 
-    fieldMap.put("url", configuration.getString(IMPORT_PROFILE_PASSWORD_URL));
-    fieldMap.put("verificationToken", user.getToken());
-    fieldMap.put("displayName", user.getGivenNames() + " " + user.getSurName());
-    fieldMap.put("email", user.getEmail());
-
-    Multipart content = mailer.createContent(textTemplate, htmlTemplate, fieldMap);
-    mailer.mail(user.getEmail(), this.emailFrom, this.subject, fieldMap, content);
+    if(!text.contains("${verificationToken}")) {
+      addFieldError(field, field + " is missing ${verificationToken} variable, email will not function correctly.");
+    }
   }
 
-  //TODO: Input validation
   public void setSubject(String subject) {
     this.subject = subject;
   }
@@ -128,6 +141,7 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
   }
 
   @RequiredStringValidator(message="From email is missing")
+  @RegexFieldValidator(message = "You must enter a valid from email", regexExpression = EMAIL_REGEX)
   public String getEmailFrom() {
     return emailFrom;
   }
@@ -170,11 +184,6 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
   }
 
   @Required
-  public void setAmbraMailer(TemplateMailer ambraMailer) {
-    this.mailer = ambraMailer;
-  }
-
-  @Required
   public void setFreemarkerConfig(final FreeMarkerConfigurer freemarkerConfig) {
     this.freeMarkerConfig = freemarkerConfig.getConfiguration();
   }
@@ -182,6 +191,10 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
   @Required
   public void setImportUsersService(ImportUsersService importUsersService) {
     this.importUsersService = importUsersService;
+  }
+
+  public List<UserRoleView> getUserRoles() {
+    return userRoleViews;
   }
 }
 
