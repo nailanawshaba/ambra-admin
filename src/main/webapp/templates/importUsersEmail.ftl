@@ -30,9 +30,10 @@
 
 <@s.form name="importUsersComplete" action="importUsersComplete" method="post" namespace="/">
 <fieldset>
-  <legend><b>32 New accounts to create:</b></legend>
+  <legend><b>${accountsToImport} New accounts to create:</b></legend>
 
   <b>Send a password reset message</b><br/>
+  <br/>
 
   <@s.textfield name="subject" label="Email Title" size="50" value="${subject}" /><br/>
 

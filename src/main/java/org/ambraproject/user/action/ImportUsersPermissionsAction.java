@@ -60,6 +60,7 @@ public class ImportUsersPermissionsAction extends BaseAdminActionSupport {
     accountsToImport = hashCodes.length;
 
     UserProfile userProfile = userService.getUserByAuthId(this.getAuthId());
+    //Only allow the user to assign the new user roles that they belong to already
     userRoles = userProfile.getRoles();
 
     return SUCCESS;

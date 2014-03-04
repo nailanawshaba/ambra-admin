@@ -169,6 +169,7 @@
           <registration>${ambra.services.registration.url.base}/register.action</registration>
           <change-password>${ambra.services.registration.url.base}/changePassword.action</change-password>
           <change-email>${ambra.services.registration.url.base}/changeEmail.action</change-email>
+          <change-password-imported-profile>${ambra.services.registration.url.base}/importedProfileVerify.action</change-password-imported-profile>
         </url>
       </registration>
 

@@ -18,13 +18,16 @@
  */
 package org.ambraproject.user.action;
 
+import com.opensymphony.xwork2.validator.annotations.RequiredStringValidator;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
+import org.ambraproject.admin.views.ImportedUserView;
 import org.apache.commons.io.IOUtils;
 import org.apache.struts2.ServletActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +38,7 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersEmailAction.class);
 
   private long[] roleIDs;
+  private int accountsToImport = 0;
 
   private String subject;
   private String emailFrom;
@@ -44,8 +48,9 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
   @Override
   public String execute() throws IOException {
     Map<String, Object> session = ServletActionContext.getContext().getSession();
+    List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
 
-    if(this.roleIDs != null) {
+    if(log.isDebugEnabled() && this.roleIDs != null) {
       for(long roleID : this.roleIDs) {
         log.debug("New users will be assigned RoleID : {}", roleID);
       }
@@ -53,8 +58,14 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
 
     session.put(IMPORT_USER_LIST_PERMISSIONS, this.roleIDs);
 
-    subject = configuration.getString("ambra.services.importUsers.defaultEmailTitle");
-    emailFrom = configuration.getString("ambra.services.importUsers.defaultFromEmail");
+    for(ImportedUserView user : users) {
+      if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
+        accountsToImport++;
+      }
+    }
+
+    subject = configuration.getString(IMPORT_USERS_EMAIL_TITLE);
+    emailFrom = configuration.getString(IMPORT_USERS_EMAIL_FROM);
     htmlBody = loadResource("email/templates/newAccountEmail-html.ftl");
     textBody = loadResource("email/templates/newAccountEmail-text.ftl");
 
@@ -84,6 +95,10 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
 
   public String getTextBody() {
     return textBody;
+  }
+
+  public int getAccountsToImport() {
+    return accountsToImport;
   }
 }
 

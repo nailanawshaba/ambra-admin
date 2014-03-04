@@ -1,7 +1,7 @@
 <html>
 <body>
-Hello, <b>${name}</b>, a new account has been created for you.<br/>
-
+Hello, <b>${displayName}</b>, a new account has been created for you.<br/>
+<br/>
 Please click on <a href="${url}?email=${email?url}&amp;verificationToken=${verificationToken?url}">this link</a> to
 set your password:
 <br/><br/>

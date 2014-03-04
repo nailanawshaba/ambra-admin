@@ -81,5 +81,7 @@ fieldset.syndicationHistory span.pending, table.syndications span.pending { padd
 fieldset.syndicationHistory span.inprogress, table.syndications span.inprogress { padding-left: 20px; color: gray; background:url(../../images/icon_time.png) no-repeat 0 2px }
 fieldset.syndicationHistory span.failure, table.syndications span.failure { padding-left: 20px; color: red; background:url(../../images/icon_error.gif) no-repeat 0 0 }
 
+form#importUsersComplete li { list-style: none; }
+form#importUsersComplete li label { display: block; }
 
-
+.form-error { color: red }

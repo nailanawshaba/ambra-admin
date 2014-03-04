@@ -187,4 +187,8 @@
     <property name="permissionsService" ref="permissionsService"/>
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
+
+  <bean id="importUsersService" class="org.ambraproject.admin.service.impl.ImportUsersServiceImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
 </beans>

@@ -18,6 +18,7 @@
  */
 package org.ambraproject.user.action;
 
+import com.opensymphony.xwork2.validator.annotations.RequiredStringValidator;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
@@ -58,8 +59,12 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
   public String execute() throws IOException, MessagingException {
     Map<String, Object> session = ServletActionContext.getContext().getSession();
 
+    long[] roleIDs = new long[] {};
     List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
-    long[] roleIDs = (long[])session.get(IMPORT_USER_LIST_PERMISSIONS);
+
+     if(session.get(IMPORT_USER_LIST_PERMISSIONS) != null) {
+      roleIDs = (long[])session.get(IMPORT_USER_LIST_PERMISSIONS);
+    }
 
     Template textTemplate = null;
     Template htmlTemplate = null;
@@ -92,7 +97,8 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
       }
     }
 
-    //TODO: Clean up session
+    session.remove(IMPORT_USER_LIST_PERMISSIONS);
+    session.remove(IMPORT_USER_LIST);
 
     return SUCCESS;
   }
@@ -102,10 +108,9 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
 
     Map<String, Object> fieldMap = new HashMap<String, Object>();
 
-    //TODO: Put in real value for URL
-    fieldMap.put("url", "http://foo.org");
+    fieldMap.put("url", configuration.getString(IMPORT_PROFILE_PASSWORD_URL));
     fieldMap.put("verificationToken", user.getToken());
-    fieldMap.put("name", user.getGivenNames() + " " + user.getSurName());
+    fieldMap.put("displayName", user.getGivenNames() + " " + user.getSurName());
     fieldMap.put("email", user.getEmail());
 
     Multipart content = mailer.createContent(textTemplate, htmlTemplate, fieldMap);
@@ -117,10 +122,12 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     this.subject = subject;
   }
 
+  @RequiredStringValidator(message="Subject is missing")
   public String getSubject() {
     return subject;
   }
 
+  @RequiredStringValidator(message="From email is missing")
   public String getEmailFrom() {
     return emailFrom;
   }
@@ -129,6 +136,7 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     this.emailFrom = emailFrom;
   }
 
+  @RequiredStringValidator(message="HTML Body is missing")
   public String getHtmlBody() {
     return htmlBody;
   }
@@ -137,12 +145,28 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     this.htmlBody = htmlBody;
   }
 
+  @RequiredStringValidator(message="Text Body is missing")
   public String getTextBody() {
     return textBody;
   }
 
   public void setTextBody(String textBody) {
     this.textBody = textBody;
+  }
+
+  public int getAccountsToImport() {
+    Map<String, Object> session = ServletActionContext.getContext().getSession();
+    List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
+
+    int accountsToImport = 0;
+
+    for(ImportedUserView user : users) {
+      if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
+        accountsToImport++;
+      }
+    }
+
+    return accountsToImport;
   }
 
   @Required

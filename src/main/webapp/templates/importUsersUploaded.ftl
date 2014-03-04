@@ -45,7 +45,13 @@
     </tr>
     <#list users as user>
       <tr>
-        <td><input type="checkbox" name="hashCodes" label="User" value="${user.hashCode()?c}" checked="checked" /></td>
+        <td>
+          <#if user.state == "VALID">
+            <input type="checkbox" name="hashCodes" label="User" value="${user.hashCode()?c}" checked="checked" />
+          <#else>
+            <input type="checkbox" name="hashCodes" label="User" value="${user.hashCode()?c}" disabled />
+          </#if>
+        </td>
         <td>${user.givenNames}</td>
         <td>${user.surName}</td>
         <td>${user.displayName}</td>

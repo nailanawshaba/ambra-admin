@@ -26,10 +26,12 @@ import org.ambraproject.admin.views.ImportedUserView;
 public interface ImportUsersService {
 
   /**
-   * The new account to create and save
+   * Create a new account
    *
-   * Once the account is created, the authentication token is assigned to the passed in object
-   * and returned
+   * Once the account is created, the verification token is assigned to the passed in object
+   * and returned.
+   *
+   * The account is created with a dummy token as a password
    *
    * @param user the user to create
    * @param roleIDs the roleIDs to assign to the user

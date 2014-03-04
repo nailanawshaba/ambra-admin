@@ -23,6 +23,8 @@ import org.ambraproject.admin.views.ImportedUserView;
 import org.ambraproject.models.UserProfile;
 import org.ambraproject.models.UserRole;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
+import org.ambraproject.util.TokenGenerator;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +37,7 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
   /**
    * @inheritDoc
    */
+  @Transactional
   public ImportedUserView saveAccount(ImportedUserView user, long[] roleIDs) {
     UserProfile up = new UserProfile();
 
@@ -43,6 +46,7 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
     up.setCity(user.getCity());
     up.setEmail(user.getEmail());
     up.setDisplayName(user.getDisplayName());
+    up.setPassword(TokenGenerator.getUniqueToken());
 
     Set<UserRole> roles = new HashSet<UserRole>();
 
@@ -52,8 +56,7 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
 
     up.setRoles(roles);
 
-    //TODO: Implement me
-    //hibernateTemplate.save(up);
+    hibernateTemplate.save(up);
 
     //Return user with the created token
     user.setToken(up.getVerificationToken());
@@ -62,9 +65,7 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
   }
 
   private UserRole getRole(long roleID) {
-    return null;
-    //TODO: Fix this
-    //return hibernateTemplate.load(UserRole.class, roleID);
+    return hibernateTemplate.load(UserRole.class, roleID);
   }
 }
 

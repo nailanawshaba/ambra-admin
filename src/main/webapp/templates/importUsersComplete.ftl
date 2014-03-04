@@ -29,7 +29,7 @@
 <#--<@messages />-->
 
 <fieldset>
-  <legend><b>32 New accounts to created!</b></legend>
+  <legend><b>${accountsToImport} New accounts to created!</b></legend>
 
   <b>These roles were assigned: FOO, FOO</b><br/>
 
