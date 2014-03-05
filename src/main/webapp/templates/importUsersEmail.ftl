@@ -40,7 +40,7 @@
   <@s.textarea name="htmlBody" rows="15" cols="120" label="Email HTML Body" value="${htmlBody}"/>
   <@s.textarea name="textBody" rows="15" cols="120" label="Email Text Body" value="${textBody}"/>
 
-  <@s.submit value="Save" />
+  <@s.submit value="Save Accounts and Send Emails" />
 </fieldset>
 </@s.form>
 

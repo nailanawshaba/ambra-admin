@@ -32,15 +32,16 @@
 <fieldset>
   <legend><b>New accounts to create:</b></legend>
 
-  <table>
+  <table id="userImport">
     <tr>
       <td>Import?</td>
+      <th>Email</th>
       <th>First Name</th>
       <th>Last Name</th>
       <th>Display Name</th>
-      <th>Email</th>
       <th>City</th>
       <th>Status</th>
+      <th>Meta data</th>
     </tr>
     <#list users as user>
       <tr>
@@ -51,12 +52,18 @@
             <input type="checkbox" name="hashCodes" label="User" value="${user.hashCode()?c}" disabled />
           </#if>
         </td>
+        <td>${user.email}</td>
         <td>${user.givenNames}</td>
         <td>${user.surName}</td>
         <td>${user.displayName}</td>
-        <td>${user.email}</td>
         <td>${user.city}</td>
         <td>${user.state}</td>
+        <td class="meta">
+          <#if user.metaData??>
+            <#assign keys = user.metaData?keys>
+            <#list keys as key><b>${key}:</b>${user.metaData[key]}<br/></#list>
+          </#if>
+        </td>
       </tr>
     </#list>
   </table>

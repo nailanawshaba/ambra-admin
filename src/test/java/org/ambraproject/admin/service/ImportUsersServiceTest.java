@@ -22,13 +22,18 @@ import org.ambraproject.admin.AdminBaseTest;
 import org.ambraproject.admin.views.ImportedUserView;
 import org.ambraproject.admin.views.UserRoleView;
 import org.ambraproject.models.UserProfile;
+import org.ambraproject.models.UserProfileMetaData;
 import org.ambraproject.models.UserRole;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -41,11 +46,17 @@ public class ImportUsersServiceTest extends AdminBaseTest {
   protected ImportUsersService importUsersService;
 
   @Test
+  @SuppressWarnings("unchecked")
   public void setImportUsersService() {
     UserRole role = new UserRole();
 
     role.setRoleName("ROLENAME");
     dummyDataStore.store(role);
+
+    Map<String, String> metaData = new HashMap<String, String>();
+    metaData.put("key1", "value1");
+    metaData.put("key2", "value2");
+    metaData.put("key3", null);
 
     ImportedUserView userView = ImportedUserView.builder()
       .setCity("CITY")
@@ -53,6 +64,7 @@ public class ImportUsersServiceTest extends AdminBaseTest {
       .setGivenNames("GNAME")
       .setSurName("SNAME")
       .setDisplayName("FOO")
+      .setMetaData(metaData)
       .build();
 
     userView = importUsersService.saveAccount(userView, new long[] { role.getID() });
@@ -75,6 +87,21 @@ public class ImportUsersServiceTest extends AdminBaseTest {
     assertNotNull(userList.get(0).getAuthId());
     assertNotNull(userList.get(0).getPassword());
     assertNotNull(userList.get(0).getVerificationToken());
+
+    List<UserProfileMetaData> userProfileMetaDatas = dummyDataStore.findByCriteria(
+      DetachedCriteria.forClass(UserProfileMetaData.class)
+        .add(Restrictions.eq("userProfileID", userList.get(0).getID())
+        )
+    );
+
+    assertEquals(userProfileMetaDatas.size(), 3);
+
+    Map<String, String> metaData2 = new HashMap<String, String>();
+    metaData2.put(userProfileMetaDatas.get(0).getMetaKey(), userProfileMetaDatas.get(0).getMetaValue());
+    metaData2.put(userProfileMetaDatas.get(1).getMetaKey(), userProfileMetaDatas.get(1).getMetaValue());
+    metaData2.put(userProfileMetaDatas.get(2).getMetaKey(), userProfileMetaDatas.get(2).getMetaValue());
+
+    assertEquals(metaData, metaData2);
   }
 
   @Test

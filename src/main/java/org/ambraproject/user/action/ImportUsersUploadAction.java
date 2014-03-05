@@ -36,20 +36,22 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Action to support uploading of a file/CSV of users
  *
- * Accepts a CSV in a very specific format
+ * The uploaded file should be in CSV format and contain "email, last name, first name, city, other field, other field, etc"
+ *
+ * Anything beyond the 4th column is stored as meta information in TODO:??
  *
  * Stores these new users in session and begins to walk the user through the user flow of creating new accounts.
  *
- * Note: One day we should enhance this to display a paged form for larger uploads.  To keep this initial release simple
+ * TODO: One day we might enhance this to display a paged form for larger uploads.  To keep this initial release simple
  * I always assume the upload CSV will be relatively small (less then a few hundred accounts)
  *
- * TODO: Refine / define format
  */
 public class ImportUsersUploadAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersUploadAction.class);
@@ -63,17 +65,11 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
   List<ImportedUserView> users;
 
   @Override
-  @SuppressWarnings("unchecked")
   public String execute() {
     Map<String, Object> session = ServletActionContext.getContext().getSession();
 
     try {
-      CSVReader<ImportedUserView> csvParser = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(file)))
-        .strategy(new CSVStrategy(',', '\"', '#', true, true))
-        .entryParser(new UserProfileViewParser())
-        .build();
-
-      users = csvParser.readAll();
+      users = parseCSV();
 
       log.debug("Parsed {} records", users.size());
 
@@ -114,6 +110,10 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
       log.error(ex.getMessage(), ex);
       addActionError(ex.getMessage());
       return INPUT;
+    } catch(ArrayIndexOutOfBoundsException ex) {
+      log.error(ex.getMessage(), ex);
+      addActionError("Bad CSV received, wrong number of columns");
+      return INPUT;
     } catch(UserProfileParserException ex) {
       log.error(ex.getMessage(), ex);
       addActionError(ex.getMessage());
@@ -127,23 +127,61 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
     return SUCCESS;
   }
 
+  @SuppressWarnings("unchecked")
+  private List<ImportedUserView> parseCSV() throws IOException {
+    //First parse out headers, they are needed to capture meta data
+    CSVReader<ImportedUserView> csvHeaderParser = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(file)))
+      .strategy(new CSVStrategy(',', '\"', '#', true, true))
+      .entryParser(new UserProfileViewParser(null))
+      .build();
+
+    List<String> headers = csvHeaderParser.readHeader();
+    csvHeaderParser.close();
+
+    CSVReader<ImportedUserView> csvParser = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(file)))
+      .strategy(new CSVStrategy(',', '\"', '#', true, true))
+      .entryParser(new UserProfileViewParser(headers))
+      .build();
+
+    return csvParser.readAll();
+  }
+
   /**
    * A parser class for the csv engine
    */
   private class UserProfileViewParser implements CSVEntryParser<ImportedUserView> {
+    final List<String> headers;
+
+    public UserProfileViewParser(List<String> headers) {
+      this.headers = headers;
+    }
+
     public ImportedUserView parseEntry(String[] line) {
-      //TODO: How do we handle EM Ids and make sure systems are linked?
-      //TODO: Do we need to store their EM user names for disambiguation?
-      if(line.length != 10) {
+      if(line.length < 4) {
         throw new UserProfileParserException("Bad CSV received, wrong number of columns: " + line.length);
       } else {
+        String email = line[0].trim();
+        String surName = line[1].trim();
+        String givenName = line[2].trim();
+        String displayName = givenName + surName;
+        String city = line[3].trim();
+        Map<String, String> metaData = null;
+
+        if(line.length > 4) {
+          metaData = new HashMap<String, String>();
+          //Fetch extra columns and store as meta data
+          for(int a = 4; a < line.length; a++) {
+            metaData.put(headers.get(a), line[a]);
+          }
+        }
+
         return ImportedUserView.builder()
-          .setEmail(line[0].trim())
-          .setSurName(line[1].trim())
-          .setGivenNames(line[2].trim())
-          //TODO: Set Display name to be the first and last names once file format is more defined
-          .setDisplayName(line[3].trim())
-          .setCity(line[9].trim())
+          .setEmail(email)
+          .setSurName(surName)
+          .setGivenNames(givenName)
+          .setDisplayName(displayName)
+          .setCity(city)
+          .setMetaData(metaData)
           .build();
       }
     }

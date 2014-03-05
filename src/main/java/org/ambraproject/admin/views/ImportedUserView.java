@@ -18,6 +18,8 @@
  */
 package org.ambraproject.admin.views;
 
+import java.util.Map;
+
 /**
  * Used for importing new users
  */
@@ -34,6 +36,8 @@ public class ImportedUserView {
   private final String surName;
   private final String displayName;
   private final String city;
+  private final Map<String, String> metaData;
+
   private USER_STATES state;
   private String token;
 
@@ -43,6 +47,7 @@ public class ImportedUserView {
     this.surName = builder.surName;
     this.displayName = builder.displayName;
     this.city = builder.city;
+    this.metaData = builder.metaData;
   }
 
   public String getEmail() {
@@ -65,6 +70,10 @@ public class ImportedUserView {
     return city;
   }
 
+  public Map<String, String> getMetaData() {
+    return metaData;
+  }
+
   public USER_STATES getState() { return this.state; }
 
   public void setState(USER_STATES state) {
@@ -82,16 +91,18 @@ public class ImportedUserView {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (!(o instanceof ImportedUserView)) return false;
 
-    ImportedUserView that = (ImportedUserView) o;
+    ImportedUserView userView = (ImportedUserView) o;
 
-    if (city != null ? !city.equals(that.city) : that.city != null) return false;
-    if (!displayName.equals(that.displayName)) return false;
-    if (!email.equals(that.email)) return false;
-    if (!givenNames.equals(that.givenNames)) return false;
-    if (state != null ? !state.equals(that.state) : that.state != null) return false;
-    if (!surName.equals(that.surName)) return false;
+    if (city != null ? !city.equals(userView.city) : userView.city != null) return false;
+    if (!displayName.equals(userView.displayName)) return false;
+    if (!email.equals(userView.email)) return false;
+    if (!givenNames.equals(userView.givenNames)) return false;
+    if (metaData != null ? !metaData.equals(userView.metaData) : userView.metaData != null) return false;
+    if (state != userView.state) return false;
+    if (!surName.equals(userView.surName)) return false;
+    if (token != null ? !token.equals(userView.token) : userView.token != null) return false;
 
     return true;
   }
@@ -103,7 +114,9 @@ public class ImportedUserView {
     result = 31 * result + surName.hashCode();
     result = 31 * result + displayName.hashCode();
     result = 31 * result + (city != null ? city.hashCode() : 0);
+    result = 31 * result + (metaData != null ? metaData.hashCode() : 0);
     result = 31 * result + (state != null ? state.hashCode() : 0);
+    result = 31 * result + (token != null ? token.hashCode() : 0);
     return result;
   }
 
@@ -121,6 +134,7 @@ public class ImportedUserView {
     private String surName;
     private String displayName;
     private String city;
+    private Map<String, String> metaData;
 
     public Builder setEmail(String email) {
       this.email = email;
@@ -144,6 +158,11 @@ public class ImportedUserView {
 
     public Builder setCity(String city) {
       this.city = city;
+      return this;
+    }
+
+    public Builder setMetaData(Map<String, String> metaData) {
+      this.metaData = metaData;
       return this;
     }
 

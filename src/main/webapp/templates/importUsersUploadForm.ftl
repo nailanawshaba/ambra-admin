@@ -26,12 +26,14 @@
 <h1 style="text-align: center">Ambra: Administration: Manage Users</h1>
 <#include "includes/navigation.ftl">
 
-<#--<@messages />-->
+<@messages />
 
 <fieldset>
-  <legend><b>Upload Users (TODO: Help text)</b></legend>
+  <legend><b>Upload Users:</b></legend>
+  <p>The uploaded file should be in CSV format and contain "email, last name, first name, city, other fields..."</p>
   <@s.form name="importUsersUpload" action="importUsersUpload" namespace="/" method="post" enctype="multipart/form-data">
     <@s.file name="file" label="Select file to upload:"/><br/>
+    <br/>
     <@s.submit value="Upload File" />
   </@s.form>
 </fieldset>

@@ -24,6 +24,7 @@ import org.ambraproject.admin.views.ImportedUserView;
 import org.ambraproject.admin.views.UserRoleView;
 import org.ambraproject.email.TemplateMailer;
 import org.ambraproject.models.UserProfile;
+import org.ambraproject.models.UserProfileMetaData;
 import org.ambraproject.models.UserRole;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.ambraproject.util.TokenGenerator;
@@ -72,6 +73,16 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
     up.setRoles(roles);
 
     hibernateTemplate.save(up);
+
+    if(user.getMetaData() != null) {
+      for(String key : user.getMetaData().keySet()) {
+        UserProfileMetaData metaData = new UserProfileMetaData();
+        metaData.setMetaKey(key);
+        metaData.setMetaValue(user.getMetaData().get(key));
+        metaData.setUserProfileID(up.getID());
+        hibernateTemplate.save(metaData);
+      }
+    }
 
     //Return user with the created token
     user.setToken(up.getVerificationToken());

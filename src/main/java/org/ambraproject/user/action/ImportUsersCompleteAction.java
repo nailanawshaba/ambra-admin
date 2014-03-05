@@ -99,6 +99,7 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
       return INPUT;
     }
 
+    //TODO: If the list of imported user gets larger, this logic should move to the queue
     for(ImportedUserView user : users) {
       if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
         user = importUsersService.saveAccount(user, roleIDs);
