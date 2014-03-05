@@ -309,6 +309,9 @@
       <result name="success" type="freemarker">
         <param name="location">/templates/importUsersPermissions.ftl</param>
       </result>
+      <result name="input" type="freemarker">
+        <param name="location">/templates/importUsersError.ftl</param>
+      </result>
     </action>
 
     <action name="importUsersEmail" class="org.ambraproject.user.action.ImportUsersEmailAction">

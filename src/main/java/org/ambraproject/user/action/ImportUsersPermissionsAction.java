@@ -47,6 +47,11 @@ public class ImportUsersPermissionsAction extends BaseAdminActionSupport {
   public String execute() {
     Map<String, Object> session = ServletActionContext.getContext().getSession();
 
+    if(hashCodes == null) {
+      addActionError("No users selected to import");
+      return INPUT;
+    }
+
     List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
     List<Long> hashCodeList = Arrays.asList(hashCodes);
 
