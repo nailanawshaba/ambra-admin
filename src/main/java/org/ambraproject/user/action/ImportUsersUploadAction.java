@@ -164,6 +164,8 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
         String surName = line[1].trim();
         String givenName = line[2].trim();
         String displayName = givenName + surName;
+        displayName = displayName.replace(" ", "");
+        
         String city = line[3].trim();
         Map<String, String> metaData = null;
 
