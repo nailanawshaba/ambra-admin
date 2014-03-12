@@ -35,7 +35,7 @@
   <br/>
   ${usersToImport?size} New accounts to create.<br/>
   <br/>
-  <b>To:</b> <#list usersToImport as user>${user.email} <#if user_has_next>, </#if></#list><br/>
+  <b>To:</b> <#list usersToImport as user>${user.email}<#if user_has_next>, </#if></#list><br/>
   <br/>
   <@s.textfield name="subject" label="Email Title" size="50" value="${subject}" /><br/>
   <@s.textfield name="emailFrom" label="Email From" size="25" value="${emailFrom}" /><br/>
