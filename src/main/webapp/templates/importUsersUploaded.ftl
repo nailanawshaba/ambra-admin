@@ -30,8 +30,8 @@
 
 <@s.form name="importUsersPermission" action="importUsersPermission" method="post" namespace="/">
 <fieldset>
-  <legend><b>New accounts to create:</b></legend>
-
+  <legend><b>Account Creation</b></legend>
+  Select the user(s) for account creation:<br/>
   <table id="userImport">
     <tr>
       <td>Import?</td>
@@ -67,7 +67,7 @@
       </tr>
     </#list>
   </table>
-
+  <div class="btnwrap"><input type="button" value="Back" onclick="history.go(-1);" /></div>
   <@s.submit value="Next" />
 </fieldset>
 

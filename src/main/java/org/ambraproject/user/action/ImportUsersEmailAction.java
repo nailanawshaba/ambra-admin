@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersEmailAction.class);
 
   private long[] roleIDs;
-  private int accountsToImport = 0;
+  private List<ImportedUserView> accountsToImport = new ArrayList<ImportedUserView>();
 
   private String subject;
   private String emailFrom;
@@ -59,7 +60,7 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
 
     for(ImportedUserView user : users) {
       if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
-        accountsToImport++;
+        accountsToImport.add(user);
       }
     }
 
@@ -96,8 +97,8 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
     return textBody;
   }
 
-  public int getAccountsToImport() {
-    return accountsToImport;
+  public ImportedUserView[] getUsersToImport() {
+    return accountsToImport.toArray(new ImportedUserView[accountsToImport.size()]);
   }
 }
 

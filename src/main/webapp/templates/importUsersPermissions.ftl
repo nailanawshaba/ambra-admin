@@ -30,16 +30,19 @@
 
 <@s.form name="importUsersEmail" action="importUsersEmail" method="post" namespace="/">
 <fieldset>
-  <legend><b>${accountsToImport} New accounts to create:</b></legend>
+  <legend><b>Role Assignment.</b></legend>
 
-  <b>Assign these roles to the new accounts:</b><br/>
-
+  ${accountsToImport} user(s) selected<br/>
+  <br/>
+  Assign roles to these accounts:<br/>
+  <br/>
   <#list userRoles as role>
     <input type="checkbox" name="roleIDs" value="${role.ID}" id="editRolesAssign_roleID_${role.ID}"/>
     <label for="editRolesAssign_roleID_${role.ID}" class="checkboxLabel">${role.roleName}</label><br/>
   </#list>
   <br/>
 
+  <div class="btnwrap"><input type="button" value="Back" onclick="history.go(-1);" /></div>
   <@s.submit value="Next" />
 </fieldset>
 </@s.form>
