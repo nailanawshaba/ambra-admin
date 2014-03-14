@@ -15,11 +15,9 @@ package org.ambraproject.admin.service;
 
 import org.ambraproject.admin.AdminBaseTest;
 import org.ambraproject.models.Annotation;
-import org.ambraproject.models.AnnotationCitation;
 import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleAuthor;
-import org.ambraproject.models.CorrectedAuthor;
 import org.ambraproject.models.UserProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.DataProvider;
@@ -30,8 +28,6 @@ import java.util.Calendar;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
 
 /**
  * @author Alex Kudlick 3/28/12
@@ -68,9 +64,6 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
     originalComment.setAnnotationUri("old comment annotation uri");
     originalComment.setBody("Old comment annotation body");
     originalComment.setCompetingInterestBody("old comment competing interest");
-    originalComment.setAnnotationCitation(new AnnotationCitation(article));
-    originalComment.getAnnotationCitation().setNote("Old note");
-    originalComment.getAnnotationCitation().setSummary("Old summary");
     dummyDataStore.store(originalComment);
 
     //Just change the basic annotation properties
@@ -79,39 +72,6 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
     changeBasicProperties.setAnnotationUri("Change Basic Properties annotation uri");
     changeBasicProperties.setBody("Change Basic Properties body");
     changeBasicProperties.setCompetingInterestBody("Change Basic Properties competing interest");
-    //keep the same annotation citation
-    changeBasicProperties.setAnnotationCitation(new AnnotationCitation(article));
-
-    //change the basic citation info
-    Annotation changeCitationInfo = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
-    changeCitationInfo.setAnnotationCitation(new AnnotationCitation(article));
-    changeCitationInfo.getAnnotationCitation().setTitle("New Citation title");
-    changeCitationInfo.getAnnotationCitation().setJournal("New Citation journal");
-    changeCitationInfo.getAnnotationCitation().setELocationId("New Citation eLocationId");
-    changeCitationInfo.getAnnotationCitation().setVolume("New Citation volume");
-    changeCitationInfo.getAnnotationCitation().setNote("New Citation note");
-    changeCitationInfo.getAnnotationCitation().setSummary("New Citation summary");
-    changeCitationInfo.getAnnotationCitation().setUrl("New Citation url");
-
-    //remove an author
-    Annotation removeAuthor = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
-    removeAuthor.setAnnotationCitation(new AnnotationCitation(article));
-    removeAuthor.getAnnotationCitation().getAuthors().remove(0);
-
-    //add an author
-    Annotation addAuthor = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
-    addAuthor.setAnnotationCitation(new AnnotationCitation(article));
-    addAuthor.getAnnotationCitation().getAuthors().add(new CorrectedAuthor(new ArticleAuthor("New", "Article", "Author")));
-
-    //add a collab author
-    Annotation addCollabAuthor = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
-    addCollabAuthor.setAnnotationCitation(new AnnotationCitation(article));
-    addCollabAuthor.getAnnotationCitation().getCollaborativeAuthors().add("New Collab authors");
-
-    //add a collab author
-    Annotation removeCollabAuthor = new Annotation(new UserProfile(), AnnotationType.COMMENT, article.getID());
-    removeCollabAuthor.setAnnotationCitation(new AnnotationCitation(article));
-    removeCollabAuthor.getAnnotationCitation().getCollaborativeAuthors().remove(0);
 
     //just want to check that parent ids don't get overwritten
     Annotation originalReply = new Annotation(userProfile, AnnotationType.REPLY, article.getID());
@@ -123,13 +83,6 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
 
     return new Object[][]{
         {originalComment, changeBasicProperties},
-        {originalComment, changeCitationInfo},
-
-        {originalComment, addAuthor},
-        {originalComment, removeAuthor},
-
-        {originalComment, addCollabAuthor},
-        {originalComment, removeCollabAuthor},
         {originalReply, newReply}
     };
   }
@@ -151,42 +104,5 @@ public class AdminAnnotationServiceTest extends AdminBaseTest {
     assertEquals(storedAnnotation.getBody(), newAnnotation.getBody(), "Edit didn't update body");
     assertEquals(storedAnnotation.getCompetingInterestBody(), newAnnotation.getCompetingInterestBody(),
         "Edit didn't update competing interest statement");
-
-    if (originalAnnotation.getAnnotationCitation() == null) {
-      assertNull(storedAnnotation.getAnnotationCitation(), "Edit added a new citation when one didn't exist before");
-    } else {
-      assertNotNull(storedAnnotation.getAnnotationCitation(), "Edit deleted citation");
-      AnnotationCitation actualCitation = storedAnnotation.getAnnotationCitation();
-      AnnotationCitation expectedCitation = newAnnotation.getAnnotationCitation();
-      assertEquals(actualCitation.getTitle(), expectedCitation.getTitle(), "Edit didn't update citation title");
-      assertEquals(actualCitation.getYear(), expectedCitation.getYear(), "Edit didn't update citation year");
-      assertEquals(actualCitation.getVolume(), expectedCitation.getVolume(), "Edit didn't update citation volume");
-      assertEquals(actualCitation.getIssue(), expectedCitation.getIssue(), "Edit didn't update citation issue");
-      assertEquals(actualCitation.getJournal(), expectedCitation.getJournal(), "Edit didn't update citation journal");
-      assertEquals(actualCitation.getELocationId(), expectedCitation.getELocationId(), "Edit didn't update citation eLocationId");
-
-      if (expectedCitation.getCollaborativeAuthors() != null) {
-        assertEquals(actualCitation.getCollaborativeAuthors().toArray(), expectedCitation.getCollaborativeAuthors().toArray(),
-            "Edit didn't update citation collab authors");
-      } else {
-        assertTrue(actualCitation.getCollaborativeAuthors() == null || actualCitation.getCollaborativeAuthors().isEmpty(),
-            "Stored citation had collab authors when none were expected");
-      }
-      if (expectedCitation.getAuthors() != null) {
-        assertNotNull(actualCitation.getAuthors(), "Authors got deleted");
-        assertEquals(actualCitation.getAuthors().size(), expectedCitation.getAuthors().size(),
-            "Edited citation had incorrect number of authors");
-        for (int i = 0; i < actualCitation.getAuthors().size(); i++) {
-          CorrectedAuthor actualAuthor = actualCitation.getAuthors().get(i);
-          CorrectedAuthor expectedAuthor = expectedCitation.getAuthors().get(i);
-          assertEquals(actualAuthor.getGivenNames(), expectedAuthor.getGivenNames(), 
-              "Citation author " + (i + 1) + " had incorrect given names");
-          assertEquals(actualAuthor.getSurName(), expectedAuthor.getSurName(), 
-              "Citation author " + (i + 1) + " had incorrect surnames");
-          assertEquals(actualAuthor.getSuffix(), expectedAuthor.getSuffix(), 
-              "Citation author " + (i + 1) + " had incorrect suffix");
-        }
-      }
-    }
   }
 }

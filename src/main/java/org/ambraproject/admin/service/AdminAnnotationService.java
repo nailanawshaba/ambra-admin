@@ -25,13 +25,10 @@ public interface AdminAnnotationService extends HibernateService {
    * Edit an existing annotation with the properties set on the provided object. This does NOT change:
    * <ul>
    * <li>the {@link Annotation#ID}</li>
-   * <li>the {@link Annotation#type}. Use {@link org.ambraproject.admin.flags.service.FlagService#convertToType(org.ambraproject.models.AnnotationType, Long...)} to do that</li>
    * <li>the {@link Annotation#articleID}</li>
    * <li>the {@link Annotation#creator}</li>
    * <li>the {@link Annotation#parentID}</li>
    * </ul>
-   * 
-   * This will update {@link Annotation#annotationCitation} properties if a citation already exists on the existing annotation.
    *
    * @param annotationId the id of the annotation to edit
    * @param properties   an {@link Annotation} object with properties to store
