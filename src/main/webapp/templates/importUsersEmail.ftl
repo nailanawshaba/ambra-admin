@@ -37,8 +37,8 @@
   <br/>
   <b>To:</b> <#list usersToImport as user>${user.email}<#if user_has_next>, </#if></#list><br/>
   <br/>
-  <@s.textfield name="subject" label="Email Title" size="50" value="${subject}" /><br/>
-  <@s.textfield name="emailFrom" label="Email From" size="25" value="${emailFrom}" /><br/>
+  <@s.textfield name="subject" label="Subject" size="50" value="${subject}" /><br/>
+  <@s.textfield name="emailFrom" label="From" size="25" value="${emailFrom}" /><br/>
   <@s.textarea name="textBody" rows="15" cols="120" label="Text Body" value="${textBody}"/>
   <@s.textarea name="htmlBody" rows="15" cols="120" label="HTML Body" value="${htmlBody}"/>
 

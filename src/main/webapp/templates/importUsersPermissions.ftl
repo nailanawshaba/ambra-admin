@@ -30,7 +30,7 @@
 
 <@s.form name="importUsersEmail" action="importUsersEmail" method="post" namespace="/">
 <fieldset>
-  <legend><b>Role Assignment.</b></legend>
+  <legend><b>Role Assignment</b></legend>
 
   ${accountsToImport} user(s) selected<br/>
   <br/>

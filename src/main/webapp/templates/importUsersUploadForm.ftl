@@ -30,7 +30,9 @@
 
 <fieldset>
   <legend><b>Upload Users:</b></legend>
-  <p>The uploaded file should be in CSV format and contain "email, last name, first name, city, other fields..."</p>
+  <p>Upload a .CSV file<p>
+  <p>Please see <a href="exampleUsers.csv">this example</a> of the necessary fields.
+  <i>If the user already has an existing PLOS Account the name will not be selectable</i></p>
   <@s.form name="importUsersUpload" action="importUsersUpload" namespace="/" method="post" enctype="multipart/form-data">
     <@s.file name="file" label="Select file to upload:"/><br/>
     <br/>
