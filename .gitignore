@@ -9,3 +9,6 @@ target/
 
 # Temporary files #
 *~
+
+#Maven backup files
+*.xml.versionsBackup
