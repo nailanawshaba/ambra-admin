@@ -113,6 +113,13 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
     fieldMap.put("displayName", user.getGivenNames() + " " + user.getSurName());
     fieldMap.put("email", user.getEmail());
 
+    //Append meta keys / values to the email template value stack
+    if(user.getMetaData() != null) {
+      for(String key : user.getMetaData().keySet()) {
+        fieldMap.put("meta_" + key, user.getMetaData().get(key));
+      }
+    }
+
     Multipart content = mailer.createContent(textTemplate, htmlTemplate, fieldMap);
     mailer.mail(user.getEmail(), emailFrom, subject, fieldMap, content);
   }
