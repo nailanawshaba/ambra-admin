@@ -1,8 +1,6 @@
 <#--
-  $HeadURL$
-  $Id$
+  Copyright (c) 2006-2014 by Public Library of Science
 
-  Copyright (c) 2006-2010 by Public Library of Science
   http://plos.org
   http://ambraproject.org
 
@@ -10,7 +8,7 @@
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,14 +20,16 @@
 <@s.url id="manageFlags" namespace="/" action="manageFlags"/>
 <@s.url id="manageAnnotation" namespace="/" action="manageAnnotation"/>
 <@s.url id="manageUsersURL" namespace="/" action="findUser" />
-<@s.url id="manageVirtualJournalsURL" namespace="/" action="manageVirtualJournals"/>
-<@s.url id="manageSearchIndexing" namespace="/" action="manageSearchIndexing"/>
-<@s.url id="manageCaches" namespace="/" action="manageCaches"/>
+<@s.url id="importUsersURL" namespace="/" action="importUsers" />
+<@s.url id="manageVirtualJournalsURL" namespace="/" action="manageVirtualJournals" />
+<@s.url id="manageSearchIndexing" namespace="/" action="manageSearchIndexing" />
+<@s.url id="manageCaches" namespace="/" action="manageCaches" />
 <@s.url id="manageArticleList" namespace="/" action="manageArticleList"/>
-<@s.url id="manageEmailAlerts" namespace="/" action="manageEmailAlerts"/>
-<@s.url id="manageRoles" namespace="/" action="manageRoles"/>
-<@s.url id="deleteArticle" namespace="/" action="deleteArticle"/>
+<@s.url id="manageEmailAlerts" namespace="/" action="manageEmailAlerts" />
+<@s.url id="manageRoles" namespace="/" action="manageRoles" />
+<@s.url id="deleteArticle" namespace="/" action="deleteArticle" />
 <@s.url id="manageFeaturedArticles" namespace="/" action="featuredArticle"/>
+
 <@s.url id="logout" includeParams="none" namespace="/" action="secureRedirect"
   goTo="${freemarker_config.casLogoutURL}?" +
   "service=${Request[freemarker_config.journalContextAttributeKey].baseUrl}/" +
@@ -45,7 +45,8 @@
     <@s.a href="${manageAnnotation}">Annotations</@s.a>,&nbsp;
   </#if>
   <#if permissions?seq_contains("MANAGE_USERS")>
-    <@s.a href="${manageUsersURL}">Users</@s.a>,&nbsp;
+    <@s.a href="${manageUsersURL}">Manage Users</@s.a>,&nbsp;
+    <@s.a href="${importUsersURL}">Import Users</@s.a>,&nbsp;
   </#if>
   <#if permissions?seq_contains("MANAGE_JOURNALS")>
     <@s.a href="${manageVirtualJournalsURL}">Virtual Journals</@s.a>,&nbsp;
