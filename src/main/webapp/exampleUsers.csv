@@ -1,6 +1,6 @@
-Email,Last  Name,First Name,City,profile_field_EMPeopleID,profile_field_SalesforceID,profile_field_JoinDate,course1
-moodleroomuploadtest1@gmail.com,shams,mary,San Jose,51685a,001U000000Ku7Ys,8-Jan-14,WelcomeNewEditor
-moodleroomuploadtest2@gmail.com,steuber,alam,San Francisco,36594b,001U0000008Qh6U,9-Jan-14,WelcomeNewEditor
-moodleroomuploadtest3@gmail.com,kortz,hassan,Sacromento,65380c,001U000000i188L,10-Jan-14,WelcomeNewEditor
-moodleroomuploadtest4@gmail.com,tipple,mark,Orange county,35223r,001U0000008QdZ5,11-Jan-14,WelcomeNewEditor
-moodleroomuploadtest5@gmail.com,falin,lauren,Ventura,12864y,001U0000008UdZ5,12-Jan-14,WelcomeNewEditor
+Email,Last  Name,First Name,City,profile_field_EMPeopleID,profile_field_SalesforceID,profile_field_JoinDate,course1,country_code,GUID
+moodleroomuploadtest20@gmail.com,Leu,Omary,Tel Aviv,51685ac,001U000000Ku7Ysa,9-Mar-14,WelcomeNewEditor,IL,PONE-178177
+moodleroomuploadtest21@gmail.com,Jordan,Estoque,Belize City,36594bd,001U0000008Qh6Ua,9-Mar-14,WelcomeNewEditor,BZ,pbiology-356953
+moodleroomuploadtest22@gmail.com,Maddie,Wilson,Haikou,65380cl,001U000000i188La,10-Mar-14,WelcomeNewEditor,CN,PONE-221956
+moodleroomuploadtest23@gmail.com,Mark,Smith,Port au Prince,35223re,001U0000008QdZ5a,11-Mar-14,WelcomeNewEditor,HT,pgenetics-358288
+moodleroomuploadtest24@gmail.com,Lina,Lam,Vientiane,12864yo,001U0000008UdZ5a,12-Mar-14,WelcomeNewEditor,LA,PONE-376701
