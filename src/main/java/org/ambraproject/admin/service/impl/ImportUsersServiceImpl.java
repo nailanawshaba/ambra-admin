@@ -103,7 +103,8 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
     }
   }
 
-  public void sendEmailInvite(ImportedUserView user, String emailFrom, String subject, Template textTemplate, Template htmlTemplate)
+  public void sendEmailInvite(ImportedUserView user, String emailFrom, String emailBcc,
+                              String subject, Template textTemplate, Template htmlTemplate)
     throws IOException, MessagingException {
 
     Map<String, Object> fieldMap = new HashMap<String, Object>();
@@ -121,7 +122,7 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
     }
 
     Multipart content = mailer.createContent(textTemplate, htmlTemplate, fieldMap);
-    mailer.mail(user.getEmail(), emailFrom, subject, fieldMap, content);
+    mailer.mail(user.getEmail(), emailBcc, emailFrom, subject, fieldMap, content);
   }
 
   public void setMailer(TemplateMailer mailer) {

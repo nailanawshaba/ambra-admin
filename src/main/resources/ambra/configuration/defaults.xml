@@ -226,6 +226,7 @@
       <importUsers>
         <defaultEmailTitle>A new Ambra account has been created</defaultEmailTitle>
         <defaultFromEmail>admin@foo.org</defaultFromEmail>
+        <defaultBCC></defaultBCC>
       </importUsers>
     </services>
     <articleTypeList>

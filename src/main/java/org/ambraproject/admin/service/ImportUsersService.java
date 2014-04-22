@@ -59,10 +59,11 @@ public interface ImportUsersService {
    *
    * @param user
    * @param emailFrom
+   * @param emailBcc
    * @param subject
    * @param textTemplate
    * @param htmlTemplate
    */
-  public void sendEmailInvite(ImportedUserView user, String emailFrom, String subject, Template textTemplate, Template htmlTemplate)
+  public void sendEmailInvite(ImportedUserView user, String emailFrom, String emailBcc, String subject, Template textTemplate, Template htmlTemplate)
     throws IOException, MessagingException;
 }
