@@ -49,9 +49,10 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
   private ImportUsersService importUsersService;
   private Configuration freeMarkerConfig;
 
-  private int accountsToImported = 0;
+  private int accountsImported = 0;
   private String subject;
   private String emailFrom;
+  private String emailBcc;
   private String htmlBody;
   private String textBody;
   private List<UserRoleView> userRoleViews = new ArrayList<UserRoleView>();
@@ -103,8 +104,8 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     for(ImportedUserView user : users) {
       if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
         user = importUsersService.saveAccount(user, roleIDs);
-        importUsersService.sendEmailInvite(user, this.emailFrom, this.subject, textTemplate, htmlTemplate);
-        accountsToImported++;
+        importUsersService.sendEmailInvite(user, this.emailFrom, this.emailBcc, this.subject, textTemplate, htmlTemplate);
+        accountsImported++;
       }
     }
 
@@ -155,6 +156,15 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     this.emailFrom = emailFrom;
   }
 
+  @RegexFieldValidator(message = "You must enter a valid BCC email", regexExpression = EMAIL_REGEX)
+  public String getEmailBcc() {
+    return emailBcc;
+  }
+
+  public void setEmailBcc(String emailBcc) {
+    this.emailBcc = emailBcc;
+  }
+
   @RequiredStringValidator(message="HTML Body is missing")
   public String getHtmlBody() {
     return htmlBody;
@@ -173,23 +183,17 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     this.textBody = textBody;
   }
 
-  public int getAccountsToImport() {
+  @SuppressWarnings("unchecked")
+  public ImportedUserView[] getUsersToImport() {
     Map<String, Object> session = ServletActionContext.getContext().getSession();
     List<ImportedUserView> users = (List<ImportedUserView>)session.get(IMPORT_USER_LIST);
 
-    int accountsToImport = 0;
-
-    for(ImportedUserView user : users) {
-      if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
-        accountsToImport++;
-      }
-    }
-
-    return accountsToImport;
+    return users.toArray(new ImportedUserView[users.size()]);
   }
 
-  public int getAccountsToImported() {
-    return accountsToImported;
+  @SuppressWarnings("unchecked")
+  public int getAccountsImported() {
+    return accountsImported;
   }
 
   @Required

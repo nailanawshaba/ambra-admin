@@ -39,6 +39,11 @@
   <br/>
   <@s.textfield name="subject" label="Subject" size="50" value="${subject}" /><br/>
   <@s.textfield name="emailFrom" label="From" size="25" value="${emailFrom}" /><br/>
+  <#if emailBcc??>
+    <@s.textfield name="emailBcc" label="BCC" size="25" value="${emailBcc}" /><br/>
+  <#else>
+    <@s.textfield name="emailBcc" label="BCC" size="25" value="" /><br/>
+  </#if>
   <@s.textarea name="textBody" rows="15" cols="120" label="Text Body" value="${textBody}"/>
   <@s.textarea name="htmlBody" rows="15" cols="120" label="HTML Body" value="${htmlBody}"/>
 

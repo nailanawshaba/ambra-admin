@@ -31,7 +31,7 @@
 <fieldset>
   <legend><b>Account creation confirmed</b></legend>
 
-  <b>${accountsToImported} user(s) were created.</b><br/>
+  <b>${accountsImported} user(s) were created.</b><br/>
 
   <#if userRoles?size gt 0>
     <b>These roles were assigned: <#list userRoles as role>${role.roleName}<#if role_has_next>, </#if></#list></b>

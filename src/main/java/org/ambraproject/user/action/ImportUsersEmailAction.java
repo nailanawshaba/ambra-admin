@@ -42,6 +42,7 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
 
   private String subject;
   private String emailFrom;
+  private String emailBcc;
   private String htmlBody;
   private String textBody;
 
@@ -66,6 +67,7 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
 
     subject = configuration.getString(IMPORT_USERS_EMAIL_TITLE);
     emailFrom = configuration.getString(IMPORT_USERS_EMAIL_FROM);
+    emailBcc = configuration.getString(IMPORT_USERS_EMAIL_BCC);
     htmlBody = loadResource("email/templates/newAccountEmail-html.ftl");
     textBody = loadResource("email/templates/newAccountEmail-text.ftl");
 
@@ -87,6 +89,10 @@ public class ImportUsersEmailAction extends BaseAdminActionSupport {
 
   public String getEmailFrom() {
     return emailFrom;
+  }
+
+  public String getEmailBcc() {
+    return emailBcc;
   }
 
   public String getHtmlBody() {
