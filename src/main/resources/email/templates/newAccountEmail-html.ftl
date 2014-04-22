@@ -57,7 +57,7 @@
   Editorial Board Manager, <i>PLOS ONE</i>
 </p>
 
-<p><b>PLOS I OPEN FOR DISCOVERY</b><br/>
+<p><b>PLOS | OPEN FOR DISCOVERY</b><br/>
   1160 Battery Street, Suite 100, San Francisco, CA 94111<br/>
   edboardmgmt@plos.org | Main +1 415-624-1200 | Fax +1 415-546-4090<br/>
 </p>
