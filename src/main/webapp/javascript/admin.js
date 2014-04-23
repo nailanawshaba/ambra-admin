@@ -138,4 +138,14 @@ function articleSort(element) {
   element.form.submit();
 }
 
+function hideImportUsersHelp() {
+  var popup = document.getElementById("userImportHelpPopup");
 
+  popup.setAttribute("class", "hide");
+}
+
+function showImportUsersHelp() {
+  var popup = document.getElementById("userImportHelpPopup");
+
+  popup.setAttribute("class", "show");
+}

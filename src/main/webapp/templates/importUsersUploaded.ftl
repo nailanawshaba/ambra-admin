@@ -20,7 +20,8 @@
 <html>
 <head>
   <title>Ambra: Administration: Manage User Upload</title>
-<#include "includes/header.ftl">
+  <#include "includes/header.ftl">
+  <script type="text/javascript" src="${request.contextPath}/javascript/admin.js"></script>
 </head>
 <body>
 <h1 style="text-align: center">Ambra: Administration: Manage Users</h1>
@@ -32,6 +33,10 @@
 <fieldset>
   <legend><b>Account Creation</b></legend>
   Select the user(s) for account creation:<br/>
+  <br/>
+  System only accepts rows with the status of "VALID", for help with error codes <a name="help" id="userImportHelp"
+    onClick="showImportUsersHelp();">click here</a><br/>
+  <br/>
   <table id="userImport">
     <tr>
       <td>Import?</td>
@@ -69,6 +74,36 @@
   </table>
   <div class="btnwrap"><input type="button" value="Back" onclick="history.go(-1);" /></div>
   <@s.submit value="Next" />
+
+  <div id="userImportHelpPopup" class="hide">
+    <span class="error">DUPE_DISPLAYNAME</span><br/>
+    <br/>
+    If a user has the error DUPE_DISPLAYNAME please add a “_” (underscore) to the end of the user’s first name in the
+    native excel spreadsheet. Save the .CSV file and upload again.<br/>
+    <br/>
+    After successful importing of users (i.e. Status = VALID):<br/>
+    Please go to “manage users” and search via email address for adjusted users. Go into their profile, and take the “_”
+    out of their first name, so their first name will remain unaltered.<br/>
+    <br/>
+    Example:<br/>
+    original<br/>
+    First Name Last Name<br/>
+    Gillian Welsch<br/>
+    <br/>
+    adjusted<br/>
+    First Name Last Name<br/>
+    Gillian_ Welsch<br/>
+    <br/>
+    Final Display Name<br/>
+    Gillian_Welsh<br/>
+    <br/>
+    <span class="error">DUPE_EMAIL</span>
+    <br/>
+    If a user has the error DUPE_EMAIL this means they already have an existing Ambra account. Please send their email
+    addresses to Lindsay so she can email them.<br/>
+    <br/>
+    <a name="close" id="userImportHelpPopupClose" onClick="hideImportUsersHelp();">(Close)</a>
+  </div>
 </fieldset>
 
 </@s.form>

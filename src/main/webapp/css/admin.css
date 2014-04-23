@@ -16,13 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* 	-------------------------------------------------------------
-
-  GLOBAL STYLE SHEET FOR : Ambra Admin
-  CREATED ON  : 11-09-2009
-  CREATED BY  : JOE OSOWSKI
-  
-  ------------------------------------------------------------- */
 
 html { }
 body { font-family:'Times New Roman', Times, serif }
@@ -45,9 +38,8 @@ td,
 input { font-family:'Times New Roman', Times, serif }
 table.syndications span.published { margin-right:0.75em }
 
-a { text-decoration: none; }
+a { text-decoration: none; color: #006699; cursor: pointer; }
 a:visited { color: #006699; }
-a:link { color: #006699; }
 a:hover { text-decoration: underline; }
 
 input { font-size:0.8em; }
@@ -89,3 +81,25 @@ form#importUsersComplete fieldset li.form-error span.fieldError { display: block
 form#importUsersComplete fieldset li.form-error { padding-bottom: 15px; }
 .form-error { color: red; }
 
+div#userImportHelpPopup.show
+{
+  display: block;
+  position: fixed;
+  height: 400px;
+  width: 700px;
+  top: 50%;
+  left: 50%;
+  margin-top: -200px;
+  margin-left: -350px;
+  background-color: white;
+  border: 1px solid black;
+  padding: 10px;
+  font-size: 13px;
+}
+
+div#userImportHelpPopup span.error { background-color: #FFCCCC }
+
+div#userImportHelpPopup.hide
+{
+  display: none;
+}

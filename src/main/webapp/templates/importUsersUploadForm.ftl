@@ -31,7 +31,7 @@
 <fieldset>
   <legend><b>Upload Users:</b></legend>
   <p>Upload a .CSV file<p>
-  <p>Please see <a href="exampleUsers.csv">this example</a> of the necessary fields.
+  <p>Please see <a href="example-users.png">this example</a> of the necessary fields.
   <i>If the user already has an existing PLOS Account the name will not be selectable</i></p>
   <@s.form name="importUsersUpload" action="importUsersUpload" namespace="/" method="post" enctype="multipart/form-data">
     <@s.file name="file" label="Select file to upload:"/><br/>
