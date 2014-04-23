@@ -55,6 +55,21 @@ public interface ImportUsersService {
   public UserRoleView getRole(long roleID);
 
   /**
+   * Create a test message and confirm all of the entered content is valid and will render.
+   *
+   * @param user
+   * @param emailFrom
+   * @param emailBcc
+   * @param subject
+   * @param textTemplate
+   * @param htmlTemplate
+   *
+   * @throws Exception on bad values
+   */
+  public void testEmailContent(ImportedUserView user, String emailFrom, String emailBcc,
+                               String subject, Template textTemplate, Template htmlTemplate)
+    throws IOException, MessagingException;
+  /**
    * Send the the current user view the passed in email templates
    *
    * @param user

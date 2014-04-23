@@ -103,10 +103,32 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
     }
   }
 
+  /**
+   * @inheritDoc
+   */
+  public void testEmailContent(ImportedUserView user, String emailFrom, String emailBcc,
+                              String subject, Template textTemplate, Template htmlTemplate)
+    throws IOException, MessagingException {
+
+    Map<String, Object> fieldMap = makeMap(user);
+    mailer.createContent(textTemplate, htmlTemplate, fieldMap);
+  }
+
+  /**
+   * @inheritDoc
+   */
   public void sendEmailInvite(ImportedUserView user, String emailFrom, String emailBcc,
                               String subject, Template textTemplate, Template htmlTemplate)
     throws IOException, MessagingException {
 
+    Map<String, Object> fieldMap = makeMap(user);
+
+    Multipart content = mailer.createContent(textTemplate, htmlTemplate, fieldMap);
+
+    mailer.mail(user.getEmail(), emailBcc, emailFrom, subject, fieldMap, content);
+  }
+
+  private Map<String, Object> makeMap(ImportedUserView user) {
     Map<String, Object> fieldMap = new HashMap<String, Object>();
 
     fieldMap.put("url", configuration.getString(IMPORT_PROFILE_PASSWORD_URL));
@@ -121,8 +143,7 @@ public class ImportUsersServiceImpl extends HibernateServiceImpl implements Impo
       }
     }
 
-    Multipart content = mailer.createContent(textTemplate, htmlTemplate, fieldMap);
-    mailer.mail(user.getEmail(), emailBcc, emailFrom, subject, fieldMap, content);
+    return fieldMap;
   }
 
   public void setMailer(TemplateMailer mailer) {
