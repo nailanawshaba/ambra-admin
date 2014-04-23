@@ -44,7 +44,7 @@
       <th>Meta data</th>
     </tr>
     <#list users as user>
-      <tr>
+      <tr <#if user.state != "VALID"> class="error"</#if>>
         <td>
           <#if user.state == "VALID">
             <input type="checkbox" name="hashCodes" label="User" value="${user.hashCode()?c}" checked="checked" />
