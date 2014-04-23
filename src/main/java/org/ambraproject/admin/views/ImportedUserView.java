@@ -23,12 +23,18 @@ import java.util.Map;
 /**
  * Used for importing new users
  */
-public class ImportedUserView {
+public class ImportedUserView implements Comparable<ImportedUserView> {
   public enum USER_STATES {
-    VALID,
-    DUPE_EMAIL,
-    DUPE_DISPLAYNAME,
-    IGNORE
+    VALID (1),
+    DUPE_EMAIL (2),
+    DUPE_DISPLAYNAME (3),
+    IGNORE (4);
+
+    public final int value;
+
+    USER_STATES(final int val) {
+      this.value = val;
+    }
   }
 
   private final String email;
@@ -118,6 +124,17 @@ public class ImportedUserView {
     result = 31 * result + (state != null ? state.hashCode() : 0);
     result = 31 * result + (token != null ? token.hashCode() : 0);
     return result;
+  }
+
+  public int compareTo(ImportedUserView view) {
+    //We want to sort on status and then email
+
+    if(view.getState().value != this.state.value) {
+      //inverse ordering for the state (4 goes before 1, etc)
+      return view.getState().compareTo(this.state);
+    } else {
+      return this.email.compareTo(view.getEmail());
+    }
   }
 
   public static Builder builder() {
