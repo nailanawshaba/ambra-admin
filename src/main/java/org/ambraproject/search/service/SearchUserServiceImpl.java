@@ -36,6 +36,29 @@ public class SearchUserServiceImpl extends HibernateServiceImpl implements Searc
   @Override
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
+  public boolean isDisplayNameInUse(String displayName) {
+    List<UserProfile> matchingUsers = hibernateTemplate.findByCriteria(
+      DetachedCriteria.forClass(UserProfile.class)
+        .add(Restrictions.eq("displayName", displayName).ignoreCase()),
+      0, 1);
+
+    return !matchingUsers.isEmpty();
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  @SuppressWarnings("unchecked")
+  public boolean isEmailInUse(String email) {
+    List<UserProfile> matchingUsers = hibernateTemplate.findByCriteria(
+      DetachedCriteria.forClass(UserProfile.class)
+        .add(Restrictions.eq("email", email).ignoreCase()),
+      0, 1);
+    return !matchingUsers.isEmpty();
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  @SuppressWarnings("unchecked")
   public List<UserProfile> findUsersByDisplayName(String displayName) {
     log.debug("Searching for users with display name like: {}", displayName);
     //if there's an exact match, return that
