@@ -78,14 +78,12 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
         ImportedUserView.USER_STATES state = ImportedUserView.USER_STATES.VALID;
 
         //Confirm email is not already in the database
-        List<UserProfile> matchingUsers = searchUserService.findUsersByEmail(importUserView.getEmail());
-        if(!matchingUsers.isEmpty()) {
+        if(searchUserService.isEmailInUse(importUserView.getEmail())) {
           state = ImportedUserView.USER_STATES.DUPE_EMAIL;
         }
 
         //Confirm display name is not already in the database
-        matchingUsers = searchUserService.findUsersByDisplayName(importUserView.getDisplayName());
-        if(!matchingUsers.isEmpty()) {
+        if(searchUserService.isDisplayNameInUse(importUserView.getDisplayName())) {
           state = ImportedUserView.USER_STATES.DUPE_DISPLAYNAME;
         }
 

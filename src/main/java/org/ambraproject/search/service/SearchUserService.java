@@ -31,6 +31,24 @@ import java.util.List;
 public interface SearchUserService {
 
   /**
+   * Is the given display name used already?
+   *
+   * @param displayName the display name to look up
+   *
+   * @return true if the display name is in use
+   */
+  public boolean isDisplayNameInUse(String displayName);
+
+  /**
+   * Is the given email used already?
+   *
+   * @param email the email to look up
+   *
+   * @return true if the email is in use
+   */
+  public boolean isEmailInUse(String email);
+
+  /**
    * Find users with a display name matching the one given. If there is an exact match, only one user should be returned.
    *
    * @param displayName the display name to use in searching
