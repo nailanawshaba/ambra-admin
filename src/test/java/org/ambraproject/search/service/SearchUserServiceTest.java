@@ -1,10 +1,16 @@
 /*
- * $HeadURL$
- * $Id$
- * Copyright (c) 2006-2012 by Public Library of Science http://plos.org http://ambraproject.org
+ * Copyright (c) 2006-2014 by Public Library of Science
+ *
+ * http://plos.org
+ * http://ambraproject.org
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0Unless required by applicable law or agreed to in writing, software
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -23,6 +29,8 @@ import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
 
 /**
  * @author Alex Kudlick 2/17/12
@@ -138,4 +146,42 @@ public class SearchUserServiceTest extends AdminBaseTest {
     }
   }
 
+  @Test
+  public void testUniqueEmail() {
+    UserProfile user1 = new UserProfile();
+    user1.setAuthId("authId1ForEmailUnique");
+    user1.setEmail("search_email1@ForEmailUnique.org");
+    user1.setDisplayName("displayName1ForEmailUnique");
+    user1.setPassword("pass");
+    dummyDataStore.store(user1);
+
+    assertTrue(searchUserService.isEmailInUse("search_email1@ForEmailUnique.org"), "search_email1@ForEmailUnique.org");
+    //Test different casing
+    assertTrue(searchUserService.isEmailInUse("search_email1@foremailunique.org"), "search_email1@foremailunique.org");
+
+    assertFalse(searchUserService.isEmailInUse("foo@foo.org"), "foo@foo.org");
+    //Test that wildcards are turned off
+    assertFalse(searchUserService.isEmailInUse("search_email_@ForEmailUnique.org"), "search_email_@ForEmailUnique.org");
+    assertFalse(searchUserService.isEmailInUse("search_email_@foremailunique.org"), "search_email_@foremailunique.org");
+  }
+
+  @Test
+  public void testUniqueDisplayName() {
+    UserProfile user1 = new UserProfile();
+    user1.setAuthId("authId2ForDisplayUnique");
+    user1.setEmail("search_email1@DisplayUnique.org");
+    user1.setDisplayName("displayName1DisplayUnique");
+    user1.setPassword("pass");
+    dummyDataStore.store(user1);
+
+    assertTrue(searchUserService.isDisplayNameInUse("displayName1DisplayUnique"), "displayName1DisplayUnique");
+    //Test different casing
+    assertTrue(searchUserService.isDisplayNameInUse("displayname1displayunique"), "displayname1displayunique");
+
+    assertFalse(searchUserService.isDisplayNameInUse("otherDisplayName"), "otherDisplayName");
+
+    //Test that wildcards are turned off
+    assertFalse(searchUserService.isDisplayNameInUse("dis_layName1DisplayUnique"), "dis_layName1DisplayUnique");
+    assertFalse(searchUserService.isDisplayNameInUse("dis_layname1displayunique"), "dis_layname1displayunique");
+  }
 }
