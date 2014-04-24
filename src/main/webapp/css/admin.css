@@ -85,7 +85,7 @@ div#userImportHelpPopup.show
 {
   display: block;
   position: fixed;
-  height: 400px;
+  height: 450px;
   width: 700px;
   top: 50%;
   left: 50%;
@@ -100,6 +100,27 @@ div#userImportHelpPopup.show
 div#userImportHelpPopup span.error { background-color: #FFCCCC }
 
 div#userImportHelpPopup.hide
+{
+  display: none;
+}
+
+div#userImportExamplePopup.show
+{
+  display: block;
+  position: fixed;
+  height: 200px;
+  width: 1020px;
+  top: 50%;
+  left: 50%;
+  margin-top: -100px;
+  margin-left: -600px;
+  background-color: white;
+  border: 1px solid black;
+  padding: 10px;
+  text-align: center;
+}
+
+div#userImportExamplePopup.hide
 {
   display: none;
 }

@@ -20,7 +20,8 @@
 <html>
 <head>
   <title>Ambra: Administration: Manage User Upload</title>
-<#include "includes/header.ftl">
+  <#include "includes/header.ftl">
+  <script type="text/javascript" src="${request.contextPath}/javascript/admin.js"></script>
 </head>
 <body>
 <h1 style="text-align: center">Ambra: Administration: Manage Users</h1>
@@ -31,13 +32,18 @@
 <fieldset>
   <legend><b>Upload Users:</b></legend>
   <p>Upload a .CSV file<p>
-  <p>Please see <a href="example-users.png">this example</a> of the necessary fields.
+  <p>Please see <a name="help" id="userImportHelp" onClick="showPopup('userImportExamplePopup');">this example</a> of the necessary fields.
   <i>If the user already has an existing PLOS Account the name will not be selectable</i></p>
   <@s.form name="importUsersUpload" action="importUsersUpload" namespace="/" method="post" enctype="multipart/form-data">
     <@s.file name="file" label="Select file to upload:"/><br/>
     <br/>
     <@s.submit value="Upload File" />
   </@s.form>
+  <div id="userImportExamplePopup" class="hide">
+    <img src="example-users.png" width="1000" height="167" />
+    <br/>
+    <a name="close" id="userImportHelpPopupClose" onClick="hidePopup('userImportExamplePopup');">(Close)</a>
+  </div>
 </fieldset>
 
 </body>

@@ -35,7 +35,7 @@
   Select the user(s) for account creation:<br/>
   <br/>
   System only accepts rows with the status of "VALID", for help with error codes <a name="help" id="userImportHelp"
-    onClick="showImportUsersHelp();">click here</a><br/>
+    onClick="showPopup('userImportHelpPopup');">click here</a><br/>
   <br/>
   <table id="userImport">
     <tr>
@@ -86,11 +86,12 @@
     out of their first name, so their first name will remain unaltered.<br/>
     <br/>
     Example:<br/>
-    original<br/>
+    <br/>
+    Original<br/>
     First Name Last Name<br/>
     Gillian Welsch<br/>
     <br/>
-    adjusted<br/>
+    Adjusted<br/>
     First Name Last Name<br/>
     Gillian_ Welsch<br/>
     <br/>
@@ -102,7 +103,7 @@
     If a user has the error DUPE_EMAIL this means they already have an existing Ambra account. Please send their email
     addresses to Lindsay so she can email them.<br/>
     <br/>
-    <a name="close" id="userImportHelpPopupClose" onClick="hideImportUsersHelp();">(Close)</a>
+    <a name="close" id="userImportHelpPopupClose" onClick="hidePopup('userImportHelpPopup');">(Close)</a>
   </div>
 </fieldset>
 
