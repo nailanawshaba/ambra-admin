@@ -100,6 +100,14 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
       return INPUT;
     }
 
+    try {
+      testContent(users.get(0).getMetaData(), htmlTemplate, textTemplate);
+    } catch(Exception ex) {
+      addActionError("Error processing template.");
+      addActionError(ex.getMessage());
+      return INPUT;
+    }
+
     //TODO: If the list of imported user gets larger, this logic should move to the queue
     for(ImportedUserView user : users) {
       if(user.getState().equals(ImportedUserView.USER_STATES.VALID)) {
@@ -121,6 +129,32 @@ public class ImportUsersCompleteAction extends BaseAdminActionSupport {
     session.remove(IMPORT_USER_LIST);
 
     return SUCCESS;
+  }
+
+  /**
+   * Create a dummy user and run everything through freemarker to make sure the template is valid
+   * before committing to save or send anything
+   *
+   * @param metaData
+   * @param htmlTemplate
+   * @param textTemplate
+   *
+   * @throws Exception
+   */
+  private void testContent(Map<String, String> metaData, Template htmlTemplate, Template textTemplate) throws Exception {
+    ImportedUserView testUser = ImportedUserView.builder()
+      .setCity("city")
+      .setDisplayName("displayName")
+      .setEmail("foo@foo.org")
+      .setGivenNames("givenName")
+      .setMetaData(metaData)
+      .setSurName("surName")
+      .build();
+
+    testUser.setToken("bleh");
+
+    importUsersService.testEmailContent(testUser, this.emailFrom, this.emailBcc, this.subject,
+      textTemplate, htmlTemplate);
   }
 
   private void checkEmailBody(String text, String field) {

@@ -24,7 +24,6 @@ import com.googlecode.jcsv.reader.CSVReader;
 import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.views.ImportedUserView;
-import org.ambraproject.models.UserProfile;
 import org.ambraproject.search.service.SearchUserService;
 import org.apache.struts2.ServletActionContext;
 import org.slf4j.Logger;
@@ -36,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +102,8 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
 
         importUserView.setState(state);
       }
+
+      Collections.sort(users);
 
       session.put(IMPORT_USER_LIST, users);
     } catch(FileNotFoundException ex) {
