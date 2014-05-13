@@ -671,6 +671,24 @@
       </result>
     </action>
 
+    <action name="testThesaurus" class="org.ambraproject.admin.action.TestThesaurusAction">
+      <result name="success" type="freemarker">
+        <param name="location">/templates/testThesaurus.ftl</param>
+      </result>
+      <result name="error" type="freemarker">
+        <param name="location">/templates/testThesaurus.ftl</param>
+      </result>
+    </action>
+
+    <action name="testThesaurusSubmit" class="org.ambraproject.admin.action.TestThesaurusAction" method="test">
+      <result name="success" type="freemarker">
+        <param name="location">/templates/testThesaurusResults.ftl</param>
+      </result>
+      <result name="error" type="freemarker">
+        <param name="location">/templates/testThesaurus.ftl</param>
+      </result>
+    </action>
+
     <action name="selectList" class="org.ambraproject.action.ListingAction"/>
   </package>
 </struts>
