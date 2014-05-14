@@ -25,7 +25,9 @@ import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.views.ImportedUserView;
 import org.ambraproject.search.service.SearchUserService;
+import org.apache.commons.io.IOUtils;
 import org.apache.struts2.ServletActionContext;
+import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -35,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -129,8 +132,11 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
 
   @SuppressWarnings("unchecked")
   private List<ImportedUserView> parseCSV() throws IOException {
+    Charset charSet = detectCharset(file);
+
     //First parse out headers, they are needed to capture meta data
-    CSVReader<ImportedUserView> csvHeaderParser = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(file)))
+    CSVReader<ImportedUserView> csvHeaderParser = new CSVReaderBuilder(
+        new InputStreamReader(new FileInputStream(file), charSet))
       .strategy(new CSVStrategy(',', '\"', '#', true, true))
       .entryParser(new UserProfileViewParser(null))
       .build();
@@ -138,12 +144,44 @@ public class ImportUsersUploadAction extends BaseAdminActionSupport {
     List<String> headers = csvHeaderParser.readHeader();
     csvHeaderParser.close();
 
-    CSVReader<ImportedUserView> csvParser = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(file)))
+    CSVReader<ImportedUserView> csvParser = new CSVReaderBuilder(
+        new InputStreamReader(new FileInputStream(file), charSet))
       .strategy(new CSVStrategy(',', '\"', '#', true, true))
       .entryParser(new UserProfileViewParser(headers))
       .build();
 
     return csvParser.readAll();
+  }
+
+  /**
+   * Take a guess at the character set for the passed in file
+   *
+   * TODO: Move to library to share
+   *
+   * @param file
+   *
+   * @return the guessed at character set, or UTF-8 if it can not be determined.
+   *
+   * @throws IOException
+   */
+  private Charset detectCharset(File file) throws IOException {
+    //http://stackoverflow.com/questions/1677497/guessing-the-encoding-of-text-represented-as-byte-in-java
+    byte[] bytes = IOUtils.toByteArray(new FileInputStream(file));
+    UniversalDetector detector = new UniversalDetector(null);
+
+    detector.handleData(bytes, 0, bytes.length);
+    detector.dataEnd();
+
+    String encoding = detector.getDetectedCharset();
+    detector.reset();
+
+    if(encoding != null) {
+      log.trace("Charset guessed to be {}", encoding);
+      return Charset.forName(encoding);
+    } else {
+      log.trace("Charset set to default UTF-8");
+      return Charset.forName("UTF-8");
+    }
   }
 
   /**
