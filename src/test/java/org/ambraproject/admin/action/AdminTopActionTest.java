@@ -18,10 +18,10 @@ import org.ambraproject.action.BaseActionSupport;
 import org.ambraproject.admin.AdminWebTest;
 import org.ambraproject.admin.service.DocumentManagementService;
 import org.ambraproject.admin.service.SyndicationService;
+import org.ambraproject.filestore.FileStoreService;
 import org.ambraproject.service.article.ArticleService;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.article.service.SampleArticleData;
-import org.ambraproject.filestore.FSIDMapper;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.Syndication;
 import org.ambraproject.views.article.ArticleInfo;
@@ -63,6 +63,9 @@ public class AdminTopActionTest extends AdminWebTest {
 
   @Autowired
   protected SyndicationService syndicationService; //just using this to check that things get syndicated
+
+  @Autowired
+  protected FileStoreService fileStoreService;
 
   @Autowired
   @Qualifier("ingestDir")
@@ -352,7 +355,8 @@ public class AdminTopActionTest extends AdminWebTest {
       assertEquals(dummyDataStore.get(Article.class, articleId).getState(),
           Article.STATE_DISABLED, "Article didn't get correct state set");
 
-      assertFalse(new File(filestoreDir, FSIDMapper.doiTofsid(doi, "xml")).exists(), "article didn't get deleted from the filestore");
+      assertFalse(new File(filestoreDir, fileStoreService.objectIDMapper().doiTofsid(doi, "xml")).exists(),
+          "article didn't get deleted from the filestore");
       assertFalse(new File(ingestedDir, crossrefFileName(doi)).exists(), "crossref file didn't get deleted in the ingested folder");
       assertFalse(new File(ingestedDir, zipFileName(doi)).exists(), "zip file didn't get deleted from the ingested folder");
       assertTrue(new File(ingestDir, zipFileName(doi)).exists(), "zip file didn't get moved to the ingest folder");
@@ -362,7 +366,7 @@ public class AdminTopActionTest extends AdminWebTest {
       FileUtils.deleteQuietly(new File(ingestedDir, zipFileName(doi)));
       FileUtils.deleteQuietly(new File(ingestDir, zipFileName(doi)));
       try {
-        FileUtils.deleteDirectory(new File(filestoreDir, FSIDMapper.zipToFSID(doi, "")));
+        FileUtils.deleteDirectory(new File(filestoreDir, fileStoreService.objectIDMapper().zipToFSID(doi, "")));
       } catch (IOException e) {
         //suppress
       }
@@ -378,7 +382,8 @@ public class AdminTopActionTest extends AdminWebTest {
       assertEquals(dummyDataStore.get(Article.class, articleId).getState(),
           Article.STATE_UNPUBLISHED, "Article didn't get correct state set");
 
-      assertTrue(new File(filestoreDir, FSIDMapper.doiTofsid(doi, "xml")).exists(), "article was deleted from the filestore");
+      assertTrue(new File(filestoreDir, fileStoreService.objectIDMapper().doiTofsid(doi, "xml")).exists(),
+          "article was deleted from the filestore");
       assertTrue(new File(ingestedDir, crossrefFileName(doi)).exists(), "crossref file was deleted from the ingested folder");
       assertTrue(new File(ingestedDir, zipFileName(doi)).exists(), "zip file was deleted from the ingested folder");
       assertFalse(new File(ingestDir, zipFileName(doi)).exists(), "zip file was added to the ingest folder");
@@ -388,7 +393,7 @@ public class AdminTopActionTest extends AdminWebTest {
       FileUtils.deleteQuietly(new File(ingestedDir, zipFileName(doi)));
       FileUtils.deleteQuietly(new File(ingestDir, zipFileName(doi)));
       try {
-        FileUtils.deleteDirectory(new File(filestoreDir, FSIDMapper.zipToFSID(doi, "")));
+        FileUtils.deleteDirectory(new File(filestoreDir, fileStoreService.objectIDMapper().zipToFSID(doi, "")));
       } catch (IOException e) {
         //suppress
       }

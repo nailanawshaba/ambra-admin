@@ -27,7 +27,6 @@ import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.ArticleRelationship;
 import org.ambraproject.models.UserProfile;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.ambraproject.filestore.FSIDMapper;
 import org.ambraproject.filestore.FileStoreException;
 import org.ambraproject.filestore.FileStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -241,8 +240,8 @@ public class DocumentManagementServiceTest extends AdminBaseTest {
   @Test(dataProvider = "storedPublishedArticles")
   void testDisable(String article, Long articleId) throws Exception
   {
-    final String file1 = FSIDMapper.doiTofsid(article + ".fileone", "txt");
-    final String file2 = FSIDMapper.doiTofsid(article + ".filetwo", "txt");
+    final String file1 = fileStoreService.objectIDMapper().doiTofsid(article + ".fileone", "txt");
+    final String file2 = fileStoreService.objectIDMapper().doiTofsid(article + ".filetwo", "txt");
 
     //Create some files to remove from the filestore
     OutputStream fs = fileStoreService.getFileOutStream(file1, 50);

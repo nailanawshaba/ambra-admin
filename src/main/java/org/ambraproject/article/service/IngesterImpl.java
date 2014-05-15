@@ -25,15 +25,12 @@ import com.google.common.collect.ImmutableBiMap;
 import org.ambraproject.admin.service.DocumentManagementService;
 import org.ambraproject.admin.service.SyndicationService;
 import org.ambraproject.article.ArchiveProcessException;
-import org.ambraproject.filestore.FSIDMapper;
 import org.ambraproject.filestore.FileStoreException;
 import org.ambraproject.filestore.FileStoreService;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleRelationship;
-import org.ambraproject.models.Category;
 import org.ambraproject.models.Issue;
 import org.ambraproject.models.Journal;
-import org.ambraproject.models.Volume;
 import org.ambraproject.service.article.DuplicateArticleIdException;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
@@ -41,7 +38,6 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -51,8 +47,6 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 
@@ -60,7 +54,6 @@ import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -321,11 +314,11 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
       throws IOException, FileStoreException {
     log.info("Removing existing files (if any) for {}", doi);
 
-    try {
-      documentManagementService.removeFromFileSystem(doi);
-    } catch (Exception e) {
-      throw new FileStoreException("Error removing existing files from the file store", e);
-    }
+//    try {
+//      documentManagementService.removeFromFileSystem(doi);
+//    } catch (Exception e) {
+//      throw new FileStoreException("Error removing existing files from the file store", e);
+//    }
 
     log.info("Storing files from archive {} to the file store", archive.getName());
     Enumeration<? extends ZipEntry> entries = archive.entries();
@@ -338,7 +331,7 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
         try {
           inputStream = archive.getInputStream(entry);
           outputStream = fileStoreService.getFileOutStream(
-              FSIDMapper.zipToFSID(doi, entry.getName()), entry.getSize());
+              fileStoreService.objectIDMapper().zipToFSID(doi, entry.getName()), entry.getSize());
           fileStoreService.copy(inputStream, outputStream);
         } finally {
           if (inputStream != null) {

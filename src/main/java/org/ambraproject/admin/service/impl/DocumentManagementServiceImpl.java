@@ -21,9 +21,9 @@
 
 package org.ambraproject.admin.service.impl;
 
-import org.ambraproject.models.ArticleRelationship;
-import org.ambraproject.service.article.NoSuchArticleIdException;
-import org.ambraproject.filestore.FSIDMapper;
+import org.ambraproject.admin.service.DocumentManagementService;
+import org.ambraproject.admin.service.OnDeleteListener;
+import org.ambraproject.admin.service.OnPublishListener;
 import org.ambraproject.filestore.FileStoreService;
 import org.ambraproject.models.Annotation;
 import org.ambraproject.models.AnnotationType;
@@ -33,8 +33,11 @@ import org.ambraproject.models.Flag;
 import org.ambraproject.models.Syndication;
 import org.ambraproject.models.Trackback;
 import org.ambraproject.models.UserRole.Permission;
+import org.ambraproject.service.article.ArticleService;
+import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.ambraproject.service.journal.JournalService;
+import org.ambraproject.service.permission.PermissionsService;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
@@ -43,23 +46,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.annotation.Transactional;
-import org.ambraproject.admin.service.DocumentManagementService;
-import org.ambraproject.admin.service.OnDeleteListener;
-import org.ambraproject.admin.service.OnPublishListener;
-import org.ambraproject.service.article.ArticleService;
-import org.ambraproject.service.permission.PermissionsService;
 import org.w3c.dom.Document;
 
-import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -294,11 +293,11 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
 
   @Override
   public void removeFromFileSystem(String articleUri) throws Exception {
-    String articleRoot = FSIDMapper.zipToFSID(articleUri, "");
+    String articleRoot = fileStoreService.objectIDMapper().zipToFSID(articleUri, "");
     Map<String, String> files = fileStoreService.listFiles(articleRoot);
 
     for (String file : files.keySet()) {
-      String fullFile = FSIDMapper.zipToFSID(articleUri, file);
+      String fullFile = fileStoreService.objectIDMapper().zipToFSID(articleUri, file);
       fileStoreService.deleteFile(fullFile);
     }
 
