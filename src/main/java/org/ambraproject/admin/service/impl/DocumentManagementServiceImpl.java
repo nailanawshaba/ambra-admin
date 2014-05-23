@@ -28,6 +28,7 @@ import org.ambraproject.filestore.FileStoreService;
 import org.ambraproject.models.Annotation;
 import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
+import org.ambraproject.models.ArticleAsset;
 import org.ambraproject.models.ArticleView;
 import org.ambraproject.models.Flag;
 import org.ambraproject.models.Syndication;
@@ -264,10 +265,13 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
       deleteRepliesRecursively(annotation);
     }
 
+    //list assets
+    List<ArticleAsset> assets = ((Article) articles.get(0)).getAssets();
+
     hibernateTemplate.delete(articles.get(0));
 
 
-    removeFromFileSystem(articleDoi);
+    removeFromFileSystem(assets);
 
     invokeOnDeleteListeners(articleDoi);
   }
@@ -303,6 +307,14 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
 
     //We leave the directory in place as mogile doesn't really support removing of keys
     //fileStoreService.deleteFile(articleRoot);
+  }
+
+  @Override
+  public void removeFromFileSystem(List<ArticleAsset> assets) throws Exception {
+    for (ArticleAsset asset: assets) {
+      String fsid = fileStoreService.objectIDMapper().doiTofsid(asset.getDoi(), asset.getExtension());
+      fileStoreService.deleteFile(fsid);
+    }
   }
 
   /**
