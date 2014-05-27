@@ -202,7 +202,7 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
     //When an article is 'disabled' it should be deleted from any places where it has been
     //syndicated to and removed from the file store
     //The only way to re-enable this in a correct way is to re-ingest the article.
-    removeFromFileSystem(objectURI);
+    //removeFromFileSystem(objectURI);
     invokeOnDeleteListeners(objectURI);
   }
 
@@ -293,20 +293,6 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
       deleteRepliesRecursively(reply);
     }
     hibernateTemplate.delete(annotation);
-  }
-
-  @Override
-  public void removeFromFileSystem(String articleUri) throws Exception {
-    String articleRoot = fileStoreService.objectIDMapper().zipToFSID(articleUri, "");
-    Map<String, String> files = fileStoreService.listFiles(articleRoot);
-
-    for (String file : files.keySet()) {
-      String fullFile = fileStoreService.objectIDMapper().zipToFSID(articleUri, file);
-      fileStoreService.deleteFile(fullFile);
-    }
-
-    //We leave the directory in place as mogile doesn't really support removing of keys
-    //fileStoreService.deleteFile(articleRoot);
   }
 
   @Override

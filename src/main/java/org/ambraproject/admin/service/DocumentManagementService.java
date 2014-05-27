@@ -115,13 +115,5 @@ public interface DocumentManagementService {
    */
   public String getIngestedDocumentDirectory();
 
-  /**
-   * Remove all the files associated with an article from the file repository
-   *
-   * @param articleUri
-   * @throws Exception
-   */
-  public void removeFromFileSystem(String articleUri) throws Exception;
-
   public void removeFromFileSystem(List<ArticleAsset> assets) throws Exception;
 }
