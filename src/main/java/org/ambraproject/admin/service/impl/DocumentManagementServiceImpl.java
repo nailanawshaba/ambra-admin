@@ -202,7 +202,22 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
     //When an article is 'disabled' it should be deleted from any places where it has been
     //syndicated to and removed from the file store
     //The only way to re-enable this in a correct way is to re-ingest the article.
-    //removeFromFileSystem(objectURI);
+
+    //list the article
+    List articles = hibernateTemplate.findByCriteria(
+        DetachedCriteria.forClass(Article.class)
+            .add(Restrictions.eq("doi", objectURI))
+            .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
+
+    if (articles.size() == 0) {
+      throw new NoSuchArticleIdException(objectURI);
+    }
+
+    //list assets
+    List<ArticleAsset> assets = ((Article) articles.get(0)).getAssets();
+
+    removeFromFileSystem(assets);
+
     invokeOnDeleteListeners(objectURI);
   }
 
