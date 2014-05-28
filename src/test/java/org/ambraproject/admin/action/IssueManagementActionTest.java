@@ -1,16 +1,21 @@
 /*
- * $HeadURL$
- * $Id$
- * Copyright (c) 2006-2012 by Public Library of Science http://plos.org http://ambraproject.org
+ * Copyright (c) 2006-2014 by Public Library of Science
+ *
+ * http://plos.org
+ * http://ambraproject.org
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0Unless required by applicable law or agreed to in writing, software
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ambraproject.admin.action;
 
 import com.opensymphony.xwork2.Action;
@@ -19,24 +24,24 @@ import org.ambraproject.admin.AdminWebTest;
 import org.ambraproject.admin.service.AdminService;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.service.article.ArticleService;
+import org.ambraproject.views.TOCArticle;
 import org.ambraproject.views.TOCArticleGroup;
-import org.ambraproject.views.article.ArticleInfo;
 import org.ambraproject.views.article.ArticleType;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.Issue;
-import org.ambraproject.models.Volume;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
+import java.util.Set;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -91,11 +96,19 @@ public class IssueManagementActionTest extends AdminWebTest {
         dummyDataStore.store(article);
         issue.getArticleDois().add(article.getDoi());
 
+        Set<ArticleType> articleTypes = new HashSet<ArticleType>(article.getTypes().size());
+
+        for (String artType : article.getTypes()) {
+          articleTypes.add(ArticleType.getArticleTypeForURI(URI.create(artType), true));
+        }
+
         //add an articleInfo to TOC group
-        ArticleInfo info = new ArticleInfo();
-        info.setDoi(article.getDoi());
-        info.setAt(article.getTypes());
-        info.setTitle(article.getTitle());
+        TOCArticle info = TOCArticle.builder()
+          .setDoi(article.getDoi())
+          .setDate(Calendar.getInstance().getTime())
+          .setArticleTypes(articleTypes)
+          .setTitle(article.getTitle())
+          .build();
         group.addArticle(info);
       }
       articleGroupList.add(group);
@@ -112,13 +125,19 @@ public class IssueManagementActionTest extends AdminWebTest {
     orphan1.getTypes().add("id:definitelyNotARealArticleType");
     dummyDataStore.store(orphan1);
 
-    ArticleInfo orphan1Info = new ArticleInfo();
-    orphan1Info.setDoi(orphan1.getDoi());
+    TOCArticle orphan1Info = TOCArticle.builder()
+      .setDoi(orphan1.getDoi())
+      .setDate(Calendar.getInstance().getTime())
+      .build();
+
     orphans.addArticle(orphan1Info);
     issue.getArticleDois().add(orphan1.getDoi());
 
-    ArticleInfo orphan2Info = new ArticleInfo();
-    orphan2Info.setDoi("id:non-existent-article-orphan");
+    TOCArticle orphan2Info = TOCArticle.builder()
+      .setDoi("id:non-existent-article-orphan")
+      .setDate(Calendar.getInstance().getTime())
+      .build();
+
     orphans.addArticle(orphan2Info);
     issue.getArticleDois().add(orphan2Info.getDoi());
 
@@ -132,9 +151,9 @@ public class IssueManagementActionTest extends AdminWebTest {
       }
     });
     for (TOCArticleGroup group : articleGroupList) {
-      Collections.sort(group.getArticles(), new Comparator<ArticleInfo>() {
+      Collections.sort(group.getArticles(), new Comparator<TOCArticle>() {
         @Override
-        public int compare(ArticleInfo o1, ArticleInfo o2) {
+        public int compare(TOCArticle o1, TOCArticle o2) {
           return -1 * o1.getDoi().compareTo(o2.getDoi());
         }
       });
@@ -176,8 +195,8 @@ public class IssueManagementActionTest extends AdminWebTest {
           "Article group " + (i + 1) + " had incorrect number of articles");
       //articles in the group
       for (int j = 0; j < actualGroup.getArticles().size(); j++) {
-        ArticleInfo actualArticle = actualGroup.getArticles().get(j);
-        ArticleInfo expectedArticle = expectedGroup.getArticles().get(j);
+        TOCArticle actualArticle = actualGroup.getArticles().get(j);
+        TOCArticle expectedArticle = expectedGroup.getArticles().get(j);
         assertEquals(actualArticle.getDoi(), expectedArticle.getDoi(),
             "Article " + (j + 1) + " in group " + actualGroup.getHeading() + " had incorrect doi");
         assertEquals(actualArticle.getTitle(), expectedArticle.getTitle(),
@@ -358,7 +377,7 @@ public class IssueManagementActionTest extends AdminWebTest {
     }
     //the first article should be in the first TOC group
     boolean foundMatch = false;
-    for (ArticleInfo articleInfo : action.getArticleGroups().get(0).getArticles()) {
+    for (TOCArticle articleInfo : action.getArticleGroups().get(0).getArticles()) {
       if (articleInfo.getDoi().equals(article.getDoi())) {
         foundMatch = true;
         break;
@@ -367,9 +386,9 @@ public class IssueManagementActionTest extends AdminWebTest {
     assertTrue(foundMatch, "New article didn't get added to correct group");
     String orphanDoi = articlesToAddCsv.split(",")[1];
     //the second article should be an orphan
-    ArrayList<ArticleInfo> orphans = action.getArticleGroups().get(action.getArticleGroups().size() - 1).getArticles();
+    ArrayList<TOCArticle> orphans = action.getArticleGroups().get(action.getArticleGroups().size() - 1).getArticles();
     boolean foundOrphan = false;
-    for (ArticleInfo articleInfo : orphans) {
+    for (TOCArticle articleInfo : orphans) {
       if (orphanDoi.equals(articleInfo.getDoi())) {
         foundOrphan = true;
         break;

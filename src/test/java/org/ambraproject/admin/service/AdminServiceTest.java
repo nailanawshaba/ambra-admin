@@ -1,31 +1,33 @@
 /*
- * $HeadURL$
- * $Id$
- * Copyright (c) 2006-2012 by Public Library of Science http://plos.org http://ambraproject.org
+ * Copyright (c) 2006-2014 by Public Library of Science
+ *
+ * http://plos.org
+ * http://ambraproject.org
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0Unless required by applicable law or agreed to in writing, software
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ambraproject.admin.service;
 
 import org.ambraproject.ApplicationException;
 import org.ambraproject.admin.AdminBaseTest;
 import org.ambraproject.admin.DummyOnCrossPublishListener;
-import org.ambraproject.service.article.ArticleService;
+import org.ambraproject.views.TOCArticle;
 import org.ambraproject.views.article.ArticleInfo;
 import org.ambraproject.views.article.ArticleType;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.Issue;
 import org.ambraproject.models.Journal;
-import org.ambraproject.models.UserProfile;
-import org.ambraproject.models.UserRole;
 import org.ambraproject.models.Volume;
-import org.ambraproject.service.permission.PermissionsService;
 import org.ambraproject.views.TOCArticleGroup;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
@@ -33,8 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import javax.annotation.Resource;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -652,7 +652,7 @@ public class AdminServiceTest extends AdminBaseTest {
 
       //check the articles in the group
       for (int j = 0; j < group.getArticles().size(); j++) {
-        ArticleInfo actualArticle = group.getArticles().get(j);
+        TOCArticle actualArticle = group.getArticles().get(j);
         Article expectedArticle = expectedArticles.get(type).get(j);
         assertEquals(actualArticle.getDoi(), expectedArticle.getDoi(),
             "Article " + (j + 1) + " for type '" + type.getHeading() + "' had incorrect doi");
@@ -667,7 +667,7 @@ public class AdminServiceTest extends AdminBaseTest {
     assertEquals(lastGroup.getArticles().size(), 2, "Orphaned article group didn't include all orphans");
     boolean foundMatchForNonExistentArticle = false;
     boolean foundMatchForUnknownTypeArticle = false;
-    for (ArticleInfo article : lastGroup.getArticles()) {
+    for (TOCArticle article : lastGroup.getArticles()) {
       if (nonExistentDoi.equals(article.getDoi())) {
         foundMatchForNonExistentArticle = true;
       } else if (unknownTypeArticle.getDoi().equals(article.getDoi())) {
@@ -730,7 +730,7 @@ public class AdminServiceTest extends AdminBaseTest {
     String[] splitCsv = articleCsv.split(",");
     int i = 0;
     for (TOCArticleGroup group : groups) {
-      for (ArticleInfo articleInfo : group.getArticles()) {
+      for (TOCArticle articleInfo : group.getArticles()) {
         assertEquals(splitCsv[i], articleInfo.getDoi(), "Doi in position " + (i + 1) + " was incorrect");
         i++;
       }

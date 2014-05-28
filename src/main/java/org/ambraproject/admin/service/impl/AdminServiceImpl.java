@@ -1,13 +1,14 @@
 /*
- * Copyright (c) 2006-2013 by Public Library of Science
- *     http://plos.org
- *     http://ambraproject.org
+ * Copyright (c) 2006-2014 by Public Library of Science
+ *
+ * http://plos.org
+ * http://ambraproject.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ambraproject.admin.service.impl;
 
 import org.ambraproject.ApplicationException;
@@ -38,6 +38,7 @@ import org.ambraproject.service.article.FetchArticleService;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.ambraproject.util.XPathUtil;
+import org.ambraproject.views.TOCArticle;
 import org.ambraproject.views.TOCArticleGroup;
 import org.ambraproject.views.article.ArticleInfo;
 import org.ambraproject.views.article.ArticleType;
@@ -652,7 +653,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     }
     String csv = "";
     for (TOCArticleGroup group : issueArticleGroups) {
-      for (ArticleInfo article : group.getArticles()) {
+      for (TOCArticle article : group.getArticles()) {
         csv += article.getDoi() + ",";
       }
     }
@@ -669,20 +670,20 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     }
 
     //Create a comparator to sort articles in groups depending on if the issue has manual ordering enabled
-    Comparator<ArticleInfo> comparator;
+    Comparator<TOCArticle> comparator;
     if (issue.isRespectOrder()) {
-      comparator = new Comparator<ArticleInfo>() {
+      comparator = new Comparator<TOCArticle>() {
         @Override
-        public int compare(ArticleInfo left, ArticleInfo right) {
+        public int compare(TOCArticle left, TOCArticle right) {
           Integer leftIndex = issue.getArticleDois().indexOf(left.getDoi());
           Integer rightIndex = issue.getArticleDois().indexOf(right.getDoi());
           return leftIndex.compareTo(rightIndex);
         }
       };
     } else {
-      comparator = new Comparator<ArticleInfo>() {
+      comparator = new Comparator<TOCArticle>() {
         @Override
-        public int compare(ArticleInfo left, ArticleInfo right) {
+        public int compare(TOCArticle left, TOCArticle right) {
           if (left.getDate().after(right.getDate())) {
             return -1;
           }
@@ -717,10 +718,11 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
         Object[] row = iterator.next();
         //check if this row is of the correct type, and that we haven't added the article
         if (type.getUri().toString().equals(row[3]) && dois.contains(row[0])) {
-          ArticleInfo articleInfo = new ArticleInfo();
-          articleInfo.setDoi((String) row[0]);
-          articleInfo.setTitle((String) row[1]);
-          articleInfo.setDate((Date) row[2]);
+          TOCArticle articleInfo = TOCArticle.builder()
+            .setDoi((String) row[0])
+            .setTitle((String) row[1])
+            .setDate((Date) row[2])
+            .build();
           group.addArticle(articleInfo);
 
           //remove the row so we don't have to check it again later
@@ -745,9 +747,11 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
     //anything left in the doi list is an orphan
     for (String doi : dois) {
-      ArticleInfo article = new ArticleInfo();
-      article.setDoi(doi);
-      article.setDate(Calendar.getInstance().getTime());
+      TOCArticle article = TOCArticle.builder()
+        .setDoi(doi)
+        .setDate(Calendar.getInstance().getTime())
+        .build();
+
       orphans.addArticle(article);
     }
     Collections.sort(orphans.getArticles(), comparator);
