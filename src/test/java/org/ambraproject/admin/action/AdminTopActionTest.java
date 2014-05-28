@@ -19,6 +19,7 @@ import org.ambraproject.admin.AdminWebTest;
 import org.ambraproject.admin.service.DocumentManagementService;
 import org.ambraproject.admin.service.SyndicationService;
 import org.ambraproject.filestore.FileStoreService;
+import org.ambraproject.models.ArticleAsset;
 import org.ambraproject.service.article.ArticleService;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.article.service.SampleArticleData;
@@ -38,6 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipFile;
 
@@ -320,6 +323,20 @@ public class AdminTopActionTest extends AdminWebTest {
     Article article = new Article();
     article.setDoi("info:doi/10.1371/journal.pone.000102");
     article.setState(Article.STATE_ACTIVE);
+
+    //the files which are in filestore should be in database
+    List<ArticleAsset> assetsForArticle1 = new LinkedList<ArticleAsset>();
+    ArticleAsset articleAsset = new ArticleAsset();
+    articleAsset.setContentType("XML");
+    articleAsset.setContextElement("Fake ContextElement for asset1ForArticle1");
+    articleAsset.setDoi("info:doi/10.1371/journal.pone.000102");
+    articleAsset.setExtension("XML");
+    articleAsset.setSize(1000001l);
+    articleAsset.setCreated(new Date());
+    articleAsset.setLastModified(new Date());
+    assetsForArticle1.add(articleAsset);
+    article.setAssets(assetsForArticle1);
+
 
     //create files in the ingested and file store directories to check that they get moved out
     File articleDir = new File(filestoreDir, "/10.1371/pone.000102");
