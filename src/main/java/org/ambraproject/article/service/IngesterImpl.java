@@ -27,10 +27,7 @@ import org.ambraproject.admin.service.SyndicationService;
 import org.ambraproject.article.ArchiveProcessException;
 import org.ambraproject.filestore.FileStoreException;
 import org.ambraproject.filestore.FileStoreService;
-import org.ambraproject.models.Article;
-import org.ambraproject.models.ArticleRelationship;
-import org.ambraproject.models.Issue;
-import org.ambraproject.models.Journal;
+import org.ambraproject.models.*;
 import org.ambraproject.service.article.DuplicateArticleIdException;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
@@ -314,11 +311,22 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
       throws IOException, FileStoreException {
     log.info("Removing existing files (if any) for {}", doi);
 
-//    try {
-//      documentManagementService.removeFromFileSystem(doi);
-//    } catch (Exception e) {
-//      throw new FileStoreException("Error removing existing files from the file store", e);
-//    }
+    //get the article from the db
+    List articles = hibernateTemplate.findByCriteria(
+        DetachedCriteria.forClass(Article.class)
+            .add(Restrictions.eq("doi", doi))
+            .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
+
+    if (articles.size() > 0) {
+      //list assets
+      List<ArticleAsset> assets = ((Article) articles.get(0)).getAssets();
+      try {
+        documentManagementService.removeFromFileSystem(assets);
+      } catch (Exception e) {
+        log.error("Error removing existing files", e);
+        //throw new FileStoreException("Error removing existing files from the file store", e);
+      }
+    }
 
     log.info("Storing files from archive {} to the file store", archive.getName());
     Enumeration<? extends ZipEntry> entries = archive.entries();
