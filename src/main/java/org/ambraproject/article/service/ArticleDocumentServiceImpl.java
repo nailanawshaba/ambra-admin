@@ -21,16 +21,14 @@
 
 package org.ambraproject.article.service;
 
-import org.ambraproject.filestore.FSIDMapper;
 import org.ambraproject.filestore.FileStoreService;
-import org.ambraproject.service.journal.JournalService;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.Journal;
-import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.ambraproject.service.article.NoSuchArticleIdException;
+import org.ambraproject.service.hibernate.HibernateServiceImpl;
+import org.ambraproject.service.journal.JournalService;
 import org.hibernate.FetchMode;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +105,7 @@ public class ArticleDocumentServiceImpl extends HibernateServiceImpl implements 
     //TODO: find a standard way to get the xml file name for a doi
 
     try {
-      String fileID = FSIDMapper.doiTofsid(articleId,"XML");
+      String fileID = fileStoreService.objectIDMapper().doiTofsid(articleId,"XML");
       inputStream = fileStoreService.getFileInStream(fileID);
       Document document = parseXmlInputStream(inputStream);
       appendJournals(URI.create(articleId), document);

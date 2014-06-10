@@ -21,20 +21,24 @@
 
 package org.ambraproject.admin.service.impl;
 
-import org.ambraproject.models.ArticleRelationship;
-import org.ambraproject.service.article.NoSuchArticleIdException;
-import org.ambraproject.filestore.FSIDMapper;
+import org.ambraproject.admin.service.DocumentManagementService;
+import org.ambraproject.admin.service.OnDeleteListener;
+import org.ambraproject.admin.service.OnPublishListener;
 import org.ambraproject.filestore.FileStoreService;
 import org.ambraproject.models.Annotation;
 import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
+import org.ambraproject.models.ArticleAsset;
 import org.ambraproject.models.ArticleView;
 import org.ambraproject.models.Flag;
 import org.ambraproject.models.Syndication;
 import org.ambraproject.models.Trackback;
 import org.ambraproject.models.UserRole.Permission;
+import org.ambraproject.service.article.ArticleService;
+import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.ambraproject.service.journal.JournalService;
+import org.ambraproject.service.permission.PermissionsService;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
@@ -43,23 +47,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.annotation.Transactional;
-import org.ambraproject.admin.service.DocumentManagementService;
-import org.ambraproject.admin.service.OnDeleteListener;
-import org.ambraproject.admin.service.OnPublishListener;
-import org.ambraproject.service.article.ArticleService;
-import org.ambraproject.service.permission.PermissionsService;
 import org.w3c.dom.Document;
 
-import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -202,7 +202,22 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
     //When an article is 'disabled' it should be deleted from any places where it has been
     //syndicated to and removed from the file store
     //The only way to re-enable this in a correct way is to re-ingest the article.
-    removeFromFileSystem(objectURI);
+
+    //list the article
+    List articles = hibernateTemplate.findByCriteria(
+        DetachedCriteria.forClass(Article.class)
+            .add(Restrictions.eq("doi", objectURI))
+            .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
+
+    if (articles.size() == 0) {
+      throw new NoSuchArticleIdException(objectURI);
+    }
+
+    //list assets
+    List<ArticleAsset> assets = ((Article) articles.get(0)).getAssets();
+
+    removeFromFileSystem(assets);
+
     invokeOnDeleteListeners(objectURI);
   }
 
@@ -265,10 +280,13 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
       deleteRepliesRecursively(annotation);
     }
 
+    //list assets
+    List<ArticleAsset> assets = ((Article) articles.get(0)).getAssets();
+
     hibernateTemplate.delete(articles.get(0));
 
 
-    removeFromFileSystem(articleDoi);
+    removeFromFileSystem(assets);
 
     invokeOnDeleteListeners(articleDoi);
   }
@@ -293,17 +311,11 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
   }
 
   @Override
-  public void removeFromFileSystem(String articleUri) throws Exception {
-    String articleRoot = FSIDMapper.zipToFSID(articleUri, "");
-    Map<String, String> files = fileStoreService.listFiles(articleRoot);
-
-    for (String file : files.keySet()) {
-      String fullFile = FSIDMapper.zipToFSID(articleUri, file);
-      fileStoreService.deleteFile(fullFile);
+  public void removeFromFileSystem(List<ArticleAsset> assets) throws Exception {
+    for (ArticleAsset asset: assets) {
+      String fsid = fileStoreService.objectIDMapper().doiTofsid(asset.getDoi(), asset.getExtension());
+      fileStoreService.deleteFile(fsid);
     }
-
-    //We leave the directory in place as mogile doesn't really support removing of keys
-    //fileStoreService.deleteFile(articleRoot);
   }
 
   /**

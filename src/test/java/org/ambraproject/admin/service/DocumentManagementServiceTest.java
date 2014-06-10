@@ -24,10 +24,10 @@ package org.ambraproject.admin.service;
 import org.ambraproject.admin.AdminBaseTest;
 import org.ambraproject.models.Annotation;
 import org.ambraproject.models.AnnotationType;
+import org.ambraproject.models.ArticleAsset;
 import org.ambraproject.models.ArticleRelationship;
 import org.ambraproject.models.UserProfile;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.ambraproject.filestore.FSIDMapper;
 import org.ambraproject.filestore.FileStoreException;
 import org.ambraproject.filestore.FileStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +55,8 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.testng.Assert.assertEqualsNoOrder;
@@ -107,6 +109,32 @@ public class DocumentManagementServiceTest extends AdminBaseTest {
     article.setState(Article.STATE_ACTIVE);
     article.setDoi(articleUri2);
     article.setRelatedArticles(new ArrayList<ArticleRelationship>());
+
+    //the files which are in filestore should be in database
+    List<ArticleAsset> assetsForArticle1 = new LinkedList<ArticleAsset>();
+    ArticleAsset articleAsset = new ArticleAsset();
+    articleAsset.setContentType("text");
+    articleAsset.setContextElement("Fake ContextElement for assetForArticle1");
+    articleAsset.setDoi("info:doi/10.1371/journal.pone.0000203.fileone");
+    articleAsset.setExtension("txt");
+    articleAsset.setSize(1000001l);
+    articleAsset.setCreated(new Date());
+    articleAsset.setLastModified(new Date());
+
+    ArticleAsset articleAsset1 = new ArticleAsset();
+    articleAsset1.setContentType("text");
+    articleAsset1.setContextElement("Fake ContextElement for asset2ForArticle1");
+    articleAsset1.setDoi("info:doi/10.1371/journal.pone.0000203.filetwo");
+    articleAsset1.setExtension("txt");
+    articleAsset1.setSize(1000001l);
+    articleAsset1.setCreated(new Date());
+    articleAsset1.setLastModified(new Date());
+
+    assetsForArticle1.add(articleAsset);
+    assetsForArticle1.add(articleAsset1);
+
+    article.setAssets(assetsForArticle1);
+
 
     Long id = Long.valueOf(dummyDataStore.store(article));
     article.setID(id);
@@ -241,8 +269,8 @@ public class DocumentManagementServiceTest extends AdminBaseTest {
   @Test(dataProvider = "storedPublishedArticles")
   void testDisable(String article, Long articleId) throws Exception
   {
-    final String file1 = FSIDMapper.doiTofsid(article + ".fileone", "txt");
-    final String file2 = FSIDMapper.doiTofsid(article + ".filetwo", "txt");
+    final String file1 = fileStoreService.objectIDMapper().doiTofsid(article + ".fileone", "txt");
+    final String file2 = fileStoreService.objectIDMapper().doiTofsid(article + ".filetwo", "txt");
 
     //Create some files to remove from the filestore
     OutputStream fs = fileStoreService.getFileOutStream(file1, 50);

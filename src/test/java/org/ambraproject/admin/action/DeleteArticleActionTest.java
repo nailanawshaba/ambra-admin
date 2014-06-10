@@ -19,6 +19,7 @@ import org.ambraproject.admin.AdminWebTest;
 import org.ambraproject.models.Annotation;
 import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
+import org.ambraproject.models.ArticleAsset;
 import org.ambraproject.models.UserProfile;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -70,6 +74,20 @@ public class DeleteArticleActionTest extends AdminWebTest {
   public void testDelete() throws Exception {
     Article article = new Article();
     article.setDoi("info:doi/10.1371/journal.pone.00000");
+
+    //the files which are in filestore should be in database
+    List<ArticleAsset> assetsForArticle1 = new LinkedList<ArticleAsset>();
+    ArticleAsset articleAsset = new ArticleAsset();
+    articleAsset.setContentType("XML");
+    articleAsset.setContextElement("Fake ContextElement for asset1ForArticle1");
+    articleAsset.setDoi("info:doi/10.1371/journal.pone.00000");
+    articleAsset.setExtension("XML");
+    articleAsset.setSize(1000001l);
+    articleAsset.setCreated(new Date());
+    articleAsset.setLastModified(new Date());
+    assetsForArticle1.add(articleAsset);
+    article.setAssets(assetsForArticle1);
+
     dummyDataStore.store(article);
 
     //make some files in the filestore to see if they get deleted

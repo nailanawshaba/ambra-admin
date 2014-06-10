@@ -20,6 +20,7 @@
 
 package org.ambraproject.admin.service;
 
+import org.ambraproject.models.ArticleAsset;
 import org.w3c.dom.Document;
 
 import javax.xml.transform.TransformerException;
@@ -114,11 +115,5 @@ public interface DocumentManagementService {
    */
   public String getIngestedDocumentDirectory();
 
-  /**
-   * Remove all the files associated with an article from the file repository
-   *
-   * @param articleUri
-   * @throws Exception
-   */
-  public void removeFromFileSystem(String articleUri) throws Exception;
+  public void removeFromFileSystem(List<ArticleAsset> assets) throws Exception;
 }
