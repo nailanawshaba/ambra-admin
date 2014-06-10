@@ -29,6 +29,7 @@
 <@s.url id="manageRoles" namespace="/" action="manageRoles" />
 <@s.url id="deleteArticle" namespace="/" action="deleteArticle" />
 <@s.url id="manageFeaturedArticles" namespace="/" action="featuredArticle"/>
+<@s.url id="testThesaurus" namespace="/" action="testThesaurus"/>
 
 <@s.url id="logout" includeParams="none" namespace="/" action="secureRedirect"
   goTo="${freemarker_config.casLogoutURL}?" +
@@ -65,6 +66,9 @@
   </#if>
   <#if permissions?seq_contains("RESEND_EMAIL_ALERTS")>
     <@s.a href="${manageEmailAlerts}">Manage Email Alerts</@s.a>,&nbsp;
+  </#if>
+  <#if permissions?seq_contains("TEST_THESAURUS")>
+    <@s.a href="${testThesaurus}">Test Thesaurus</@s.a>,&nbsp;
   </#if>
   <#if permissions?seq_contains("MANAGE_ROLES")>
     <@s.a href="${manageRoles}">Roles</@s.a>
