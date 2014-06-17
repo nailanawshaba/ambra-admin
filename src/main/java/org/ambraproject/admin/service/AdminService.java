@@ -32,6 +32,7 @@ import org.ambraproject.views.article.ArticleInfo;
 import javax.xml.xpath.XPathExpressionException;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * AdminService encapsulates the basic services needed by all administrative actions.
@@ -264,7 +265,7 @@ public interface AdminService {
    *
    * @throws NoSuchArticleIdException
    */
-  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException;
+  public Set<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException;
 
   /**
    * Create a new article list and add it to the current Journal's.

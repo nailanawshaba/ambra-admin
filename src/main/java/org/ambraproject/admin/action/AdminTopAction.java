@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipFile;
 
 @SuppressWarnings("serial")
@@ -165,7 +166,7 @@ public class AdminTopAction extends BaseAdminActionSupport {
     try {
       UriUtil.validateUri(article, "Article Uri");
 
-      List<Category> newCategories = adminService.refreshSubjectCategories(article, getAuthId());
+      Set<Category> newCategories = adminService.refreshSubjectCategories(article, getAuthId());
 
       if(newCategories.size() > 0) {
         addActionMessage("Successfully refreshed article subject categories for: " + article);

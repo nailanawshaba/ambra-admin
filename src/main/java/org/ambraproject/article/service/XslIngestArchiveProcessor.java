@@ -80,6 +80,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -266,17 +267,17 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
 
       // Attempt to assign categories to the non-amendment article based on the taxonomy server.  However,
       // we still want to ingest the article even if this process fails.
-      List<String> terms = null;
+      Map<String, Integer> terms = null;
       try {
         if (!articleService.isAmendment(article)) {
           terms = articleClassifier.classifyArticle(articleXml);
           if (terms != null && terms.size() > 0) {
             articleService.setArticleCategories(article, terms);
           } else {
-            article.setCategories(new HashSet<Category>());
+            article.setCategories(new HashMap<Category, Integer>());
           }
         } else {
-          article.setCategories(new HashSet<Category>());
+          article.setCategories(new HashMap<Category, Integer>());
         }
       } catch (Exception e) {
         log.warn("Taxonomy server not responding, but ingesting article anyway", e);

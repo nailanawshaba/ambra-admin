@@ -775,13 +775,13 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
   @Override
   @Transactional
-  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException {
+  public Set<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException {
     // Attempt to assign categories to the article based on the taxonomy server.
 
     Document articleXml = fetchArticleService.getArticleDocument(new ArticleInfo(articleDoi));
     // update categories for non-amendment articles
     if (articleXml != null && !isAmendment(articleXml)) {
-      List<String> terms = null;
+      Map<String, Integer> terms = null;
 
       try {
         terms = articleClassifier.classifyArticle(articleXml);
@@ -791,10 +791,11 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
       if (terms != null && terms.size() > 0) {
         Article article = articleService.getArticle(articleDoi, authID);
-        return articleService.setArticleCategories(article, terms);
+        return articleService.setArticleCategories(article, terms).keySet();
       }
     }
-    return Collections.emptyList();
+
+    return Collections.emptySet();
   }
 
   private void invokeOnCrossPubListeners(String articleDoi) throws Exception {

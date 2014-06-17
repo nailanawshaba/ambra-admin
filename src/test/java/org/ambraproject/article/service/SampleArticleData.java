@@ -57,13 +57,13 @@ public class SampleArticleData {
 
     article.setCitedArticles(getExpectedReferences());
 
-    Set<Category> categories = new HashSet<Category>(2);
+    Map<Category, Integer> categories = new HashMap<Category, Integer>(2);
     Category category1 = new Category();
     category1.setPath("/TopLevel1/term1");
-    categories.add(category1);
+    categories.put(category1, 5);
     Category category2 = new Category();
     category2.setPath("/TopLevel2/term2");
-    categories.add(category2);
+    categories.put(category2, 10);
     article.setCategories(categories);
 
     Set<String> types = new HashSet<String>();
