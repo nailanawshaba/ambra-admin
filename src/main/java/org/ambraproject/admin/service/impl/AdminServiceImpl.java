@@ -5,7 +5,7 @@
  * http://ambraproject.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -61,7 +61,6 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
-
 import javax.xml.xpath.XPathExpressionException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -775,13 +774,13 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
   @Override
   @Transactional
-  public List<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException {
+  public Set<Category> refreshSubjectCategories(String articleDoi, String authID) throws NoSuchArticleIdException, XPathExpressionException {
     // Attempt to assign categories to the article based on the taxonomy server.
 
     Document articleXml = fetchArticleService.getArticleDocument(new ArticleInfo(articleDoi));
     // update categories for non-amendment articles
     if (articleXml != null && !isAmendment(articleXml)) {
-      List<String> terms = null;
+      Map<String, Integer> terms = null;
 
       try {
         terms = articleClassifier.classifyArticle(articleXml);
@@ -791,10 +790,11 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
       if (terms != null && terms.size() > 0) {
         Article article = articleService.getArticle(articleDoi, authID);
-        return articleService.setArticleCategories(article, terms);
+        return articleService.setArticleCategories(article, terms).keySet();
       }
     }
-    return Collections.emptyList();
+
+    return Collections.emptySet();
   }
 
   private void invokeOnCrossPubListeners(String articleDoi) throws Exception {
