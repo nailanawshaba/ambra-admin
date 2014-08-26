@@ -224,9 +224,9 @@
       </search>
 
       <importUsers>
-        <defaultEmailTitle>A new Ambra account has been created</defaultEmailTitle>
-        <defaultFromEmail>admin@foo.org</defaultFromEmail>
-        <defaultBCC></defaultBCC>
+        <defaultEmailTitle>Welcome to the PLOS ONE Editorial Board</defaultEmailTitle>
+        <defaultFromEmail>edboardmgmt@plos.org</defaultFromEmail>
+        <defaultBCC>edboardmgmt@plos.org</defaultBCC>
       </importUsers>
     </services>
     <articleTypeList>
