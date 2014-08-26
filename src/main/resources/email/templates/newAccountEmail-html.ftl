@@ -33,12 +33,6 @@
     We strongly recommend that you view your account at least once a week; it is therefore advisable to bookmark the link to the online submission site when you log on for the first time.<br/>
     <br/>
   </li>
-  <li><b>Abstract Submission</b><br/>
-    <i>PLOS ONE</i> also uses an algorithm called PLOS Match to match submitted papers to suitable editors. This tool looks for similarities between the abstracts of submitted manuscripts, and our editors' own published works in order to identify editors with the most appropriate expertise. We would be greatly obliged if you could supply us with the abstracts and titles of 10 (or so) papers which you feel are representative of your academic expertise. Please submit this information via this <a href="http://blogs.plos.org/everyone/academic-editors/">link</a>.<br/>
-    <br/>
-    You may submit data on more than 10 papers if you wish, but we suggest that you choose papers which show a broad cross section of your interests. Ideally, for each paper we will need the title, the full abstract, the journal name, and the publication year.<br/>
-    <br/>
-  </li>
   <li><b>Training Videos for Academic Editors</b><br/>
     Please click <a href="http://blogs.plos.org/everyone/tag/plos-one-video-shorts/">here</a> to view our training videos; these videos were created by the <i>PLOS ONE</i> staff to show you how to perform various tasks in the Editorial Manager submission system.  As above, you might find it useful to bookmark this page so that you can quickly access it when you are working in the system.
   </li>

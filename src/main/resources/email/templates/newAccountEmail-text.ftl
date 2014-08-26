@@ -25,12 +25,7 @@ PLOS ONE staff will populate your account with classification terms based on the
 
 We strongly recommend that you view your account at least once a week; it is therefore advisable to bookmark the link to the online submission site when you log on for the first time.
 
-3. Abstract Submission
-PLOS ONE also uses an algorithm called PLOS Match to match submitted papers to suitable editors. This tool looks for similarities between the abstracts of submitted manuscripts, and our editors' own published works in order to identify editors with the most appropriate expertise. We would be greatly obliged if you could supply us with the abstracts and titles of 10 (or so) papers which you feel are representative of your academic expertise. Please submit this information here: http://blogs.plos.org/everyone/academic-editors/
-
-You may submit data on more than 10 papers if you wish, but we suggest that you choose papers which show a broad cross section of your interests. Ideally, for each paper we will need the title, the full abstract, the journal name, and the publication year.
-
-4. Training Videos for Academic Editors
+3. Training Videos for Academic Editors
 Please visit http://blogs.plos.org/everyone/tag/plos-one-video-shorts/ to view our training videos; these videos were created by the PLOS ONE staff to show you how to perform various tasks in the Editorial Manager submission system. As above, you might find it useful to bookmark this page so that you can quickly access it when you are working in the system.
 
 Welcome to the PLOS ONE Editorial Board and if you would like any further information, please do let me know and I will be happy to answer any questions you may have.
