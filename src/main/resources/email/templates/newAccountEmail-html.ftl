@@ -28,7 +28,9 @@
     <br/>
     Once you have logged in, please follow the "Update my Information" link in the top left to verify that the information in your profile is correct, and update your username and password. <br/>
     <br/>
-    <i>PLOS ONE</i> staff will populate your account with classification terms based on the information you've provided, however you may wish to review this information and ensure that it accurately reflects the types of papers you would like to handle as editor. This is extremely important as we use this information to match submitted papers to suitable Academic Editors.<br/>
+    <i>PLOS ONE</i> staff will populate your account with classification terms based on the information you've
+      provided.  However, you may wish to review this information and ensure that it accurately reflects the types of
+      papers you would like to handle as editor. This is extremely important as we use this information to match submitted papers to suitable Academic Editors.<br/>
     <br/>
     We strongly recommend that you view your account at least once a week; it is therefore advisable to bookmark the link to the online submission site when you log on for the first time.<br/>
     <br/>
