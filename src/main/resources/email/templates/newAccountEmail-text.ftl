@@ -31,7 +31,7 @@ Please visit http://blogs.plos.org/everyone/tag/plos-one-video-shorts/ to view o
 Welcome to the PLOS ONE Editorial Board and if you would like any further information, please do let me know and I will be happy to answer any questions you may have.
 
 Best wishes,
-Kevin Floyd
+Melissa Thompson
 Publications Assistant, PLOS ONE
 
 On behalf of
