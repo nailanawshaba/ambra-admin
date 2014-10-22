@@ -42,7 +42,7 @@
 </p>
 
 <p>Best wishes,<br/>
-  Kevin Floyd<br/>
+  Melissa Thompson<br/>
   Publications Assistant, <i>PLOS ONE</i><br/>
 </p>
 
