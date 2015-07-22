@@ -82,18 +82,18 @@
               <ol>
                 <li class="search-alerts-weekly">
                   <label for="${ua.savedSearchId}">
-                    <@s.checkbox name="weeklyAlerts" onclick="selectCheckboxPerCollection(this.form.checkAllWeekly, this.form.weeklyAlerts);" fieldValue="${ua.savedSearchId}" value="${ua.weekly?string}"/>
+                    <@s.checkbox name="weeklyAlerts" onclick="selectCheckboxPerCollection(this.form.checkAllWeekly, this.form.weeklyAlerts);" fieldValue="${ua.savedSearchId?c}" value="${ua.weekly?string}"/>
                     Weekly (${ua.searchType})</label>
                 </li>
                 <li class="search-alerts-monthly">
                   <label for="${ua.savedSearchId}">
-                    <@s.checkbox name="monthlyAlerts" onclick="selectCheckboxPerCollection(this.form.checkAllMonthly, this.form.monthlyAlerts);" fieldValue="${ua.savedSearchId}" value="${ua.monthly?string}"/>
+                    <@s.checkbox name="monthlyAlerts" onclick="selectCheckboxPerCollection(this.form.checkAllMonthly, this.form.monthlyAlerts);" fieldValue="${ua.savedSearchId?c}" value="${ua.monthly?string}"/>
                     Monthly (${ua.searchType}) </label>
                 </li>
                 <li class="search-alerts-delete">
                   <label for="${ua.savedSearchId}">
                     <@s.checkbox name="deleteAlerts" onclick="selectCheckboxPerCollection(this.form.checkAllDelete,
-                    this.form.deleteAlerts);" fieldValue="${ua.savedSearchId}" value="false"/>
+                    this.form.deleteAlerts);" fieldValue="${ua.savedSearchId?c}" value="false"/>
                     Delete  </label>
                 </li>
               </ol>
