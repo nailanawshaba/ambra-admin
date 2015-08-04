@@ -56,7 +56,7 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
   @SuppressWarnings("unchecked")
   public List<FlagView> getFlaggedComments() {
     log.debug("Loading up all flagged annotations");
-    List<Flag> flags = hibernateTemplate.findByCriteria(
+    List<Flag> flags = (List<Flag>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Flag.class)
             .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
             .addOrder(Order.asc("created"))
@@ -90,7 +90,7 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
     log.debug("Removing comments and associated flag for flagId: {}", Arrays.toString(commentIds));
 
     //get all the flags for given flag id
-    List<Flag> flags = hibernateTemplate.findByCriteria(
+    List<Flag> flags = (List<Flag>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Flag.class)
             .add(Restrictions.in("ID", commentIds))
             .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
@@ -107,7 +107,7 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
       annotationMap.put(annotation.getID(), annotation);
 
       //make a list of flags to delete
-      List<Flag> flags1 = hibernateTemplate.findByCriteria(
+      List<Flag> flags1 = (List<Flag>) hibernateTemplate.findByCriteria(
           DetachedCriteria.forClass(Flag.class)
               .createAlias("flaggedAnnotation","a")
               .add(Restrictions.eq("a.ID", annotation.getID()))
@@ -142,7 +142,7 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
   public void listDeleteCommentTree(Annotation annotation) {
 
     //get all the children of the this annotation   
-    List<Annotation> annotationChild = hibernateTemplate.findByCriteria(
+    List<Annotation> annotationChild = (List<Annotation>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Annotation.class)
             .add(Restrictions.eq("parentID", annotation.getID()))
             .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)

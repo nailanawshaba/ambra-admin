@@ -130,7 +130,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
     List<ArticleInfo> articlesInfo = new ArrayList<ArticleInfo>();
     Order order = isOrderAscending ? Order.asc(orderField) : Order.desc(orderField);
-    List<Object[]> results = hibernateTemplate.findByCriteria(DetachedCriteria.forClass(Article.class)
+    List<Object[]> results = (List<Object[]>) hibernateTemplate.findByCriteria(DetachedCriteria.forClass(Article.class)
         .add(Restrictions.eq("eIssn", eIssn))
         .add(Restrictions.eq("state",Article.STATE_UNPUBLISHED))
         .addOrder(order)
@@ -246,7 +246,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
   public List<String> getCrossPubbedArticles(Journal journal) {
-    return hibernateTemplate.findByCriteria(
+    return (List<String>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Article.class)
             .add(Restrictions.ne("eIssn", journal.geteIssn()))
             .createAlias("journals", "j")
@@ -700,7 +700,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     log.debug("Loading up article groups for issue '{}'", issue.getIssueUri());
     List<TOCArticleGroup> groups = new ArrayList<TOCArticleGroup>(ArticleType.getOrderedListForDisplay().size());
 
-    List<Object[]> rows = hibernateTemplate.findByNamedParam(
+    List<Object[]> rows = (List<Object[]>) hibernateTemplate.findByNamedParam(
         "select a.doi, a.title, a.date, t from Article a inner join a.types t where a.doi in :dois",
         new String[]{"dois"},
         new Object[]{issue.getArticleDois()}
@@ -1027,7 +1027,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       }
     };
 
-    List<Object[]> rows = hibernateTemplate.findByNamedParam(
+    List<Object[]> rows = (List<Object[]>) hibernateTemplate.findByNamedParam(
         "select a.doi, a.title from Article a where a.doi in :dois",
         new String[]{"dois"},
         new Object[]{articleList.getArticleDois()}

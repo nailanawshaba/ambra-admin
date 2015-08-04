@@ -192,7 +192,7 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
   private void updateWithExistingJournal(Article article) {
     Set<Journal> journals = new HashSet<Journal>(article.getJournals().size());
     for (Journal journal : article.getJournals()) {
-      journals.addAll(hibernateTemplate.findByCriteria(
+      journals.addAll( (List<Journal>) hibernateTemplate.findByCriteria(
           DetachedCriteria.forClass(Journal.class)
               .add(Restrictions.eq("eIssn", journal.geteIssn()))
               .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
@@ -205,7 +205,7 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
 
   @SuppressWarnings("unchecked")
   private void updateIssueForImageArticle(Article imageArticle) {
-    List<Issue> issues = hibernateTemplate.findByCriteria(
+    List<Issue> issues = (List<Issue>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Issue.class)
             .add(Restrictions.eq("imageUri", imageArticle.getDoi())));
     for (Issue issue : issues) {
@@ -423,14 +423,14 @@ public class IngesterImpl extends HibernateServiceImpl implements Ingester {
     List<Article> articlesLinkingToNewOne;
     if (!otherArticleDois.isEmpty()) {
       //articles linking to this one that we didn't already visit
-      articlesLinkingToNewOne = hibernateTemplate.findByCriteria(
+      articlesLinkingToNewOne = (List<Article>) hibernateTemplate.findByCriteria(
           DetachedCriteria.forClass(Article.class)
               .add(Restrictions.not(Restrictions.in("doi", otherArticleDois)))
               .createCriteria("relatedArticles")
               .add(Restrictions.eq("otherArticleDoi", newArticle.getDoi())));
     } else {
       //hibernate throws a sql grammar exception if you do a restrictions.in() with an empty collection
-      articlesLinkingToNewOne = hibernateTemplate.findByCriteria(
+      articlesLinkingToNewOne = (List<Article>) hibernateTemplate.findByCriteria(
           DetachedCriteria.forClass(Article.class)
               .createCriteria("relatedArticles")
               .add(Restrictions.eq("otherArticleDoi", newArticle.getDoi())));
