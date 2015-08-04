@@ -114,6 +114,8 @@ public class AdminUserProfileActionTest extends AdminWebTest {
 
   @Test(dataProvider = "user")
   public void testExecuteWithExistingUser(UserProfile user) throws Exception {
+    action.setUserAuthId(user.getAuthId());
+
     assertEquals(action.execute(), Action.SUCCESS, "Action didn't return success");
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages: " + StringUtils.join(action.getActionErrors(), ";"));
     assertEquals(action.getActionMessages().size(), 0, "Action returned messages: " + StringUtils.join(action.getActionErrors(), ";"));
