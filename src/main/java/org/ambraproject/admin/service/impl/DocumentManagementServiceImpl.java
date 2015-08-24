@@ -269,7 +269,7 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
         ((Article) articles.get(0)).getID());
 
     //delete any annotations on the article (need to do this recursivly b/c of replies
-    List<Annotation> topLevelAnnotations = hibernateTemplate.findByCriteria(
+    List<Annotation> topLevelAnnotations = (List<Annotation>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Annotation.class)
             .add(Restrictions.eq("articleID", ((Article) articles.get(0)).getID()))
             .add(Restrictions.ne("type", AnnotationType.REPLY))
@@ -300,7 +300,7 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
             .add(Restrictions.eq("an.ID", annotation.getID()))
             .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
     ));
-    List<Annotation> replies = hibernateTemplate.findByCriteria(
+    List<Annotation> replies = (List<Annotation>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Annotation.class)
             .add(Restrictions.eq("parentID", annotation.getID()))
     );

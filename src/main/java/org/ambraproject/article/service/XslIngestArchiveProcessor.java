@@ -679,7 +679,7 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
      */
     final StringWriter msgs = new StringWriter(); 
     MessageWarner em = new MessageWarner();
-    ((Controller) t).setMessageEmitter(em);   
+    // ((Controller) t).setMessageEmitter(em);
     t.setErrorListener(new ErrorListener() {
       public void warning(TransformerException te) {
         log.warn("Warning received while processing zip", te);

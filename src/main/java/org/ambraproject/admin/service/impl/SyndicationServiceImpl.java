@@ -116,7 +116,7 @@ public class SyndicationServiceImpl extends HibernateServiceImpl implements Synd
   @Override
   @SuppressWarnings("unchecked")
   public Syndication getSyndication(final String articleDoi, final String syndicationTarget) {
-    List<Syndication> results = hibernateTemplate.findByCriteria(
+    List<Syndication> results = (List<Syndication>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Syndication.class)
             .add(Restrictions.eq("target", syndicationTarget))
             .add(Restrictions.eq("doi", articleDoi)),
@@ -234,7 +234,7 @@ public class SyndicationServiceImpl extends HibernateServiceImpl implements Synd
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
   public List<Syndication> getSyndications(final String articleDoi) {
-    return hibernateTemplate.findByCriteria(
+    return (List<Syndication>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Syndication.class)
             .add(Restrictions.eq("doi", articleDoi)));
   }
@@ -243,7 +243,7 @@ public class SyndicationServiceImpl extends HibernateServiceImpl implements Synd
   @SuppressWarnings("unchecked")
   @Override
   public Syndication syndicate(String articleDoi, String syndicationTarget) throws NoSuchArticleIdException {
-    List<Article> matchingArticle = hibernateTemplate.findByCriteria(
+    List<Article> matchingArticle = (List<Article>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Article.class)
             .add(Restrictions.eq("doi", articleDoi)), 0, 1);
     if (matchingArticle.size() == 0) {

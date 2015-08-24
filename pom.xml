@@ -42,14 +42,14 @@
     <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <spring.version>3.2.2.RELEASE</spring.version>
+    <spring.version>4.1.6.RELEASE</spring.version>
     <xerces.version>2.9.1</xerces.version>
     <struts.version>2.3.16.3</struts.version>
     <camel.version>2.10.4</camel.version>
     <activemq.version>5.2.0</activemq.version>
     <easymock.version>3.2</easymock.version>
     <conf-helper.version>2.2.1</conf-helper.version>
-    <ambra.version>2.10.11</ambra.version>
+    <ambra.version>2.10.17</ambra.version>
     <filestore.version>1.2.0</filestore.version>
     <solr.version>4.1.0</solr.version>
     <hsqldb.version>2.3.0</hsqldb.version>
@@ -58,6 +58,7 @@
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <surefire.version>2.16</surefire.version>
     <guava.version>15.0</guava.version>
+    <ehcache.version>1.5.0</ehcache.version>
   </properties>
 
   <repositories>
@@ -169,9 +170,15 @@
 
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>${ehcache.version}</version>
     </dependency>
 
     <dependency>
