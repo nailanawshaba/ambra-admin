@@ -20,6 +20,7 @@ package org.ambraproject.article.service;
 
 import net.sf.saxon.Controller;
 import net.sf.saxon.TransformerFactoryImpl;
+import net.sf.saxon.jaxp.TransformerImpl;
 import net.sf.saxon.serialize.MessageWarner;
 import org.ambraproject.article.ArchiveProcessException;
 import org.ambraproject.models.Article;
@@ -679,7 +680,8 @@ public class XslIngestArchiveProcessor implements IngestArchiveProcessor {
      */
     final StringWriter msgs = new StringWriter(); 
     MessageWarner em = new MessageWarner();
-    ((Controller) t).setMessageEmitter(em);   
+    Controller controller = ((TransformerImpl) t).getUnderlyingController();
+    controller.setMessageEmitter(em);
     t.setErrorListener(new ErrorListener() {
       public void warning(TransformerException te) {
         log.warn("Warning received while processing zip", te);

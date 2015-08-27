@@ -43,7 +43,7 @@ public class SearchUserServiceImpl extends HibernateServiceImpl implements Searc
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
   public boolean isDisplayNameInUse(String displayName) {
-    List<UserProfile> matchingUsers = hibernateTemplate.findByCriteria(
+    List<UserProfile> matchingUsers = (List<UserProfile>) hibernateTemplate.findByCriteria(
       DetachedCriteria.forClass(UserProfile.class)
         .add(Restrictions.eq("displayName", displayName).ignoreCase()),
       0, 1);
@@ -55,7 +55,7 @@ public class SearchUserServiceImpl extends HibernateServiceImpl implements Searc
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
   public boolean isEmailInUse(String email) {
-    List<UserProfile> matchingUsers = hibernateTemplate.findByCriteria(
+    List<UserProfile> matchingUsers = (List<UserProfile>) hibernateTemplate.findByCriteria(
       DetachedCriteria.forClass(UserProfile.class)
         .add(Restrictions.eq("email", email).ignoreCase()),
       0, 1);
@@ -68,7 +68,7 @@ public class SearchUserServiceImpl extends HibernateServiceImpl implements Searc
   public List<UserProfile> findUsersByDisplayName(String displayName) {
     log.debug("Searching for users with display name like: {}", displayName);
     //if there's an exact match, return that
-    List<UserProfile> matchingUsers = hibernateTemplate.findByCriteria(
+    List<UserProfile> matchingUsers = (List<UserProfile>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(UserProfile.class)
             .add(Restrictions.eq("displayName", displayName)),
         0, 1);
@@ -76,7 +76,7 @@ public class SearchUserServiceImpl extends HibernateServiceImpl implements Searc
       log.debug("Found user exact match for display name: {}", displayName);
       return matchingUsers;
     } else {
-      return hibernateTemplate.findByCriteria(
+      return (List<UserProfile>) hibernateTemplate.findByCriteria(
           DetachedCriteria.forClass(UserProfile.class)
               .add(Restrictions.ilike("displayName", displayName, MatchMode.ANYWHERE))
       );
@@ -89,7 +89,7 @@ public class SearchUserServiceImpl extends HibernateServiceImpl implements Searc
   public List<UserProfile> findUsersByEmail(String email) {
     log.debug("Searching for users with email like {}", email);
 
-    List<UserProfile> matchingUsers = hibernateTemplate.findByCriteria(
+    List<UserProfile> matchingUsers = (List<UserProfile>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(UserProfile.class)
             .add(Restrictions.eq("email", email)),
         0, 1);
@@ -97,7 +97,7 @@ public class SearchUserServiceImpl extends HibernateServiceImpl implements Searc
       log.debug("found exact match for email: {}", email);
       return matchingUsers;
     } else {
-      return hibernateTemplate.findByCriteria(
+      return (List<UserProfile>) hibernateTemplate.findByCriteria(
           DetachedCriteria.forClass(UserProfile.class)
               .add(Restrictions.ilike("email", email, MatchMode.ANYWHERE)));
     }

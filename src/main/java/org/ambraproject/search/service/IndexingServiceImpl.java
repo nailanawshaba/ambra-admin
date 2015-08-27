@@ -318,7 +318,7 @@ public class IndexingServiceImpl extends HibernateServiceImpl
    */
   private String getStrikingImage(String doi) {
     // get the list of articles
-    List<String> articleStrkImg = hibernateTemplate.findByCriteria(
+    List<String> articleStrkImg = (List<String>) hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(Article.class)
             .add(Restrictions.eq("state", Article.STATE_ACTIVE))
             .add(Restrictions.eq("doi", doi))
