@@ -265,6 +265,7 @@
     <property name="articleTransformService" ref="articleTransformService" />
     <property name="fileStoreService" ref="fileStoreService" />
     <property name="articleHtmlCache" ref="articleHtmlCache" />
+    <property name="guestCrossRefUrl" value="${ambra.services.crossref.guestquery.url}"/>
   </bean>
 
   <bean id="adminService" class="org.ambraproject.admin.service.impl.AdminServiceImpl">

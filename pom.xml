@@ -57,8 +57,6 @@
     <testng.version>6.8.1</testng.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <surefire.version>2.16</surefire.version>
-    <guava.version>15.0</guava.version>
-    <ehcache.version>1.6.2</ehcache.version>
   </properties>
 
   <repositories>
@@ -176,12 +174,6 @@
     </dependency>
 
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>${ehcache.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.ambraproject</groupId>
       <artifactId>file-store</artifactId>
       <version>${filestore.version}</version>
@@ -193,6 +185,7 @@
       </exclusions>
     </dependency>
 
+    <!-- Spring Framework -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
@@ -202,6 +195,12 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jms</artifactId>
       <version>${spring.version}</version>
     </dependency>
 
@@ -252,12 +251,6 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
       <version>${activemq.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>saxon</artifactId>
-      <version>9.3</version>
     </dependency>
 
     <dependency>
@@ -421,12 +414,6 @@
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
     </dependency>
 
   </dependencies>

@@ -57,13 +57,6 @@ public interface CacheService {
   boolean removeSingleKey(String cacheName, String cacheKey);
 
   /**
-   * Clear cache statistics
-   *
-   * @param cacheName Which cache to act on
-   */
-  void clearStatistics(String cacheName);
-
-  /**
    *
    * Return the value of a single cache key
    *

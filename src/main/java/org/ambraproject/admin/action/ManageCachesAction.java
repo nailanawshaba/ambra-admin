@@ -70,10 +70,6 @@ public class ManageCachesAction extends BaseAdminActionSupport {
         addActionError(cacheName + ".remove(" + cacheKey + ") = FALSE");
       }
     }
-    else if ("clearStatistics".equals(cacheAction) && cacheName != null) {
-      cacheService.clearStatistics(cacheName);
-      addActionMessage(cacheName + ".clearStatistics() executed.");
-    }
     else if ("get".equals(cacheAction) && cacheName != null && cacheKey != null) {
       final Object value = cacheService.getSingleKey(cacheName, cacheKey);
       addActionMessage(cacheName + ".get(" + cacheKey + ") = " + value);

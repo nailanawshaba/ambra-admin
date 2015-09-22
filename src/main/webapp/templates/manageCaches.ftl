@@ -60,7 +60,7 @@
               cacheAction="removeAll" cacheName="${cacheName}" />
             <@s.url id="getKeys" namespace="/" action="manageCaches"
               cacheAction="getKeys" cacheName="${cacheName}" />
-            <td><@s.a href="%{clearStatistics}">clearStatistics</@s.a></td>
+            <td></td>
             <td><@s.a href="%{removeAll}">removeAll</@s.a></td>
             <td><@s.a href="%{getKeys}">getKeys</@s.a></td>
           <#else>
