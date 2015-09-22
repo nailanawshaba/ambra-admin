@@ -101,18 +101,6 @@ public class CacheServiceImpl implements CacheService {
   }
 
   /**
-   * Clear cache statistics
-   *
-   * @param cacheName Which cache to act on
-   */
-  public void clearStatistics(String cacheName) {
-    // clearing statistics is no longer supported. But automatically clears if not used.
-    // see http://forums.terracotta.org/forums/posts/list/8259.page
-    //Ehcache cache = cacheManager.getEhcache(cacheName);
-    //cache.clearStatistics();
-  }
-
-  /**
    *
    * Return the value of a single cache key
    *
