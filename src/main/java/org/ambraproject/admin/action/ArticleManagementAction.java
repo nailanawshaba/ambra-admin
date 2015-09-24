@@ -138,7 +138,7 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
       return "";
     }
     String[] dois = new String[articleDois.size()];
-    int i=0;
+    int i = 0;
     for (String doi : articleDois) {
       dois[i++] = doi;
     }

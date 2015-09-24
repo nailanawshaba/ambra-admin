@@ -61,6 +61,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
+
 import javax.xml.xpath.XPathExpressionException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -87,6 +88,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
   private Configuration configuration;
   private List<OnCrossPubListener> onCrossPubListener;
   private final static Set<String> ARTICLE_TYPE = new HashSet<String>();
+
   static {
     ARTICLE_TYPE.add("correction");
     ARTICLE_TYPE.add("expression-of-concern");
@@ -132,16 +134,16 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     Order order = isOrderAscending ? Order.asc(orderField) : Order.desc(orderField);
     List<Object[]> results = (List<Object[]>) hibernateTemplate.findByCriteria(DetachedCriteria.forClass(Article.class)
         .add(Restrictions.eq("eIssn", eIssn))
-        .add(Restrictions.eq("state",Article.STATE_UNPUBLISHED))
+        .add(Restrictions.eq("state", Article.STATE_UNPUBLISHED))
         .addOrder(order)
         .setProjection(Projections.projectionList()
             .add(Projections.property("doi"))
             .add(Projections.property("date"))));
 
-    for(Object[] rows : results) {
+    for (Object[] rows : results) {
       ArticleInfo articleInfo = new ArticleInfo();
       articleInfo.setDoi(rows[0].toString());
-      articleInfo.setDate((Date)rows[1]);
+      articleInfo.setDate((Date) rows[1]);
       articlesInfo.add(articleInfo);
     }
 
@@ -172,15 +174,14 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
   }
 
   @Override
-  public void articlePublished(String articleId, String authID) throws Exception
-  {
+  public void articlePublished(String articleId, String authID) throws Exception {
     refreshReferences(articleId, authID);
   }
 
   @Override
   public void refreshReferences(final String articleDoi, final String authID) {
     log.debug("Sending message to: {}, ({},{})", new Object[]{
-      "activemq:plos.updatedCitedArticles?transacted=true", articleDoi, authID});
+        "activemq:plos.updatedCitedArticles?transacted=true", articleDoi, authID});
 
     String refreshCitedArticlesQueue = configuration.getString("ambra.services.queue.refreshCitedArticles", null);
     if (refreshCitedArticlesQueue != null) {
@@ -201,18 +202,17 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
    * @inheritDoc
    */
   @Override
-  public void sendJournalAlerts(SavedSearchRetriever.AlertType type, Date startTime, Date endTime)
-  {
+  public void sendJournalAlerts(SavedSearchRetriever.AlertType type, Date startTime, Date endTime) {
     log.debug("Sending message to send alerts for type: {}", type);
 
     String sendSearchAlertsQueue = configuration.getString("ambra.services.queue.sendSearchAlerts", null);
     if (sendSearchAlertsQueue != null) {
-      Map<String,Object> headers = new HashMap<String, Object>();
+      Map<String, Object> headers = new HashMap<String, Object>();
       SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 
       //The queue expects dates to be in a specific format
-      headers.put(SavedSearchEmailRoutes.HEADER_STARTTIME, (startTime == null?null:formatter.format(startTime)));
-      headers.put(SavedSearchEmailRoutes.HEADER_ENDTIME, (endTime == null?null:formatter.format(endTime)));
+      headers.put(SavedSearchEmailRoutes.HEADER_STARTTIME, (startTime == null ? null : formatter.format(startTime)));
+      headers.put(SavedSearchEmailRoutes.HEADER_ENDTIME, (endTime == null ? null : formatter.format(endTime)));
 
       messageSender.sendMessage(sendSearchAlertsQueue, type.toString(), headers);
     } else {
@@ -229,7 +229,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
         Article article = (Article) session.createCriteria(Article.class)
             .add(Restrictions.eq("doi", articleDoi))
             .uniqueResult();
-        for (Iterator<Journal> iterator = article.getJournals().iterator(); iterator.hasNext();) {
+        for (Iterator<Journal> iterator = article.getJournals().iterator(); iterator.hasNext(); ) {
           if (journalKey.equals(iterator.next().getJournalKey())) {
             iterator.remove();
             break;
@@ -534,8 +534,8 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
         Object[] titleAndDescription = (Object[]) hibernateTemplate.findByCriteria(DetachedCriteria.forClass(Article.class)
             .add(Restrictions.eq("doi", issue.getImageUri()))
             .setProjection(Projections.projectionList()
-                .add(Projections.property("title"))
-                .add(Projections.property("description"))
+                    .add(Projections.property("title"))
+                    .add(Projections.property("description"))
             )).get(0);
         issue.setTitle(StringUtils.isEmpty(issue.getTitle()) ? (String) titleAndDescription[0] : issue.getTitle());
         issue.setDescription(StringUtils.isEmpty(issue.getDescription()) ? (String) titleAndDescription[1] : issue.getDescription());
@@ -634,7 +634,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       return;
     }
     for (String doi : articleDois) {
-      if(!doi.isEmpty()) {
+      if (!doi.isEmpty()) {
         //Trim off extra spaces.  AMEC-2225
         doi = doi.trim();
         if (!issue.getArticleDois().contains(doi)) {
@@ -718,10 +718,10 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
         //check if this row is of the correct type, and that we haven't added the article
         if (type.getUri().toString().equals(row[3]) && dois.contains(row[0])) {
           TOCArticle articleInfo = TOCArticle.builder()
-            .setDoi((String) row[0])
-            .setTitle((String) row[1])
-            .setDate((Date) row[2])
-            .build();
+              .setDoi((String) row[0])
+              .setTitle((String) row[1])
+              .setDate((Date) row[2])
+              .build();
           group.addArticle(articleInfo);
 
           //remove the row so we don't have to check it again later
@@ -747,9 +747,9 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     //anything left in the doi list is an orphan
     for (String doi : dois) {
       TOCArticle article = TOCArticle.builder()
-        .setDoi(doi)
-        .setDate(Calendar.getInstance().getTime())
-        .build();
+          .setDoi(doi)
+          .setDate(Calendar.getInstance().getTime())
+          .build();
 
       orphans.addArticle(article);
     }
@@ -933,7 +933,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       if (!doi.isEmpty()) {
         //Trim off extra spaces.  AMEC-2225
         doi = doi.trim();
-        if(!articleList.getArticleDois().contains(doi)) {
+        if (!articleList.getArticleDois().contains(doi)) {
           articleList.getArticleDois().add(doi);
         }
       }
@@ -966,7 +966,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     ArticleList articleList = getList(listCode);
     //check that we aren't adding or removing an article here
     Set<String> articleDoisSet = new HashSet<String>();
-    for (String doi: articleDois) {
+    for (String doi : articleDois) {
       if (!doi.isEmpty()) {
         //Trim off extra spaces.  AMEC-2225
         articleDoisSet.add(doi.trim());
@@ -974,7 +974,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     }
 
     Set<String> articleListSet = new HashSet<String>();
-    for (String doi: articleList.getArticleDois()) {
+    for (String doi : articleList.getArticleDois()) {
       articleListSet.add(doi);
     }
 
@@ -1010,8 +1010,8 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     }
 
     final Map<String, Integer> indices = new HashMap<String, Integer>();
-    int i=0;
-    for (String doi: articleList.getArticleDois()) {
+    int i = 0;
+    for (String doi : articleList.getArticleDois()) {
       indices.put(doi, Integer.valueOf(i++));
     }
 
@@ -1035,7 +1035,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
     List<ArticleInfo> result = new ArrayList<ArticleInfo>();
 
-    for (Object[] row: rows) {
+    for (Object[] row : rows) {
       ArticleInfo articleInfo = new ArticleInfo();
       articleInfo.setDoi((String) row[0]);
       articleInfo.setTitle((String) row[1]);
@@ -1052,11 +1052,11 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
   @Override
   public List<String> getOrphanArticleList(final ArticleList articleList, final List<ArticleInfo> validArticles) {
     Set<String> validDois = new HashSet<String>();
-    for (ArticleInfo validArticle: validArticles) {
+    for (ArticleInfo validArticle : validArticles) {
       validDois.add(validArticle.getDoi());
     }
     List<String> orphans = new ArrayList<String>();
-    for (String doi: articleList.getArticleDois()) {
+    for (String doi : articleList.getArticleDois()) {
       if (!validDois.contains(doi)) {
         orphans.add(doi);
       }
@@ -1066,6 +1066,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
 
   /**
    * Checks whether an article is an amendment using the article-type attribute in the article xml
+   *
    * @param articleXml the article xml
    * @return true if the article is an amendment; false, otherwise
    * @throws XPathExpressionException

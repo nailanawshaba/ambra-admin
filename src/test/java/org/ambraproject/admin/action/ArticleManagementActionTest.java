@@ -65,8 +65,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
         article.setTitle("Title for Valid Article " + i);
         dummyDataStore.store(article);
         validDois.add(doi);
-      }
-      else {
+      } else {
         doi = "id:orphan-article-" + i;
         orphanDois.add(doi);
       }
@@ -82,10 +81,10 @@ public class ArticleManagementActionTest extends AdminWebTest {
     };
   }
 
-  private boolean  isSorted(String[] dois, Map<String, Integer> indices) {
-    for (int i=0; i<dois.length-1; ++i) {
+  private boolean isSorted(String[] dois, Map<String, Integer> indices) {
+    for (int i = 0; i < dois.length - 1; ++i) {
       int index1 = indices.get(dois[i]);
-      int index2 = indices.get(dois[i+1]);
+      int index2 = indices.get(dois[i + 1]);
       if (index1 >= index2) {
         return false; // not sorted
       }
@@ -116,12 +115,12 @@ public class ArticleManagementActionTest extends AdminWebTest {
     assertEquals(isSorted(action.getArticleOrderCSV().split(","), indices), true,
         "Action returned unsorted articles");
 
-    for (ArticleInfo articleInfo: action.getArticleInfoList()) {
+    for (ArticleInfo articleInfo : action.getArticleInfoList()) {
       String doi = articleInfo.getDoi();
       assertEquals(validDois.contains(doi), true,
           "Action returned orphan articles in articleInfoList");
     }
-    for (String doi: action.getOrphanDois()) {
+    for (String doi : action.getOrphanDois()) {
       assertEquals(orphanDois.contains(doi), true,
           "Action returned valid article in orphanDois");
     }
@@ -146,7 +145,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     reorderedArticleCsv += ("," + articleToReorder);
     String[] orderedArticlesForDb = reorderedArticleCsv.split(",");
     Map<String, Integer> newIndices = new HashMap<String, Integer>();
-    for (int i=0; i<orderedArticlesForDb.length; ++i) {
+    for (int i = 0; i < orderedArticlesForDb.length; ++i) {
       newIndices.put(orderedArticlesForDb[i], i);
     }
 
@@ -180,12 +179,12 @@ public class ArticleManagementActionTest extends AdminWebTest {
     assertEquals(isSorted(action.getArticleOrderCSV().split(","), newIndices), true,
         "Action returned wrong order after update articles");
 
-    for (ArticleInfo articleInfo: action.getArticleInfoList()) {
+    for (ArticleInfo articleInfo : action.getArticleInfoList()) {
       String doi = articleInfo.getDoi();
       assertEquals(validDois.contains(doi), true,
           "Action returned orphan articles in articleInfoList");
     }
-    for (String doi: action.getOrphanDois()) {
+    for (String doi : action.getOrphanDois()) {
       assertEquals(orphanDois.contains(doi), true,
           "Action returned valid article in orphanDois");
     }
@@ -269,7 +268,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
   public void testAddArticle(ArticleList articleList, Map<String, Integer> indices,
                              Set<String> validDois, Set<String> orphanDois) throws Exception {
     String articlesToAddCsv = "id:new-article-for-adding-1,id:new-article-for-adding-2";
-    for (String doi: articlesToAddCsv.split(",")) {
+    for (String doi : articlesToAddCsv.split(",")) {
       Article article = new Article();
       article.setDoi(doi);
       article.setTitle("New article for adding");

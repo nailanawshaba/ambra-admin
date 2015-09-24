@@ -37,7 +37,7 @@ public class ManageArticleListActionTest extends AdminWebTest {
       articleList.setDisplayName("news" + i);
       articleList.setListCode("id:fake-list-for-manage-journals" + i);
       dummyDataStore.store(articleList);
-      journal.getArticleList().add(dummyDataStore.get(ArticleList.class,articleList.getID()));
+      journal.getArticleList().add(dummyDataStore.get(ArticleList.class, articleList.getID()));
     }
 
     dummyDataStore.store(journal);
@@ -60,7 +60,7 @@ public class ManageArticleListActionTest extends AdminWebTest {
     assertEquals(action.getActionMessages().size(), 0, "Action returned messages on default execute");
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
 
-    assertEquals(action.getArticleList().size(), journal.getArticleList().size(),"Action returned incorrect number " +"of " +"article list");
+    assertEquals(action.getArticleList().size(), journal.getArticleList().size(), "Action returned incorrect number " + "of " + "article list");
     for (int i = 0; i < journal.getArticleList().size(); i++) {
       ArticleList actual = action.getArticleList().get(i);
       ArticleList expected = journal.getArticleList().get(i);
