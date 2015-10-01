@@ -13,6 +13,7 @@
 
 package org.ambraproject.admin.action;
 
+import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleList;
 import org.ambraproject.views.article.ArticleInfo;
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -128,19 +130,19 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
   private void repopulate() {
     articleList = adminService.getList(listCode);
     articleInfoList = adminService.getArticleList(articleList);
-    orphanDois = adminService.getOrphanArticleList(articleList, articleInfoList);
-    articleOrderCSV = formatArticleDoiCsv(articleList.getArticleDois());
+    orphanDois = Collections.emptyList(); // TODO: Remove field
+    articleOrderCSV = formatArticleDoiCsv(articleList.getArticles());
     initJournal();
   }
 
-  public String formatArticleDoiCsv(List<String> articleDois) {
+  public String formatArticleDoiCsv(List<Article> articleDois) {
     if (articleDois.isEmpty()) {
       return "";
     }
     String[] dois = new String[articleDois.size()];
     int i = 0;
-    for (String doi : articleDois) {
-      dois[i++] = doi;
+    for (Article article : articleDois) {
+      dois[i++] = article.getDoi();
     }
 
     return StringUtils.join(dois, ',');

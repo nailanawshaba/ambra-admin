@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
   private String listCode;
 
   // Fields Used by template
-  private List<ArticleList> articleList;
+  private Collection<ArticleList> articleList;
 
   private static final Logger log = LoggerFactory.getLogger(ManageArticleListAction.class);
 
@@ -121,7 +122,7 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
   }
 
   private void repopulate() {
-    articleList = adminService.getArticleList(getCurrentJournal());
+    articleList = adminService.getArticleLists(getCurrentJournal());
     initJournal();
   }
 
@@ -157,7 +158,7 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
     this.displayName = displayName;
   }
 
-  public List<ArticleList> getArticleList() {
+  public Collection<ArticleList> getArticleList() {
     return articleList;
   }
 

@@ -28,7 +28,9 @@ import org.ambraproject.search.SavedSearchRetriever;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.views.TOCArticleGroup;
 import org.ambraproject.views.article.ArticleInfo;
+
 import javax.xml.xpath.XPathExpressionException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -285,7 +287,7 @@ public interface AdminService {
    * @throws RuntimeException throws RuntimeException if any one of the ArticleList listCode supplied by the journal
    * does not exist.
    */
-  public List<ArticleList> getArticleList(String journalName);
+  public Collection<ArticleList> getArticleLists(String journalName);
 
   /**
    * Remove article list from the journal and delete them.
@@ -334,13 +336,5 @@ public interface AdminService {
    * @param articleList is the articlelist
    */
   public List<ArticleInfo> getArticleList(ArticleList articleList);
-
-  /**
-   * Get a list of orphaned article
-   * @param articleList
-   * @param validArticles
-   * @return dois of article list
-   */
-  public List<String> getOrphanArticleList(ArticleList articleList, List<ArticleInfo> validArticles);
 
 }
