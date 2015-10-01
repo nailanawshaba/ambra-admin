@@ -15,6 +15,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertEqualsNoOrder;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -52,7 +54,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     articleList.setListCode("id:testArticleListForArticleManagement");
     articleList.setDisplayName("News");
     int articlesCount = 8;
-    articleList.setArticleDois(new ArrayList<String>());
+    articleList.setArticles(new ArrayList<Article>());
 
     for (int i = 0; i < articlesCount; i++) {
       String doi;
@@ -64,6 +66,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
         article.setDoi(doi);
         article.setTitle("Title for Valid Article " + i);
         dummyDataStore.store(article);
+        articleList.getArticles().add(article);
         validDois.add(doi);
       } else {
         doi = "id:orphan-article-" + i;
@@ -71,7 +74,6 @@ public class ArticleManagementActionTest extends AdminWebTest {
       }
 
       indices.put(doi, i);
-      articleList.getArticleDois().add(doi);
     }
 
     dummyDataStore.store(articleList);
@@ -92,23 +94,32 @@ public class ArticleManagementActionTest extends AdminWebTest {
     return true;
   }
 
+  private static List<String> getDois(List<Article> articles) {
+    List<String> dois = new ArrayList<String>(articles.size());
+    for (Article article : articles) {
+      dois.add(article.getDoi());
+    }
+    return dois;
+  }
+
   @Test(dataProvider = "basicInfo")
-  public void testExecuteNoAction(ArticleList articleList, Map<String, Integer> indices,
+  public void testExecuteNoAction(ArticleList expectedArticleList, Map<String, Integer> indices,
                                   Set<String> validDois, Set<String> orphanDois) throws Exception {
-    action.setListCode(articleList.getListCode());
+    action.setListCode(expectedArticleList.getListCode());
     String result = action.execute();
     assertEquals(result, Action.SUCCESS, "Action didn't return success");
 
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
     assertEquals(action.getActionMessages().size(), 0, "Action returned messages on default request");
 
-    assertEquals(action.getArticleList().getListCode(), articleList.getListCode(), "Action returned incorrect issue");
-    assertEquals(action.getArticleList().getDisplayName(), articleList.getDisplayName(),
+    ArticleList actualArticleList = action.getArticleList();
+    assertEquals(actualArticleList.getListCode(), expectedArticleList.getListCode(), "Action returned incorrect issue");
+    assertEquals(actualArticleList.getDisplayName(), expectedArticleList.getDisplayName(),
         "Action returned issue with incorrect display name");
-    assertEquals(action.getArticleList().getArticleDois(), articleList.getArticleDois(),
+    assertEquals(actualArticleList.getArticles(), expectedArticleList.getArticles(),
         "Action returned wrong Dois in articleList");
 
-    assertEquals(action.getArticleOrderCSV().split(","), articleList.getArticleDois().toArray(),
+    assertEquals(Arrays.asList(action.getArticleOrderCSV().split(",")), getDois(expectedArticleList.getArticles()),
         "Action returned different articleOrderCSV");
 
     //the action should show the article csv in order of the valid articles
@@ -119,10 +130,6 @@ public class ArticleManagementActionTest extends AdminWebTest {
       String doi = articleInfo.getDoi();
       assertEquals(validDois.contains(doi), true,
           "Action returned orphan articles in articleInfoList");
-    }
-    for (String doi : action.getOrphanDois()) {
-      assertEquals(orphanDois.contains(doi), true,
-          "Action returned valid article in orphanDois");
     }
   }
 
@@ -136,17 +143,17 @@ public class ArticleManagementActionTest extends AdminWebTest {
     action.execute();
     clearMessages();
 
-    List<String> existingArticles = dummyDataStore.get(ArticleList.class, articleList.getID()).getArticleDois();
+    List<Article> existingArticles = dummyDataStore.get(ArticleList.class, articleList.getID()).getArticles();
 
     // move first doi to last in reorder
     String reorderedArticleCsv = action.getArticleOrderCSV();
     String articleToReorder = reorderedArticleCsv.substring(0, reorderedArticleCsv.indexOf(","));
     reorderedArticleCsv = reorderedArticleCsv.replaceFirst(articleToReorder + ",", "");
     reorderedArticleCsv += ("," + articleToReorder);
-    String[] orderedArticlesForDb = reorderedArticleCsv.split(",");
+    List<String> orderedArticlesForDb = Arrays.asList(reorderedArticleCsv.split(","));
     Map<String, Integer> newIndices = new HashMap<String, Integer>();
-    for (int i = 0; i < orderedArticlesForDb.length; ++i) {
-      newIndices.put(orderedArticlesForDb[i], i);
+    for (int i = 0; i < orderedArticlesForDb.size(); ++i) {
+      newIndices.put(orderedArticlesForDb.get(i), i);
     }
 
 
@@ -169,7 +176,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     assertEquals(action.getDisplayName(), displayName,
         "action had incorrect display name");
 
-    assertEquals(action.getArticleList().getArticleDois().toArray(), orderedArticlesForDb,
+    assertEquals(getDois(action.getArticleList().getArticles()), orderedArticlesForDb,
         "Action returned wrong Dois in articleList");
 
     assertEquals(action.getArticleOrderCSV(), reorderedArticleCsv,
@@ -184,10 +191,6 @@ public class ArticleManagementActionTest extends AdminWebTest {
       assertEquals(validDois.contains(doi), true,
           "Action returned orphan articles in articleInfoList");
     }
-    for (String doi : action.getOrphanDois()) {
-      assertEquals(orphanDois.contains(doi), true,
-          "Action returned valid article in orphanDois");
-    }
 
     //check what got stored to the database
     ArticleList storedArticleList = dummyDataStore.get(ArticleList.class, articleList.getID());
@@ -195,7 +198,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     assertEquals(storedArticleList.getDisplayName(), displayName,
         "Article List got saved to the database with incorrect display name");
 
-    assertEquals(storedArticleList.getArticleDois().size(), existingArticles.size(),
+    assertEqualsNoOrder(storedArticleList.getArticles().toArray(), existingArticles.toArray(),
         "Articles got removed or added from the list on reordering");
   }
 
@@ -287,14 +290,14 @@ public class ArticleManagementActionTest extends AdminWebTest {
 
     for (String doi : articlesToAddCsv.split(",")) {
       assertTrue(action.getArticleOrderCSV().contains(doi), "Article " + doi + " didn't get added to action's csv");
-      assertTrue(action.getArticleList().getArticleDois().contains(doi),
+      assertTrue(getDois(action.getArticleList().getArticles()).contains(doi),
           "Article " + doi + " didn't get added to action's articleList");
     }
 
     //check the values that got stored to the database
-    List<String> storedArticles = dummyDataStore.get(ArticleList.class, articleList.getID()).getArticleDois();
+    List<Article> storedArticles = dummyDataStore.get(ArticleList.class, articleList.getID()).getArticles();
     for (String doi : articlesToAddCsv.split(",")) {
-      assertTrue(storedArticles.contains(doi), "Article " + doi + " didn't get added to the list in the database");
+      assertTrue(getDois(storedArticles).contains(doi), "Article " + doi + " didn't get added to the list in the database");
     }
   }
 
@@ -302,10 +305,10 @@ public class ArticleManagementActionTest extends AdminWebTest {
   public void testRemoveArticles(ArticleList articleList, Map<String, Integer> indices,
                                  Set<String> validDois, Set<String> orphanDois) throws Exception {
     // delete first three dois
-    List<String> articlesToDelete = dummyDataStore.get(ArticleList.class, articleList.getID()).getArticleDois().subList(0, 3);
+    List<Article> articlesToDelete = dummyDataStore.get(ArticleList.class, articleList.getID()).getArticles().subList(0, 3);
     String[] articlesToDeleteArray = new String[3];
     for (int i = 0; i < 3; i++) {
-      articlesToDeleteArray[i] = articlesToDelete.get(i);
+      articlesToDeleteArray[i] = articlesToDelete.get(i).getDoi();
     }
 
 
@@ -319,17 +322,19 @@ public class ArticleManagementActionTest extends AdminWebTest {
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
     assertEquals(action.getActionMessages().size(), 1, "Action didn't return messages indicating success");
 
-    for (String doi : articlesToDelete) {
-      assertFalse(action.getArticleList().getArticleDois().contains(doi),
+    for (Article article : articlesToDelete) {
+      String doi = article.getDoi();
+      assertFalse(getDois(action.getArticleList().getArticles()).contains(doi),
           "Article " + doi + " didn't get removed from action's article list");
       assertFalse(action.getArticleOrderCSV().contains(doi),
           "Article " + doi + " didn't get removed from action's csv");
     }
 
     //check the values in the db
-    List<String> storedArticleList = dummyDataStore.get(ArticleList.class, articleList.getID()).getArticleDois();
-    for (String doi : articlesToDelete) {
-      assertFalse(storedArticleList.contains(doi), "Article " + doi + " didn't get removed from list in the database");
+    List<Article> storedArticleList = dummyDataStore.get(ArticleList.class, articleList.getID()).getArticles();
+    for (Article article : articlesToDelete) {
+      String doi = article.getDoi();
+      assertFalse(getDois(storedArticleList).contains(doi), "Article " + doi + " didn't get removed from list in the database");
       try {
         articleService.getArticle(doi, DEFAULT_ADMIN_AUTHID);
       } catch (NoSuchArticleIdException e) {

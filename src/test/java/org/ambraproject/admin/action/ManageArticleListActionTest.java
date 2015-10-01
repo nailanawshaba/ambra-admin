@@ -1,19 +1,21 @@
 package org.ambraproject.admin.action;
 
+import com.google.common.collect.ImmutableSet;
 import com.opensymphony.xwork2.Action;
 import org.ambraproject.action.BaseActionSupport;
 import org.ambraproject.admin.AdminWebTest;
 import org.ambraproject.models.ArticleList;
 import org.ambraproject.models.Journal;
 import org.ambraproject.web.VirtualJournalContext;
-import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -21,6 +23,14 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 public class ManageArticleListActionTest extends AdminWebTest {
+
+  private static Map<String, ArticleList> byListCode(Collection<ArticleList> articleLists) {
+    Map<String, ArticleList> map = new TreeMap<String, ArticleList>();
+    for (ArticleList articleList : articleLists) {
+      map.put(articleList.getListCode(), articleList);
+    }
+    return map;
+  }
 
   @Autowired
   protected ManageArticleListAction action;
@@ -30,14 +40,14 @@ public class ManageArticleListActionTest extends AdminWebTest {
     Journal journal = new Journal();
     journal.setJournalKey("journalForTestManageArticleLists");
     journal.seteIssn("eIssnjournalForTestManageArticleLists");
-    journal.setArticleList(new ArrayList<ArticleList>(3));
+    journal.setArticleLists(new ArrayList<ArticleList>(3));
 
     for (int i = 1; i <= 3; i++) {
       ArticleList articleList = new ArticleList();
       articleList.setDisplayName("news" + i);
       articleList.setListCode("id:fake-list-for-manage-journals" + i);
       dummyDataStore.store(articleList);
-      journal.getArticleList().add(dummyDataStore.get(ArticleList.class, articleList.getID()));
+      journal.getArticleLists().add(dummyDataStore.get(ArticleList.class, articleList.getID()));
     }
 
     dummyDataStore.store(journal);
@@ -60,20 +70,20 @@ public class ManageArticleListActionTest extends AdminWebTest {
     assertEquals(action.getActionMessages().size(), 0, "Action returned messages on default execute");
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
 
-    assertEquals(action.getArticleList().size(), journal.getArticleList().size(), "Action returned incorrect number " + "of " + "article list");
-    for (int i = 0; i < journal.getArticleList().size(); i++) {
-      ArticleList actual = action.getArticleList().get(i);
-      ArticleList expected = journal.getArticleList().get(i);
-      assertEquals(actual.getListCode(), expected.getListCode(), "Article List " + (i + 1) + " didn't have correct " +
-          "listCode");
+    Map<String, ArticleList> actualLists = byListCode(action.getArticleList());
+    Map<String, ArticleList> expectedLists = byListCode(journal.getArticleLists());
+    assertEquals(actualLists.keySet(), expectedLists.keySet(), "Action returned incorrect article lists");
+    for (String listCode : expectedLists.keySet()) {
+      ArticleList actual = actualLists.get(listCode);
+      ArticleList expected = expectedLists.get(listCode);
       assertEquals(actual.getDisplayName(), expected.getDisplayName(),
-          "Article List " + (i + 1) + " didn't have correct display name");
+          "Article List " + listCode + " didn't have correct display name");
     }
   }
 
   @Test(dataProvider = "basicInfo", dependsOnMethods = {"testExecute"}, alwaysRun = true)
   public void testCreateArticleList(Journal journal) throws Exception {
-    int initialNumberOfArticleList = dummyDataStore.get(Journal.class, journal.getID()).getArticleList().size();
+    Map<String, ArticleList> initialArticleLists = byListCode(dummyDataStore.get(Journal.class, journal.getID()).getArticleLists());
     String listCode = "id:new-list-for-create-articlelist";
     String articleListDisplayName = "News";
     //set properties on the action
@@ -91,8 +101,10 @@ public class ManageArticleListActionTest extends AdminWebTest {
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
 
     //check action's return values
-    assertEquals(action.getArticleList().size(), initialNumberOfArticleList + 1, "action didn't add new articleList to list");
-    ArticleList actualList = action.getArticleList().get(action.getArticleList().size() - 1);
+    Map<String, ArticleList> actualLists = byListCode(action.getArticleList());
+    assertEquals(actualLists.keySet(), ImmutableSet.builder().addAll(initialArticleLists.keySet()).add(listCode).build(),
+        "action didn't add new articleList to list");
+    ArticleList actualList = actualLists.get(listCode);
     assertEquals(actualList.getListCode(), listCode, "Article List didn't have correct listCode");
     assertEquals(actualList.getDisplayName(), articleListDisplayName, "Article List didn't have correct name");
 
@@ -101,11 +113,9 @@ public class ManageArticleListActionTest extends AdminWebTest {
 
     //check values stored to the database
     Journal storedJournal = dummyDataStore.get(Journal.class, journal.getID());
-    assertEquals(storedJournal.getArticleList().size(), initialNumberOfArticleList + 1,
+    Map<String, ArticleList> storedLists = byListCode(storedJournal.getArticleLists());
+    assertEquals(storedLists.keySet(), actualLists.keySet(),
         "journal didn't get article list added in the database");
-
-    assertEquals(storedJournal.getArticleList().get(storedJournal.getArticleList().size() - 1).getListCode(), listCode,
-        "Journal didn't have article list added in the db");
 
     //try creating a duplicate article list and see if we get an error message
     action.execute();
@@ -115,13 +125,14 @@ public class ManageArticleListActionTest extends AdminWebTest {
 
   @Test(dataProvider = "basicInfo", dependsOnMethods = {"testExecute"}, alwaysRun = true)
   public void testRemoveArticleList(Journal journal) throws Exception {
-    List<ArticleList> initialArticleList = dummyDataStore.get(Journal.class, journal.getID()).getArticleList();
+    Map<String, ArticleList> initialArticleLists = byListCode(dummyDataStore.get(Journal.class, journal.getID()).getArticleLists());
 
-    String[] listCodeToDelete = new String[]{initialArticleList.get(0).getListCode(), initialArticleList.get(2).getListCode()};
-    List<ArticleList> listToDelete = new ArrayList<ArticleList>(listCodeToDelete.length);
-    for (ArticleList articleList : initialArticleList) {
-      if (ArrayUtils.indexOf(listCodeToDelete, articleList.getListCode()) != -1) {
+    List<ArticleList> listToDelete = new ArrayList<ArticleList>(2);
+    List<String> listCodeToDelete = new ArrayList<String>(2);
+    for (ArticleList articleList : initialArticleLists.values()) {
+      if (listToDelete.size() < 2) {
         listToDelete.add(articleList);
+        listCodeToDelete.add(articleList.getListCode());
       }
     }
 
@@ -129,7 +140,7 @@ public class ManageArticleListActionTest extends AdminWebTest {
     request.put(VirtualJournalContext.PUB_VIRTUALJOURNAL_CONTEXT, makeVirtualJournalContext(journal));
     action.setRequest(request);
     action.setCommand("REMOVE_LIST");
-    action.setListToDelete(listCodeToDelete);
+    action.setListToDelete(listCodeToDelete.toArray(new String[0]));
 
     String result = action.execute();
     assertEquals(result, Action.SUCCESS, "action didn't return success");
@@ -137,12 +148,12 @@ public class ManageArticleListActionTest extends AdminWebTest {
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
 
     //check the return values on the action
-    assertEquals(action.getArticleList().size(), initialArticleList.size() - 2, "action didn't remove article list");
+    assertEquals(action.getArticleList().size(), initialArticleLists.size() - 2, "action didn't remove article list");
     assertTrue(action.getActionMessages().size() > 0, "Action didn't add message for deleting article list");
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
 
 
-    List<ArticleList> storedArticleList = dummyDataStore.get(Journal.class, journal.getID()).getArticleList();
+    Collection<ArticleList> storedArticleList = dummyDataStore.get(Journal.class, journal.getID()).getArticleLists();
     for (ArticleList deletedArticleList : listToDelete) {
       assertFalse(storedArticleList.contains(deletedArticleList), "Article List " + deletedArticleList + " didn't get " +
           "removed " + "from " + "journal");
