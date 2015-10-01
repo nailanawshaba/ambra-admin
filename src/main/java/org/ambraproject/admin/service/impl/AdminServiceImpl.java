@@ -18,9 +18,7 @@
  */
 package org.ambraproject.admin.service.impl;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import org.ambraproject.ApplicationException;
 import org.ambraproject.admin.service.AdminService;
@@ -66,7 +64,6 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 
-import javax.annotation.Nullable;
 import javax.xml.xpath.XPathExpressionException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -925,24 +922,6 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     } catch (IndexOutOfBoundsException e) {
       return null;
     }
-  }
-
-  private Ordering<Article> sortByDoiOrder(List<String> doiOrder) {
-    return Ordering.explicit(doiOrder).onResultOf(new Function<Article, String>() {
-      @Nullable
-      @Override
-      public String apply(Article input) {
-        return input.getDoi();
-      }
-    });
-  }
-
-  private List<Article> fetchArticles(List<String> dois) {
-    List<Article> articles = (List<Article>) hibernateTemplate.findByCriteria(
-        DetachedCriteria.forClass(Article.class)
-            .add(Restrictions.in("doi", dois)));
-    Collections.sort(articles, sortByDoiOrder(dois));
-    return articles;
   }
 
   private boolean containsDoi(Collection<Article> articles, String doi) {
