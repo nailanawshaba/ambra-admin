@@ -959,9 +959,10 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
    */
   @Override
   @Transactional
-  public void addArticlesToList(String listCode, String... articleDois) {
+  public Collection<String> addArticlesToList(String listCode, String... articleDois) {
     log.debug("Adding articles {} to list '{}'", Arrays.toString(articleDois), listCode);
     ArticleList articleList = getList(listCode);
+    Collection<String> orphanedDois = new ArrayList<String>();
     for (String doi : articleDois) {
       if (!doi.isEmpty()) {
         //Trim off extra spaces.  AMEC-2225
@@ -970,11 +971,16 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
           Article article = (Article) DataAccessUtils.uniqueResult(hibernateTemplate.findByCriteria(
               DetachedCriteria.forClass(Article.class)
                   .add(Restrictions.eq("doi", doi))));
-          articleList.getArticles().add(article);
+          if (article == null) {
+            orphanedDois.add(doi);
+          } else {
+            articleList.getArticles().add(article);
+          }
         }
       }
     }
     hibernateTemplate.update(articleList);
+    return orphanedDois;
   }
 
   /**

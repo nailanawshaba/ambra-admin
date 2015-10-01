@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +41,6 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
   private ArticleList articleList;
   private String articleOrderCSV;
   private List<ArticleInfo> articleInfoList;
-  private List<String> orphanDois;
 
   public enum ImCommands {
     ADD_ARTICLE,
@@ -88,12 +88,18 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
    */
   private void addArticles() {
     if (articlesToAddCsv != null && !articlesToAddCsv.isEmpty()) {
+      Collection<String> orphanDois = Collections.emptyList();
       try {
-        adminService.addArticlesToList(listCode, articlesToAddCsv.split(","));
-        addActionMessage("Successfully added articles to list");
+        orphanDois = adminService.addArticlesToList(listCode, articlesToAddCsv.split(","));
       } catch (IllegalArgumentException e) {
         log.error("Failed to add article(s) '" + articlesToAddCsv + "' to list " + listCode, e);
         addActionMessage("Article(s) not added due to the following error: " + e.getMessage());
+      }
+      if (orphanDois.size() < articlesToAddCsv.length()) {
+        addActionMessage("Successfully added articles to list");
+      }
+      for (String orphanDoi : orphanDois) {
+        addActionError("Article not found: " + orphanDoi);
       }
     }
     repopulate();
@@ -130,7 +136,6 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
   private void repopulate() {
     articleList = adminService.getList(listCode);
     articleInfoList = adminService.getArticleList(articleList);
-    orphanDois = Collections.emptyList(); // TODO: Remove field
     articleOrderCSV = formatArticleDoiCsv(articleList.getArticles());
     initJournal();
   }
@@ -146,10 +151,6 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
     }
 
     return StringUtils.join(dois, ',');
-  }
-
-  public List<String> getOrphanDois() {
-    return orphanDois;
   }
 
   public String getListCode() {

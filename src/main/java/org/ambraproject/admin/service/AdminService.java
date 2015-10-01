@@ -311,8 +311,9 @@ public interface AdminService {
    *
    * @param listCode of the article list to update
    * @param articleDois the dois to add to the issue.
+   * @return DOIs that could not be matched to articles
    */
-  public void addArticlesToList(String listCode, String... articleDois);
+  public Collection<String> addArticlesToList(String listCode, String... articleDois);
 
   /**
    * Remove articles from an article list
