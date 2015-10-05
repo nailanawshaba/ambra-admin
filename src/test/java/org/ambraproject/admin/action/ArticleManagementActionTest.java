@@ -54,6 +54,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     Set<String> orphanDois = new HashSet<String>();
 
     ArticleList articleList = new ArticleList();
+    articleList.setListType(ArticleManagementAction.ARTICLE_LIST_TYPE);
     articleList.setListCode("id:testArticleListForArticleManagement");
     articleList.setDisplayName("News");
     int articlesCount = 8;

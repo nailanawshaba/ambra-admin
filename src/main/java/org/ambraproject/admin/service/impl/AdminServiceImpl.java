@@ -82,6 +82,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ambraproject.admin.action.ArticleManagementAction.ARTICLE_LIST_TYPE;
+
 public class AdminServiceImpl extends HibernateServiceImpl implements AdminService, OnPublishListener {
   private static final Logger log = LoggerFactory.getLogger(AdminServiceImpl.class);
 
@@ -837,6 +839,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
             }
           }
           ArticleList newArticleList = new ArticleList();
+          newArticleList.setListType(ARTICLE_LIST_TYPE);
           newArticleList.setListCode(listCode);
           newArticleList.setDisplayName(displayName);
           journal.getArticleLists().add(newArticleList);
@@ -859,9 +862,10 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       public List<ArticleList> doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.createQuery("" +
             "select l from Journal j inner join j.articleLists l " +
-            "where (j.journalKey=:journalKey) and (l.listType is null) " +
+            "where (j.journalKey=:journalKey) and (l.listType=:listType) " +
             "order by l.listCode");
         query.setParameter("journalKey", journalKey);
+        query.setParameter("listType", ARTICLE_LIST_TYPE);
         return query.list();
       }
     });
@@ -909,7 +913,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
     return (ArticleList) DataAccessUtils.uniqueResult(hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(ArticleList.class)
             .add(Restrictions.eq("listCode", listCode))
-            .add(Restrictions.isNull("listType"))
+            .add(Restrictions.eq("listType", ARTICLE_LIST_TYPE))
             .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
     ));
   }

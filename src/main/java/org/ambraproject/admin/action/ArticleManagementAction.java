@@ -30,6 +30,9 @@ import java.util.List;
  */
 public class ArticleManagementAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ArticleManagementAction.class);
+
+  public static final String ARTICLE_LIST_TYPE = "admin"; // From Ambra's migrate_ambra_1007.sql
+
   // Fields set by templates
   private String command;
   private String listCode;

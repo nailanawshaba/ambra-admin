@@ -44,6 +44,7 @@ public class ManageArticleListActionTest extends AdminWebTest {
 
     for (int i = 1; i <= 3; i++) {
       ArticleList articleList = new ArticleList();
+      articleList.setListType(ArticleManagementAction.ARTICLE_LIST_TYPE);
       articleList.setDisplayName("news" + i);
       articleList.setListCode("id:fake-list-for-manage-journals" + i);
       dummyDataStore.store(articleList);
