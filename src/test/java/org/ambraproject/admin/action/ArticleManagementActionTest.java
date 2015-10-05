@@ -46,6 +46,9 @@ public class ArticleManagementActionTest extends AdminWebTest {
 
   @DataProvider(name = "basicInfo")
   public Object[][] getBasicInfo() {
+    dummyDataStore.deleteAll(Article.class);
+    dummyDataStore.deleteAll(ArticleList.class);
+
     Map<String, Integer> indices = new HashMap<String, Integer>();
     Set<String> validDois = new HashSet<String>();
     Set<String> orphanDois = new HashSet<String>();
