@@ -51,6 +51,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -853,23 +854,15 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
   @Override
   @Transactional(readOnly = true)
   public Collection<ArticleList> getArticleLists(final String journalKey) {
-    //article list are lazy so we need to access them in a session
-    return hibernateTemplate.execute(new HibernateCallback<Collection<ArticleList>>() {
+    return hibernateTemplate.execute(new HibernateCallback<List<ArticleList>>() {
       @Override
-      public Collection<ArticleList> doInHibernate(Session session) throws HibernateException, SQLException {
-        Journal journal = (Journal) session.createCriteria(Journal.class)
-            .add(Restrictions.eq("journalKey", journalKey))
-            .uniqueResult();
-        if (journal == null) {
-          log.debug("No journal existed for key: " + journalKey);
-          return Collections.emptyList();
-        } else {
-          //bring up all the article list
-          for (Iterator<ArticleList> iterator = journal.getArticleLists().iterator(); iterator.hasNext(); ) {
-            iterator.next();
-          }
-          return journal.getArticleLists();
-        }
+      public List<ArticleList> doInHibernate(Session session) throws HibernateException, SQLException {
+        Query query = session.createQuery("" +
+            "select l from Journal j inner join j.articleLists l " +
+            "where (j.journalKey=:journalKey) and (l.listType is null) " +
+            "order by l.listCode");
+        query.setParameter("journalKey", journalKey);
+        return query.list();
       }
     });
   }
@@ -913,15 +906,12 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
   @Transactional(readOnly = true)
   public ArticleList getList(String listCode) {
     log.debug("Retrieving list with listCode '{}'", listCode);
-    try {
-      return (ArticleList) hibernateTemplate.findByCriteria(
-          DetachedCriteria.forClass(ArticleList.class)
-              .add(Restrictions.eq("listCode", listCode))
-              .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-      ).get(0);
-    } catch (IndexOutOfBoundsException e) {
-      return null;
-    }
+    return (ArticleList) DataAccessUtils.uniqueResult(hibernateTemplate.findByCriteria(
+        DetachedCriteria.forClass(ArticleList.class)
+            .add(Restrictions.eq("listCode", listCode))
+            .add(Restrictions.isNull("listType"))
+            .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+    ));
   }
 
   private boolean containsDoi(Collection<Article> articles, String doi) {
