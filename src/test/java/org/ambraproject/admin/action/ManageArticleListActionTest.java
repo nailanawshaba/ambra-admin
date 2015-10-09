@@ -24,10 +24,10 @@ import static org.testng.Assert.assertTrue;
 
 public class ManageArticleListActionTest extends AdminWebTest {
 
-  private static Map<String, ArticleList> byListCode(Collection<ArticleList> articleLists) {
+  private static Map<String, ArticleList> byListKey(Collection<ArticleList> articleLists) {
     Map<String, ArticleList> map = new TreeMap<String, ArticleList>();
     for (ArticleList articleList : articleLists) {
-      map.put(articleList.getListCode(), articleList);
+      map.put(articleList.getListKey(), articleList);
     }
     return map;
   }
@@ -46,7 +46,7 @@ public class ManageArticleListActionTest extends AdminWebTest {
       ArticleList articleList = new ArticleList();
       articleList.setListType(ArticleManagementAction.ARTICLE_LIST_TYPE);
       articleList.setDisplayName("news" + i);
-      articleList.setListCode("id:fake-list-for-manage-journals" + i);
+      articleList.setListKey("id:fake-list-for-manage-journals" + i);
       dummyDataStore.store(articleList);
       journal.getArticleLists().add(dummyDataStore.get(ArticleList.class, articleList.getID()));
     }
@@ -71,28 +71,28 @@ public class ManageArticleListActionTest extends AdminWebTest {
     assertEquals(action.getActionMessages().size(), 0, "Action returned messages on default execute");
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
 
-    Map<String, ArticleList> actualLists = byListCode(action.getArticleList());
-    Map<String, ArticleList> expectedLists = byListCode(journal.getArticleLists());
+    Map<String, ArticleList> actualLists = byListKey(action.getArticleList());
+    Map<String, ArticleList> expectedLists = byListKey(journal.getArticleLists());
     assertEquals(actualLists.keySet(), expectedLists.keySet(), "Action returned incorrect article lists");
-    for (String listCode : expectedLists.keySet()) {
-      ArticleList actual = actualLists.get(listCode);
-      ArticleList expected = expectedLists.get(listCode);
+    for (String listKey : expectedLists.keySet()) {
+      ArticleList actual = actualLists.get(listKey);
+      ArticleList expected = expectedLists.get(listKey);
       assertEquals(actual.getDisplayName(), expected.getDisplayName(),
-          "Article List " + listCode + " didn't have correct display name");
+          "Article List " + listKey + " didn't have correct display name");
     }
   }
 
   @Test(dataProvider = "basicInfo", dependsOnMethods = {"testExecute"}, alwaysRun = true)
   public void testCreateArticleList(Journal journal) throws Exception {
-    Map<String, ArticleList> initialArticleLists = byListCode(dummyDataStore.get(Journal.class, journal.getID()).getArticleLists());
-    String listCode = "id:new-list-for-create-articlelist";
+    Map<String, ArticleList> initialArticleLists = byListKey(dummyDataStore.get(Journal.class, journal.getID()).getArticleLists());
+    String listKey = "id:new-list-for-create-articlelist";
     String articleListDisplayName = "News";
     //set properties on the action
     Map<String, Object> request = getDefaultRequestAttributes();
     request.put(VirtualJournalContext.PUB_VIRTUALJOURNAL_CONTEXT, makeVirtualJournalContext(journal));
     action.setRequest(request);
     action.setCommand("CREATE_LIST");
-    action.setListCode(listCode);
+    action.setListKey(listKey);
     action.setDisplayName(articleListDisplayName);
 
     //run the action
@@ -102,11 +102,11 @@ public class ManageArticleListActionTest extends AdminWebTest {
     assertEquals(action.getActionErrors().size(), 0, "Action returned error messages");
 
     //check action's return values
-    Map<String, ArticleList> actualLists = byListCode(action.getArticleList());
-    assertEquals(actualLists.keySet(), ImmutableSet.builder().addAll(initialArticleLists.keySet()).add(listCode).build(),
+    Map<String, ArticleList> actualLists = byListKey(action.getArticleList());
+    assertEquals(actualLists.keySet(), ImmutableSet.builder().addAll(initialArticleLists.keySet()).add(listKey).build(),
         "action didn't add new articleList to list");
-    ArticleList actualList = actualLists.get(listCode);
-    assertEquals(actualList.getListCode(), listCode, "Article List didn't have correct listCode");
+    ArticleList actualList = actualLists.get(listKey);
+    assertEquals(actualList.getListKey(), listKey, "Article List didn't have correct listKey");
     assertEquals(actualList.getDisplayName(), articleListDisplayName, "Article List didn't have correct name");
 
     assertTrue(action.getActionMessages().size() > 0, "Action didn't return a message indicating success");
@@ -114,7 +114,7 @@ public class ManageArticleListActionTest extends AdminWebTest {
 
     //check values stored to the database
     Journal storedJournal = dummyDataStore.get(Journal.class, journal.getID());
-    Map<String, ArticleList> storedLists = byListCode(storedJournal.getArticleLists());
+    Map<String, ArticleList> storedLists = byListKey(storedJournal.getArticleLists());
     assertEquals(storedLists.keySet(), actualLists.keySet(),
         "journal didn't get article list added in the database");
 
@@ -126,14 +126,14 @@ public class ManageArticleListActionTest extends AdminWebTest {
 
   @Test(dataProvider = "basicInfo", dependsOnMethods = {"testExecute"}, alwaysRun = true)
   public void testRemoveArticleList(Journal journal) throws Exception {
-    Map<String, ArticleList> initialArticleLists = byListCode(dummyDataStore.get(Journal.class, journal.getID()).getArticleLists());
+    Map<String, ArticleList> initialArticleLists = byListKey(dummyDataStore.get(Journal.class, journal.getID()).getArticleLists());
 
     List<ArticleList> listToDelete = new ArrayList<ArticleList>(2);
-    List<String> listCodeToDelete = new ArrayList<String>(2);
+    List<String> listKeyToDelete = new ArrayList<String>(2);
     for (ArticleList articleList : initialArticleLists.values()) {
       if (listToDelete.size() < 2) {
         listToDelete.add(articleList);
-        listCodeToDelete.add(articleList.getListCode());
+        listKeyToDelete.add(articleList.getListKey());
       }
     }
 
@@ -141,7 +141,7 @@ public class ManageArticleListActionTest extends AdminWebTest {
     request.put(VirtualJournalContext.PUB_VIRTUALJOURNAL_CONTEXT, makeVirtualJournalContext(journal));
     action.setRequest(request);
     action.setCommand("REMOVE_LIST");
-    action.setListToDelete(listCodeToDelete.toArray(new String[0]));
+    action.setListToDelete(listKeyToDelete.toArray(new String[0]));
 
     String result = action.execute();
     assertEquals(result, Action.SUCCESS, "action didn't return success");

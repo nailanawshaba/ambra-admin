@@ -35,7 +35,7 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
 
   // Fields set by templates
   private String command;
-  private String listCode;
+  private String listKey;
   private String displayName;
   private String articlesToAddCsv;
   private String[] articlesToRemove;
@@ -93,9 +93,9 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
     if (articlesToAddCsv != null && !articlesToAddCsv.isEmpty()) {
       Collection<String> orphanDois = Collections.emptyList();
       try {
-        orphanDois = adminService.addArticlesToList(listCode, articlesToAddCsv.split(","));
+        orphanDois = adminService.addArticlesToList(listKey, articlesToAddCsv.split(","));
       } catch (IllegalArgumentException e) {
-        log.error("Failed to add article(s) '" + articlesToAddCsv + "' to list " + listCode, e);
+        log.error("Failed to add article(s) '" + articlesToAddCsv + "' to list " + listKey, e);
         addActionMessage("Article(s) not added due to the following error: " + e.getMessage());
       }
       if (orphanDois.size() < articlesToAddCsv.length()) {
@@ -113,10 +113,10 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
    */
   private void removeArticles() {
     try {
-      adminService.removeArticlesFromList(listCode, articlesToRemove);
+      adminService.removeArticlesFromList(listKey, articlesToRemove);
       addActionMessage("Removed the following article(s) from list: " + Arrays.toString(articlesToRemove));
     } catch (IllegalArgumentException e) {
-      log.error("Failed to remove articles " + Arrays.toString(articlesToRemove) + " from list " + listCode, e);
+      log.error("Failed to remove articles " + Arrays.toString(articlesToRemove) + " from list " + listKey, e);
       addActionMessage("Article(s) not removed due to the following error: " + e.getMessage());
     }
     repopulate();
@@ -127,17 +127,17 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
    */
   private void updateList() {
     try {
-      adminService.updateList(listCode, displayName, Arrays.asList(articleOrderCSV.split(",")));
-      addActionMessage("Successfully updated list " + listCode);
+      adminService.updateList(listKey, displayName, Arrays.asList(articleOrderCSV.split(",")));
+      addActionMessage("Successfully updated list " + listKey);
     } catch (IllegalArgumentException e) {
-      log.error("Failed to update list '" + listCode + "'", e);
+      log.error("Failed to update list '" + listKey + "'", e);
       addActionError("Article List not updated due to the following error: " + e.getMessage());
     }
     repopulate();
   }
 
   private void repopulate() {
-    articleList = adminService.getList(listCode);
+    articleList = adminService.getList(listKey);
     articleInfoList = adminService.getArticleList(articleList);
     articleOrderCSV = formatArticleDoiCsv(articleList.getArticles());
     initJournal();
@@ -156,12 +156,12 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
     return StringUtils.join(dois, ',');
   }
 
-  public String getListCode() {
-    return listCode;
+  public String getListKey() {
+    return listKey;
   }
 
-  public void setListCode(String listCode) {
-    this.listCode = listCode;
+  public void setListKey(String listKey) {
+    this.listKey = listKey;
   }
 
   public ArticleList getArticleList() {

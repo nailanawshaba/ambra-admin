@@ -55,7 +55,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
 
     ArticleList articleList = new ArticleList();
     articleList.setListType(ArticleManagementAction.ARTICLE_LIST_TYPE);
-    articleList.setListCode("id:testArticleListForArticleManagement");
+    articleList.setListKey("id:testArticleListForArticleManagement");
     articleList.setDisplayName("News");
     int articlesCount = 8;
     articleList.setArticles(new ArrayList<Article>());
@@ -109,7 +109,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
   @Test(dataProvider = "basicInfo")
   public void testExecuteNoAction(ArticleList expectedArticleList, Map<String, Integer> indices,
                                   Set<String> validDois, Set<String> orphanDois) throws Exception {
-    action.setListCode(expectedArticleList.getListCode());
+    action.setListKey(expectedArticleList.getListKey());
     String result = action.execute();
     assertEquals(result, Action.SUCCESS, "Action didn't return success");
 
@@ -117,7 +117,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     assertEquals(action.getActionMessages().size(), 0, "Action returned messages on default request");
 
     ArticleList actualArticleList = action.getArticleList();
-    assertEquals(actualArticleList.getListCode(), expectedArticleList.getListCode(), "Action returned incorrect issue");
+    assertEquals(actualArticleList.getListKey(), expectedArticleList.getListKey(), "Action returned incorrect issue");
     assertEquals(actualArticleList.getDisplayName(), expectedArticleList.getDisplayName(),
         "Action returned issue with incorrect display name");
     assertEquals(actualArticleList.getArticles(), expectedArticleList.getArticles(),
@@ -143,7 +143,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
                                     Set<String> validDois, Set<String> orphanDois) throws Exception {
     //execute the action to get the current CSV
     action.setCommand("foo");
-    action.setListCode(articleList.getListCode());
+    action.setListKey(articleList.getListKey());
     action.execute();
     clearMessages();
 
@@ -164,7 +164,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     String displayName = "Spam";
 
     action.setCommand("UPDATE_LIST");
-    action.setListCode(articleList.getListCode());
+    action.setListKey(articleList.getListKey());
     action.setArticleOrderCSV(reorderedArticleCsv);
     action.setDisplayName(displayName);
 
@@ -175,7 +175,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     assertTrue(action.getActionMessages().size() > 0, "Action didn't return messages indicating success");
 
     //check properties on action
-    assertEquals(action.getArticleList().getListCode(), articleList.getListCode(),
+    assertEquals(action.getArticleList().getListKey(), articleList.getListKey(),
         "action changed article list after update");
     assertEquals(action.getDisplayName(), displayName,
         "action had incorrect display name");
@@ -229,7 +229,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
   public void testActionDoesNotAllowRemovingArticleFromCsv(ArticleList articleList, Map<String, Integer> indices,
                                                            Set<String> validDois, Set<String> orphanDois) throws Exception {
     //execute the action to get the original csv
-    action.setListCode(articleList.getListCode());
+    action.setListKey(articleList.getListKey());
     action.execute();
     String originalCsv = action.getArticleOrderCSV();
 
@@ -250,7 +250,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
   public void testActionDoesNotAllowChangingArticlesInCsv(ArticleList articleList, Map<String, Integer> indices,
                                                           Set<String> validDois, Set<String> orphanDois) throws Exception {
     //execute the action to get the original csv
-    action.setListCode(articleList.getListCode());
+    action.setListKey(articleList.getListKey());
     action.execute();
     String originalCsv = action.getArticleOrderCSV();
 
@@ -283,7 +283,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
     }
 
     action.setCommand("ADD_ARTICLE");
-    action.setListCode(articleList.getListCode());
+    action.setListKey(articleList.getListKey());
     action.setArticlesToAddCsv(articlesToAddCsv);
 
     String result = action.execute();
@@ -317,7 +317,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
 
 
     action.setCommand("REMOVE_ARTICLES");
-    action.setListCode(articleList.getListCode());
+    action.setListKey(articleList.getListKey());
     action.setArticlesToRemove(articlesToDeleteArray);
 
     String result = action.execute();

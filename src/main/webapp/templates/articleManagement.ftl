@@ -38,8 +38,8 @@
           <table border="0" cellpadding="10" cellspacing="0">
             <tr>
               <th align="center">Article List (ListCode)</th>
-              <@s.hidden name="listCode" value="${articleList.listCode}"/>
-              <td>${articleList.listCode}</td>
+              <@s.hidden name="listKey" value="${articleList.listKey}"/>
+              <td>${articleList.listKey}</td>
             </tr>
             <tr>
               <th align="center">Display Name</th>
@@ -65,7 +65,7 @@
       <legend>Add Articles</legend>
       <@s.form method="post" namespace="/" action="articleManagement" name="addArticle" id="add_article">
         <@s.hidden name="command" value="ADD_ARTICLE"/>
-        <@s.hidden name="listCode" value="${articleList.listCode}"/>
+        <@s.hidden name="listKey" value="${articleList.listKey}"/>
         <table border="0" cellpadding="10" cellspacing="0">
           <tr>
             <th align="center">Article (URIs)</th>
@@ -86,7 +86,7 @@
       <legend>Articles in List</legend>
       <@s.form  method="post" namespace="/" action="articleManagement" name="removeArticles" id="removeArticles">
         <@s.hidden name="command" value="REMOVE_ARTICLES"/>
-        <@s.hidden name="listCode" value="${articleList.listCode}"/>
+        <@s.hidden name="listKey" value="${articleList.listKey}"/>
         <table border="1" cellpadding="10" cellspacing="0">
           <#if (articleInfoList?size > 0)>
             <tr>

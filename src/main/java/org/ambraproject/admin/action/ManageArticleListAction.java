@@ -32,7 +32,7 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
   private String command;
   private String[] listToDelete;
   private String displayName;
-  private String listCode;
+  private String listKey;
 
   // Fields Used by template
   private Collection<ArticleList> articleList;
@@ -92,7 +92,7 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
    */
   private void createArticleList() {
     try {
-      ArticleList article = adminService.createArticleList(getCurrentJournal(), listCode,  displayName);
+      ArticleList article = adminService.createArticleList(getCurrentJournal(), listKey,  displayName);
       if (article != null) {
         addActionMessage("Created New Article List: " + displayName);
       } else {
@@ -142,12 +142,12 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
     this.listToDelete = listToDelete;
   }
 
-  public String getListCode() {
-    return listCode;
+  public String getListKey() {
+    return listKey;
   }
 
-  public void setListCode(String listCode) {
-    this.listCode = listCode;
+  public void setListKey(String listKey) {
+    this.listKey = listKey;
   }
 
   public String getDisplayName() {

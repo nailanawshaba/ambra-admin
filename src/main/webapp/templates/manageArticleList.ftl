@@ -39,7 +39,7 @@
           <table border="0" cellpadding="10" cellspacing="0">
             <tr>
               <th align="center">List Code</th>
-              <td><@s.textfield name="listCode" size="50" required="true"/></td>
+              <td><@s.textfield name="listKey" size="50" required="true"/></td>
             </tr>
             <tr>
               <th align="center">Display Name</th>
@@ -64,22 +64,22 @@
             <tr>
               <th>Delete</th>
               <th>Display Name</th>
-              <th>listCode</th>
+              <th>listKey</th>
               <th>Update</th>
             </tr>
             <#list articleList as al>
               <tr>
                 <td align="center">
-                  <@s.checkbox name="listToDelete" fieldValue="${al.listCode}"/>
+                  <@s.checkbox name="listToDelete" fieldValue="${al.listKey}"/>
                   </td>
                   <td>
                   ${al.displayName!''}
                   </td>
                   <td>
-                  ${al.listCode}
+                  ${al.listKey}
                   </td>
                   <td>
-                    <@s.url namespace="/" action="articleManagement" listCode="${al.listCode}" id="articleManagement"/>
+                    <@s.url namespace="/" action="articleManagement" listKey="${al.listKey}" id="articleManagement"/>
                     <@s.a href="${articleManagement}">Update</@s.a>
                   </td>
               </tr>

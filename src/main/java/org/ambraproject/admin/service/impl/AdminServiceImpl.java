@@ -816,11 +816,11 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
    */
   @Transactional
   @Override
-  public ArticleList createArticleList(final String journalKey, final String listCode, final String displayName) {
+  public ArticleList createArticleList(final String journalKey, final String listKey, final String displayName) {
     if (StringUtils.isEmpty(journalKey)) {
       throw new IllegalArgumentException("No journal specified");
-    } else if (StringUtils.isEmpty(listCode)) {
-      throw new IllegalArgumentException("No listCode specified");
+    } else if (StringUtils.isEmpty(listKey)) {
+      throw new IllegalArgumentException("No listKey specified");
     }
     return hibernateTemplate.execute(new HibernateCallback<ArticleList>() {
       @Override
@@ -832,15 +832,15 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
         if (journal == null) {
           return null;
         } else {
-          //check if a list with the same listcode exists, and if so, return null
+          //check if a list with the same listKey exists, and if so, return null
           for (ArticleList existingList : journal.getArticleLists()) {
-            if (existingList.getListCode().equals(listCode)) {
+            if (existingList.getListKey().equals(listKey)) {
               return null;
             }
           }
           ArticleList newArticleList = new ArticleList();
           newArticleList.setListType(ARTICLE_LIST_TYPE);
-          newArticleList.setListCode(listCode);
+          newArticleList.setListKey(listKey);
           newArticleList.setDisplayName(displayName);
           journal.getArticleLists().add(newArticleList);
           session.update(journal);
@@ -863,7 +863,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
         Query query = session.createQuery("" +
             "select l from Journal j inner join j.articleLists l " +
             "where (j.journalKey=:journalKey) and (l.listType=:listType) " +
-            "order by l.listCode");
+            "order by l.listKey");
         query.setParameter("journalKey", journalKey);
         query.setParameter("listType", ARTICLE_LIST_TYPE);
         return query.list();
@@ -876,7 +876,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
    */
   @Transactional
   @Override
-  public String[] deleteArticleList(final String journalKey, final String... listCode) {
+  public String[] deleteArticleList(final String journalKey, final String... listKey) {
     //article list are lazy, so we have to access them in a session
     return hibernateTemplate.execute(new HibernateCallback<String[]>() {
       @Override
@@ -887,14 +887,14 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
         if (journal == null) {
           throw new IllegalArgumentException("No such journal: " + journalKey);
         }
-        List<String> deletedArticleList = new ArrayList<String>(listCode.length);
+        List<String> deletedArticleList = new ArrayList<String>(listKey.length);
         Iterator<ArticleList> iterator = journal.getArticleLists().iterator();
         while (iterator.hasNext()) {
           ArticleList articleList = iterator.next();
-          if (ArrayUtils.indexOf(listCode, articleList.getListCode()) != -1) {
+          if (ArrayUtils.indexOf(listKey, articleList.getListKey()) != -1) {
             iterator.remove();
             session.delete(articleList);
-            deletedArticleList.add(articleList.getListCode());
+            deletedArticleList.add(articleList.getListKey());
           }
         }
         session.update(journal);
@@ -908,11 +908,11 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
    */
   @Override
   @Transactional(readOnly = true)
-  public ArticleList getList(String listCode) {
-    log.debug("Retrieving list with listCode '{}'", listCode);
+  public ArticleList getList(String listKey) {
+    log.debug("Retrieving list with listKey '{}'", listKey);
     return (ArticleList) DataAccessUtils.uniqueResult(hibernateTemplate.findByCriteria(
         DetachedCriteria.forClass(ArticleList.class)
-            .add(Restrictions.eq("listCode", listCode))
+            .add(Restrictions.eq("listKey", listKey))
             .add(Restrictions.eq("listType", ARTICLE_LIST_TYPE))
             .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
     ));
@@ -932,9 +932,9 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
    */
   @Override
   @Transactional
-  public Collection<String> addArticlesToList(String listCode, String... articleDois) {
-    log.debug("Adding articles {} to list '{}'", Arrays.toString(articleDois), listCode);
-    ArticleList articleList = getList(listCode);
+  public Collection<String> addArticlesToList(String listKey, String... articleDois) {
+    log.debug("Adding articles {} to list '{}'", Arrays.toString(articleDois), listKey);
+    ArticleList articleList = getList(listKey);
     Collection<String> orphanedDois = new ArrayList<String>();
     for (String doi : articleDois) {
       if (!doi.isEmpty()) {
@@ -961,9 +961,9 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
    */
   @Override
   @Transactional
-  public void removeArticlesFromList(String listCode, String... articleDois) {
-    log.debug("Removing articles {} to article list '{}'", Arrays.toString(articleDois), listCode);
-    ArticleList articleList = getList(listCode);
+  public void removeArticlesFromList(String listKey, String... articleDois) {
+    log.debug("Removing articles {} to article list '{}'", Arrays.toString(articleDois), listKey);
+    ArticleList articleList = getList(listKey);
     Set<String> doisToRemove = Sets.newLinkedHashSetWithExpectedSize(articleDois.length);
     for (String doi : articleDois) {
       doi = doi.trim(); //Trim off extra spaces.  AMEC-2225
@@ -982,9 +982,9 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
    */
   @Override
   @Transactional
-  public void updateList(String listCode, String displayName, List<String> articleDois) {
-    log.debug("Updating list '{}'", listCode);
-    ArticleList articleList = getList(listCode);
+  public void updateList(String listKey, String displayName, List<String> articleDois) {
+    log.debug("Updating list '{}'", listKey);
+    ArticleList articleList = getList(listKey);
 
     final Map<String, Integer> orderedDois = Maps.newHashMapWithExpectedSize(articleDois.size());
     int index = 0;
