@@ -38,8 +38,8 @@
           <table border="0" cellpadding="10" cellspacing="0">
             <tr>
               <th align="center">Article List (ListCode)</th>
-              <@s.hidden name="listCode" value="${articleList.listCode}"/>
-              <td>${articleList.listCode}</td>
+              <@s.hidden name="listKey" value="${articleList.listKey}"/>
+              <td>${articleList.listKey}</td>
             </tr>
             <tr>
               <th align="center">Display Name</th>
@@ -65,7 +65,7 @@
       <legend>Add Articles</legend>
       <@s.form method="post" namespace="/" action="articleManagement" name="addArticle" id="add_article">
         <@s.hidden name="command" value="ADD_ARTICLE"/>
-        <@s.hidden name="listCode" value="${articleList.listCode}"/>
+        <@s.hidden name="listKey" value="${articleList.listKey}"/>
         <table border="0" cellpadding="10" cellspacing="0">
           <tr>
             <th align="center">Article (URIs)</th>
@@ -86,7 +86,7 @@
       <legend>Articles in List</legend>
       <@s.form  method="post" namespace="/" action="articleManagement" name="removeArticles" id="removeArticles">
         <@s.hidden name="command" value="REMOVE_ARTICLES"/>
-        <@s.hidden name="listCode" value="${articleList.listCode}"/>
+        <@s.hidden name="listKey" value="${articleList.listKey}"/>
         <table border="1" cellpadding="10" cellspacing="0">
           <#if (articleInfoList?size > 0)>
             <tr>
@@ -112,33 +112,7 @@
             <strong>There are no articles associated with this list.</strong>
           </#if>
         </table>
-        <#if (orphanDois?size > 0) >
-          <b>Orphaned Articles</b>
-          <table border="1" cellpadding="10" cellspacing="0">
-            <tr>
-              <td colspan="2">
-                <ul>
-                  <li><kbd>Incorrect URIs not associated with an article.</kbd></li>
-                </ul>
-              </td>
-            </tr>
-            <tr>
-              <th>Delete</th>
-              <th>Article URI</th>
-            </tr>
-            <#list orphanDois as orphan>
-              <tr>
-                <td align="center">
-                  <@s.checkbox name="articlesToRemove" fieldValue="${orphan}"/>
-                </td>
-                <td>
-                  ${orphan}
-                </td>
-              </tr>
-            </#list>
-          </table>
-        </#if>
-        <#if (articleInfoList?size > 0 || orphanDois?size > 0)>
+        <#if (articleInfoList?size > 0)>
           <@s.submit value="Remove Selected Articles"/>
         </#if>
       </@s.form>

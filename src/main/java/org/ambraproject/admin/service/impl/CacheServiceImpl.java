@@ -23,7 +23,7 @@ package org.ambraproject.admin.service.impl;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Statistics;
+import net.sf.ehcache.management.CacheStatistics;
 import org.springframework.beans.factory.annotation.Required;
 import org.ambraproject.admin.service.CacheService;
 
@@ -59,7 +59,7 @@ public class CacheServiceImpl implements CacheService {
     final String[] cacheNames = cacheManager.getCacheNames();
     for (final String displayName : cacheNames) {
       final Ehcache cache = cacheManager.getEhcache(displayName);
-      final Statistics statistics = cache.getStatistics();
+      final CacheStatistics statistics = new CacheStatistics(cache);
       cacheStats.put(displayName, new String[] {
         String.valueOf(cache.getSize()) + " / "
           + String.valueOf(statistics.getObjectCount()),
@@ -98,16 +98,6 @@ public class CacheServiceImpl implements CacheService {
   public boolean removeSingleKey(String cacheName, String cacheKey) {
     Ehcache cache = cacheManager.getEhcache(cacheName);
     return cache.remove(cacheKey);
-  }
-
-  /**
-   * Clear cache statistics
-   *
-   * @param cacheName Which cache to act on
-   */
-  public void clearStatistics(String cacheName) {
-    Ehcache cache = cacheManager.getEhcache(cacheName);
-    cache.clearStatistics();
   }
 
   /**
