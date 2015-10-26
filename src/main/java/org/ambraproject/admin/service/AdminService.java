@@ -28,7 +28,9 @@ import org.ambraproject.search.SavedSearchRetriever;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.views.TOCArticleGroup;
 import org.ambraproject.views.article.ArticleInfo;
+
 import javax.xml.xpath.XPathExpressionException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -270,77 +272,70 @@ public interface AdminService {
    * Create a new article list and add it to the current Journal's.
    *
    * @param journalName Keyname of the current journal
-   * @param listCode  the code of the new article list.
+   * @param listKey  the code of the new article list.
    * @param displayName the display name of the article list.
    * @return the article list object that was created. ( returns null if there is no journal already
    * exists).
    */
-  public ArticleList createArticleList(String journalName, String listCode, String displayName);
+  public ArticleList createArticleList(String journalName, String listKey, String displayName);
 
   /**
-   * Uses the list of article listCode  maintained by the journal to create a list of ArticleList objects.
+   * Uses the list of article listKey  maintained by the journal to create a list of ArticleList objects.
    *
    * @param journalName Keyname of the current journal
    * @return the list of articleList for the current journal (never null)
-   * @throws RuntimeException throws RuntimeException if any one of the ArticleList listCode supplied by the journal
+   * @throws RuntimeException throws RuntimeException if any one of the ArticleList listKey supplied by the journal
    * does not exist.
    */
-  public List<ArticleList> getArticleList(String journalName);
+  public Collection<ArticleList> getArticleLists(String journalName);
 
   /**
    * Remove article list from the journal and delete them.
    *
    * @param journalKey Keyname of the current journal
-   * @param listCode the listcode of the article list to delete
-   * @return the listCode of the article list that were actually deleted
+   * @param listKey the listKey of the article list to delete
+   * @return the listKey of the article list that were actually deleted
    */
-  public String[] deleteArticleList(String journalKey, String... listCode);
+  public String[] deleteArticleList(String journalKey, String... listKey);
 
   /**
-   * Get an Article List specified by listCode.
+   * Get an Article List specified by listKey.
    *
-   * @param listCode of the articleList to retrieve
-   * @return the ArticleList object specified by listCode.
+   * @param listKey of the articleList to retrieve
+   * @return the ArticleList object specified by listKey.
    */
-  public ArticleList getList(String listCode);
+  public ArticleList getList(String listKey);
 
   /**
    * Add article dois to an article List. If any dois are already in the list, they will not be added again.
    *
-   * @param listCode of the article list to update
+   * @param listKey of the article list to update
    * @param articleDois the dois to add to the issue.
+   * @return DOIs that could not be matched to articles
    */
-  public void addArticlesToList(String listCode, String... articleDois);
+  public Collection<String> addArticlesToList(String listKey, String... articleDois);
 
   /**
    * Remove articles from an article list
    *
-   * @param listCode of the article list to update
+   * @param listKey of the article list to update
    * @param articleDois the dois of articles to remove from the issue
    */
-  public void removeArticlesFromList(String listCode, String... articleDois);
+  public void removeArticlesFromList(String listKey, String... articleDois);
 
   /**
    * Update a Article List. This will only allow reordering
    *
-   * @param listCode of the articleList to update
+   * @param listKey of the articleList to update
    * @param displayName to set on the article list
    * @param articleDois  a list of article dois to set on the articleList
    */
-  public void updateList(String listCode, String displayName, List<String> articleDois);
+  public void updateList(String listKey, String displayName, List<String> articleDois);
 
   /**
    * Get a list of the articles in a list
    * @param articleList is the articlelist
    */
   public List<ArticleInfo> getArticleList(ArticleList articleList);
-
-  /**
-   * Get a list of orphaned article
-   * @param articleList
-   * @param validArticles
-   * @return dois of article list
-   */
-  public List<String> getOrphanArticleList(ArticleList articleList, List<ArticleInfo> validArticles);
 
 }
