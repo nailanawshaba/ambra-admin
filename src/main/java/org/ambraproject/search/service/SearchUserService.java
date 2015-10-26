@@ -64,4 +64,6 @@ public interface SearchUserService {
    */
   public List<UserProfile> findUsersByEmail(String email);
 
+  public List<UserProfile> findUsersByAuthId(String authId);
+
 }

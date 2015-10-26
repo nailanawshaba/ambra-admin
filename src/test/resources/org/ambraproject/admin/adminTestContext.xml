@@ -172,7 +172,6 @@
   </bean>
 
   <bean id="searchUserService" class="org.ambraproject.search.service.SearchUserServiceImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
   <bean id="flagService" class="org.ambraproject.admin.flags.service.FlagServiceImpl">

@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ambraproject</groupId>
   <artifactId>ambra-admin</artifactId>
-  <version>2.9.28</version>
+  <version>2.9.29</version>
   <packaging>war</packaging>
   <name>Ambra Administration</name>
 
@@ -37,8 +37,8 @@
   </licenses>
 
   <properties>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -57,6 +57,7 @@
     <testng.version>6.8.1</testng.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <surefire.version>2.16</surefire.version>
+    <ned-java-client.version>0.10.0-SNAPSHOT</ned-java-client.version>
   </properties>
 
   <repositories>
@@ -414,6 +415,13 @@
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>ned-java-client</artifactId>
+      <version>0.10.0-SNAPSHOT</version>
+      <!--<version>ned-java-client.version</version>-->
     </dependency>
 
   </dependencies>

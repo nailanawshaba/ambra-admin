@@ -38,17 +38,21 @@
 <#if journal??><@s.url id="crossPubManagement" namespace="/" action="crossPubManagement" journalKey="${journal.journalKey}" journalEIssn="${journal.eIssn}" /></#if>
 <p style="text-align:center;">
   <@s.a href="/admin/">Admin Top</@s.a>&nbsp; |&nbsp;
+
   <strong>Manage:</strong>
+
   <#if permissions?seq_contains("MANAGE_FLAGS")>
     <@s.a href="${manageFlags}">Flags</@s.a>,&nbsp;
   </#if>
+
   <#if permissions?seq_contains("MANAGE_ANNOTATIONS")>
     <@s.a href="${manageAnnotation}">Annotations</@s.a>,&nbsp;
   </#if>
+
   <#if permissions?seq_contains("MANAGE_USERS")>
     <@s.a href="${manageUsersURL}">Manage Users</@s.a>,&nbsp;
-    <@s.a href="${importUsersURL}">Import Users</@s.a>,&nbsp;
   </#if>
+
   <#if permissions?seq_contains("MANAGE_JOURNALS")>
     <@s.a href="${manageVirtualJournalsURL}">Virtual Journals</@s.a>,&nbsp;
   </#if>

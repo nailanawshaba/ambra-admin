@@ -32,14 +32,13 @@
     <#if users?exists && users?has_content>
       <p>
         <fieldset>
-          <legend><b>Edit User Profiles</b></legend>
+          <legend><b>User Profiles</b></legend>
           <ul>
             <#list users as user>
               <@s.url id="editProfileByAdminURL" action="editProfileByAdmin" namespace="/" userAuthId="${user.authId}" includeParams="none"/>
               <@s.url id="editRolesURL" action="editRoles" namespace="/" userAuthId="${user.authId}" includeParams="none"/>
               <li>
                 User: {Id: <b>${user.ID}</b>; User name: <b>${user.displayName!}</b>; Email: <b>${user.email!}</b>}
-                <@s.a href="%{editProfileByAdminURL}">Edit Profile</@s.a>&nbsp;
                 <#if permissions?seq_contains("MANAGE_ROLES")>
                   <@s.a href="%{editRolesURL}">Edit Roles</@s.a>
                 </#if>

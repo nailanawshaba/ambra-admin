@@ -19,8 +19,10 @@
 
 package org.ambraproject.search.service;
 
+
 import org.ambraproject.models.UserProfile;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
+import org.ambraproject.admin.service.impl.NedServiceImpl;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
@@ -28,78 +30,158 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
+import java.util.ArrayList;
+
+import io.swagger.client.model.Individualprofile;
+import io.swagger.client.ApiClient;
+import io.swagger.client.api.IndividualsApi;
+import io.swagger.client.model.Individualprofile;
+import io.swagger.client.model.IndividualComposite;
+import io.swagger.client.model.Email;
+import io.swagger.client.model.Address;
+import io.swagger.client.model.Auth;
 
 /**
  * Simple implementation of {@link SearchUserService} that uses SQL like restrictions to find users
  *
  * @author Alex Kudlick 2/17/12
  */
-public class SearchUserServiceImpl extends HibernateServiceImpl implements SearchUserService {
+public class SearchUserServiceImpl implements SearchUserService {
 
   private static final Logger log = LoggerFactory.getLogger(SearchUserServiceImpl.class);
+
+  private enum NedEntity {AUTH, EMAIL, INDIVIDUAL_PROFILE};
+
+  private NedServiceImpl nedService;
+
+  public void setNedService(NedServiceImpl nedService) {
+    this.nedService = nedService;
+  }
 
   @Override
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
   public boolean isDisplayNameInUse(String displayName) {
-    List<UserProfile> matchingUsers = (List<UserProfile>) hibernateTemplate.findByCriteria(
-      DetachedCriteria.forClass(UserProfile.class)
-        .add(Restrictions.eq("displayName", displayName).ignoreCase()),
-      0, 1);
-
-    return !matchingUsers.isEmpty();
+    // to call NED-API.
+    return false;
   }
 
   @Override
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
   public boolean isEmailInUse(String email) {
-    List<UserProfile> matchingUsers = (List<UserProfile>) hibernateTemplate.findByCriteria(
-      DetachedCriteria.forClass(UserProfile.class)
-        .add(Restrictions.eq("email", email).ignoreCase()),
-      0, 1);
-    return !matchingUsers.isEmpty();
+    // to call NED-API.
+    return false;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  @SuppressWarnings("unchecked")
+  public List<UserProfile> findUsersByAuthId(String authId) {
+
+    log.debug("Searching for users with authId like {}", authId);
+
+    List<UserProfile> upList = new ArrayList<UserProfile>();
+    try {
+      upList = findUsersViaNed(NedEntity.AUTH, authId);
+    }
+    catch (Exception ex) {
+      log.error(ex.getMessage(), ex);
+      throw new RuntimeException("Failed to findUsersByAuthId:  " + authId);
+    }
+    return upList;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  @SuppressWarnings("unchecked")
+  public List<UserProfile> findUsersByEmail(String emailAddress) {
+
+    log.debug("Searching for users with email address like {}", emailAddress);
+
+    List<UserProfile> upList = new ArrayList<UserProfile>();
+    try {
+      upList = findUsersViaNed(NedEntity.EMAIL, emailAddress);
+    }
+    catch (Exception ex) {
+      log.error(ex.getMessage(), ex);
+      throw new RuntimeException("Failed to findUsersByEmail:  " + emailAddress);
+    }
+    return upList;
   }
 
   @Override
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
   public List<UserProfile> findUsersByDisplayName(String displayName) {
-    log.debug("Searching for users with display name like: {}", displayName);
-    //if there's an exact match, return that
-    List<UserProfile> matchingUsers = (List<UserProfile>) hibernateTemplate.findByCriteria(
-        DetachedCriteria.forClass(UserProfile.class)
-            .add(Restrictions.eq("displayName", displayName)),
-        0, 1);
-    if (!matchingUsers.isEmpty()) {
-      log.debug("Found user exact match for display name: {}", displayName);
-      return matchingUsers;
-    } else {
-      return (List<UserProfile>) hibernateTemplate.findByCriteria(
-          DetachedCriteria.forClass(UserProfile.class)
-              .add(Restrictions.ilike("displayName", displayName, MatchMode.ANYWHERE))
-      );
+
+    log.debug("Searching for users with displayName like {}", displayName);
+
+    List<UserProfile> upList = new ArrayList<UserProfile>();
+    try {
+      upList = findUsersViaNed(NedEntity.INDIVIDUAL_PROFILE, displayName);
     }
+    catch (Exception ex) {
+      log.error(ex.getMessage(), ex);
+      throw new RuntimeException("Failed to findUsersByDisplayName:  " + displayName);
+    }
+    return upList;
   }
 
-  @Override
-  @Transactional(readOnly = true)
-  @SuppressWarnings("unchecked")
-  public List<UserProfile> findUsersByEmail(String email) {
-    log.debug("Searching for users with email like {}", email);
+  public List<UserProfile> findUsersViaNed(NedEntity nedEntity, String nedValue) {
+    List<UserProfile> upList = new ArrayList<UserProfile>();
 
-    List<UserProfile> matchingUsers = (List<UserProfile>) hibernateTemplate.findByCriteria(
-        DetachedCriteria.forClass(UserProfile.class)
-            .add(Restrictions.eq("email", email)),
-        0, 1);
-    if (!matchingUsers.isEmpty()) {
-      log.debug("found exact match for email: {}", email);
-      return matchingUsers;
-    } else {
-      return (List<UserProfile>) hibernateTemplate.findByCriteria(
-          DetachedCriteria.forClass(UserProfile.class)
-              .add(Restrictions.ilike("email", email, MatchMode.ANYWHERE)));
+    try {
+      ApiClient apiClient = nedService.getApiClient();
+      IndividualsApi individualsApi = new IndividualsApi(apiClient);
+      List<IndividualComposite> icList = new ArrayList<>();
+
+      if (nedEntity == NedEntity.AUTH) {
+        icList = individualsApi.findIndividuals("auth", "authid", nedValue);
+      } else if (nedEntity == NedEntity.EMAIL) {
+        icList = individualsApi.findIndividuals("email", "emailaddress", nedValue);
+      } else if (nedEntity == NedEntity.INDIVIDUAL_PROFILE) {
+        icList = individualsApi.findIndividuals("individualprofile", "displayname", nedValue);
+      }
+
+      IndividualComposite individualComposite = icList.get(0);
+
+      List<Individualprofile> individualprofileList = individualComposite.getIndividualprofiles();
+
+      for (Individualprofile ip : individualprofileList) {
+        UserProfile up = new UserProfile();
+        up.setID((ip.getNedid().longValue()));
+        up.setDisplayName(ip.getDisplayname());
+        up.setGivenNames(ip.getFirstname());
+        up.setSurname(ip.getLastname());
+
+        List<Email> emailList = individualComposite.getEmails();
+        for (Email e : emailList) {
+          if (e.getIsactive()) {
+            up.setEmail(e.getEmailaddress());
+          }
+        }
+
+        List<Auth> authList = individualComposite.getCredentials();
+        for (Auth a : authList) {
+          if (a.getIsactive().equals("1")) {
+            up.setAuthId(a.getAuthid());
+          }
+        }
+        upList.add(up);
+      }
     }
+    catch (Exception ex) {
+      log.error(ex.getMessage(), ex);
+      throw new RuntimeException("Failed to findUsersViaNed:  " + nedValue);
+    }
+
+    return upList;
+
   }
 }

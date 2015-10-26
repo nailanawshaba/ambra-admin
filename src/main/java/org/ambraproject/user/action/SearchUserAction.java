@@ -71,12 +71,12 @@ public class SearchUserAction extends BaseAdminActionSupport {
       return INPUT;
     }
 
-    final UserProfile user = userService.getUserByAuthId(userAuthId);
-    if (null == user) {
-      addActionError("No user for the given auth id");
+    final List<UserProfile> userList = searchUserService.findUsersByAuthId(userAuthId);
+    if (userList.isEmpty()) {
+      addActionError("No user(s) found with the given auth id " + userAuthId);
       return INPUT;
     }
-    users = new UserProfile[]{user};
+    users = userList.toArray(new UserProfile[userList.size()]);
 
     return SUCCESS;
   }

@@ -33,25 +33,7 @@
     <@messages />
 
     <fieldset>
-      <legend><strong>Edit User Profile</strong></legend>
-
-      <@s.url id="editProfileByAdminURL" action="editProfileByAdmin" namespace="/"
-        userAuthId="${userAuthId}" includeParams="none"/>
-      <@s.url id="editPreferencesByAdminURL" action="retrieveUserAlertsByAdmin" namespace="/"
-        userAuthId="${userAuthId}" includeParams="none"/>
-      <@s.url id="editSearchAlertsByAdminURL" action="retrieveUserSearchAlertsByAdmin" namespace="/"
-        userAuthId="${userAuthId}" includeParams="none"/>
-      <@s.url id="editRolesURL" action="editRoles" namespace="/"
-        userAuthId="${userAuthId}" includeParams="none"/>
-
-      <@s.a href="%{editProfileByAdminURL}">Profile</@s.a>,
-      <@s.a href="%{editPreferencesByAdminURL}">Alerts/Preferences</@s.a>,
-      <@s.a href="%{editSearchAlertsByAdminURL}">Search Alerts</@s.a>,
-      <#if permissions?seq_contains("MANAGE_ROLES")>
-        <@s.a href="%{editRolesURL}">Roles</@s.a>
-      </#if>
-
-      <br/>
+      <legend><strong>Edit User Roles</strong></legend>
 
       <p>User: <b>${displayName}</b>, Email: <b>${email}</b></p>
 
