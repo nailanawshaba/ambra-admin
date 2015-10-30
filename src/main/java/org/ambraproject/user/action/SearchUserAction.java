@@ -98,7 +98,7 @@ public class SearchUserAction extends BaseAdminActionSupport {
 
     final List<UserProfile> userList = searchUserService.findUsersByDisplayName(name);
     if (userList.isEmpty()) {
-      addActionError("No user(s) found with the username:" + name);
+      addActionError("No user(s) found with the username:  " + name);
       return INPUT;
     }
     users = userList.toArray(new UserProfile[userList.size()]);

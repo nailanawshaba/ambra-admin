@@ -21,19 +21,10 @@ package org.ambraproject.search.service;
 
 
 import org.ambraproject.models.UserProfile;
-import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.ambraproject.admin.service.impl.NedServiceImpl;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.xml.bind.DatatypeConverter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -43,8 +34,8 @@ import io.swagger.client.api.IndividualsApi;
 import io.swagger.client.model.Individualprofile;
 import io.swagger.client.model.IndividualComposite;
 import io.swagger.client.model.Email;
-import io.swagger.client.model.Address;
 import io.swagger.client.model.Auth;
+import io.swagger.client.ApiException;
 
 /**
  * Simple implementation of {@link SearchUserService} that uses SQL like restrictions to find users
@@ -139,7 +130,7 @@ public class SearchUserServiceImpl implements SearchUserService {
     try {
       ApiClient apiClient = nedService.getApiClient();
       IndividualsApi individualsApi = new IndividualsApi(apiClient);
-      List<IndividualComposite> icList = new ArrayList<>();
+      List<IndividualComposite> icList = new ArrayList<IndividualComposite>();
 
       if (nedEntity == NedEntity.AUTH) {
         icList = individualsApi.findIndividuals("auth", "authid", nedValue);
@@ -149,36 +140,40 @@ public class SearchUserServiceImpl implements SearchUserService {
         icList = individualsApi.findIndividuals("individualprofile", "displayname", nedValue);
       }
 
-      IndividualComposite individualComposite = icList.get(0);
+      if ( icList.size() > 0 ) {
+        IndividualComposite individualComposite = icList.get(0);
+        List<Individualprofile> individualprofileList = individualComposite.getIndividualprofiles();
 
-      List<Individualprofile> individualprofileList = individualComposite.getIndividualprofiles();
+        for (Individualprofile ip : individualprofileList) {
+          UserProfile up = new UserProfile();
+          up.setID((ip.getNedid().longValue()));
+          up.setDisplayName(ip.getDisplayname());
+          up.setGivenNames(ip.getFirstname());
+          up.setSurname(ip.getLastname());
 
-      for (Individualprofile ip : individualprofileList) {
-        UserProfile up = new UserProfile();
-        up.setID((ip.getNedid().longValue()));
-        up.setDisplayName(ip.getDisplayname());
-        up.setGivenNames(ip.getFirstname());
-        up.setSurname(ip.getLastname());
-
-        List<Email> emailList = individualComposite.getEmails();
-        for (Email e : emailList) {
-          if (e.getIsactive()) {
-            up.setEmail(e.getEmailaddress());
+          List<Email> emailList = individualComposite.getEmails();
+          for (Email e : emailList) {
+            if (e.getIsactive()) {
+              up.setEmail(e.getEmailaddress());
+            }
           }
-        }
 
-        List<Auth> authList = individualComposite.getCredentials();
-        for (Auth a : authList) {
-          if (a.getIsactive().equals("1")) {
-            up.setAuthId(a.getAuthid());
+          List<Auth> authList = individualComposite.getCredentials();
+          for (Auth a : authList) {
+            if (a.getIsactive().equals("1")) {
+              up.setAuthId(a.getAuthid());
+            }
           }
+          upList.add(up);
         }
-        upList.add(up);
       }
+    }
+    catch (ApiException apiEx) {
+      log.error("findUsersViaNed() " + apiEx.getMessage());
+      log.error("findUsersViaNed():  nedValue=" + nedValue);
     }
     catch (Exception ex) {
       log.error(ex.getMessage(), ex);
-      throw new RuntimeException("Failed to findUsersViaNed:  " + nedValue);
     }
 
     return upList;
