@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.ArrayList;
 
-import io.swagger.client.model.Individualprofile;
 import io.swagger.client.ApiClient;
 import io.swagger.client.api.IndividualsApi;
 import io.swagger.client.model.Individualprofile;
@@ -128,8 +127,7 @@ public class SearchUserServiceImpl implements SearchUserService {
     List<UserProfile> upList = new ArrayList<UserProfile>();
 
     try {
-      ApiClient apiClient = nedService.getApiClient();
-      IndividualsApi individualsApi = new IndividualsApi(apiClient);
+      IndividualsApi individualsApi = nedService.getIndividualsApi();
       List<IndividualComposite> icList = new ArrayList<IndividualComposite>();
 
       if (nedEntity == NedEntity.AUTH) {

@@ -73,7 +73,7 @@ public class SearchUserAction extends BaseAdminActionSupport {
 
     final List<UserProfile> userList = searchUserService.findUsersByAuthId(userAuthId);
     if (userList.isEmpty()) {
-      addActionError("No user(s) found with the given auth id " + userAuthId);
+      addActionError("No user(s) found with the given auth id:  " + userAuthId);
       return INPUT;
     }
     users = userList.toArray(new UserProfile[userList.size()]);
@@ -123,7 +123,7 @@ public class SearchUserAction extends BaseAdminActionSupport {
 
     final List<UserProfile> userList = searchUserService.findUsersByEmail(emailAddress);
     if (userList.isEmpty()) {
-      addActionError("No user(s) found with the email:" + emailAddress);
+      addActionError("No user(s) found with the email:  " + emailAddress);
       return INPUT;
     }
     users = userList.toArray(new UserProfile[userList.size()]);
