@@ -39,11 +39,17 @@
 
       <@s.form action="editRolesAssign" namespace="/" method="post" cssClass="ambra-form"
         method="post" title="Roles Form" name="userRoles">
+
+        <@s.hidden name="userId" />
         <@s.hidden name="userAuthId" />
+        <@s.hidden name="displayName" />
+        <@s.hidden name="email" />
+
           <#list userRoles as role>
             <@s.checkbox name="roleIDs" label="${role.roleName}" fieldValue="${role.ID}"
               value="${role.assigned?string}"/><br/>
           </#list>
+
         <br/>
         <@s.submit value="Save" />
       </@s.form>

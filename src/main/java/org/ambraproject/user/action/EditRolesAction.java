@@ -39,6 +39,7 @@ public class EditRolesAction extends BaseAdminActionSupport {
   private AdminRolesService adminRolesService;
   private UserService userService;
   private List<UserRoleView> userRoles;
+  private Long userId;
   private String userAuthId;
   private String displayName;
   private String email;
@@ -53,12 +54,12 @@ public class EditRolesAction extends BaseAdminActionSupport {
    */
   public String execute() throws Exception {
 
-    if (userAuthId == null) {
-      addFieldError("authId", "authId is required");
+    if (userId == null) {
+      addFieldError("userId", "userId is required");
       return INPUT;
     }
 
-    loadCommonValues(this.userAuthId);
+    this.userRoles = adminRolesService.getAllRoles(userId);
 
     return SUCCESS;
   }
@@ -72,37 +73,25 @@ public class EditRolesAction extends BaseAdminActionSupport {
    */
   public String assignRoles() throws Exception {
 
-    if (userAuthId == null) {
-      addFieldError("authId", "authId is required");
+    if (userId== null) {
+      addFieldError("userId", "userId is required");
       return INPUT;
     }
 
-    UserProfile userProfile = userService.getUserByAuthId(this.userAuthId);
-
     //Revoke all roles and then reassign them
-    this.adminRolesService.revokeAllRoles(userProfile.getID());
+    this.adminRolesService.revokeAllRoles(userId);
 
     if(this.roleIDs != null) {
       for(Long roleID : roleIDs) {
-        this.adminRolesService.grantRole(userProfile.getID(), roleID);
+        this.adminRolesService.grantRole(userId, roleID);
       }
     }
 
-    loadCommonValues(this.userAuthId);
+    this.userRoles = adminRolesService.getAllRoles(userId);
 
     addActionMessage("Roles Updated Successfully");
 
     return SUCCESS;
-  }
-
-  private void loadCommonValues(String authid)
-  {
-    UserProfile userProfile = userService.getUserByAuthId(authid);
-    this.userRoles = adminRolesService.getAllRoles(userProfile.getID());
-
-    this.userAuthId = userProfile.getAuthId();
-    this.email = userProfile.getEmail();
-    this.displayName = userProfile.getDisplayName();
   }
 
   /**
@@ -121,6 +110,24 @@ public class EditRolesAction extends BaseAdminActionSupport {
    */
   public void setRoleIDs(final Long[] roleIDs) {
     this.roleIDs = roleIDs;
+  }
+
+  /**
+   * Struts setter for the user's profile ID
+   * @return
+   */
+  public void setUserId(Long userId)
+  {
+    this.userId = userId;
+  }
+
+  /**
+   * Get the user's profile ID
+   * @return
+   */
+  public Long getUserId()
+  {
+    return this.userId;
   }
 
   /**
@@ -151,6 +158,15 @@ public class EditRolesAction extends BaseAdminActionSupport {
   }
 
   /**
+   * Struts setter for the user's email
+   * @return
+   */
+  public void setEmail(String email)
+  {
+    this.email = email;
+  }
+
+  /**
    * Get the user's display name
    *
    * @return
@@ -160,6 +176,14 @@ public class EditRolesAction extends BaseAdminActionSupport {
     return this.displayName;
   }
 
+  /**
+   * Struts setter for the user's displayName
+   * @return
+   */
+  public void setDisplayName(String displayName)
+  {
+    this.displayName = displayName;
+  }
 
   @Required
   public void setAdminRolesService(AdminRolesService adminRolesService) {
