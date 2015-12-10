@@ -57,7 +57,7 @@
     <testng.version>6.8.1</testng.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <surefire.version>2.16</surefire.version>
-    <ned-java-client.version>0.10.0-SNAPSHOT</ned-java-client.version>
+    <ned-java-client.version>0.13.0-SNAPSHOT</ned-java-client.version>
   </properties>
 
   <repositories>
@@ -120,34 +120,6 @@
   </distributionManagement>
 
   <dependencies>
-    <dependency>
-      <groupId>org.ambraproject</groupId>
-      <artifactId>ambra-base</artifactId>
-      <version>${ambra.version}</version>
-      <exclusions>
-        <!--These are some easy wins for reducing the size of the admin war, we don't need these libraries in admin-->
-        <exclusion>
-          <groupId>org.tuckey</groupId>
-          <artifactId>urlrewritefilter</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.solr</groupId>
-          <artifactId>solr-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.mortbay.jetty</groupId>
-          <artifactId>jetty-util</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.ambraproject</groupId>
-          <artifactId>ambra-js</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>jcl-over-slf4j</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
 
     <dependency>
       <groupId>org.ambraproject</groupId>
@@ -418,10 +390,9 @@
     </dependency>
 
     <dependency>
-      <groupId>io.swagger</groupId>
-      <artifactId>ned-java-client</artifactId>
-      <version>0.10.0-SNAPSHOT</version>
-      <!--<version>ned-java-client.version</version>-->
+      <groupId>org.plos</groupId>
+      <artifactId>ned-client</artifactId>
+      <version>${ned-java-client.version}</version>
     </dependency>
 
   </dependencies>

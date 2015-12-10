@@ -28,13 +28,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.ArrayList;
 
-import io.swagger.client.ApiClient;
-import io.swagger.client.api.IndividualsApi;
-import io.swagger.client.model.Individualprofile;
-import io.swagger.client.model.IndividualComposite;
-import io.swagger.client.model.Email;
-import io.swagger.client.model.Auth;
-import io.swagger.client.ApiException;
+import org.plos.ned_client.ApiClient;
+import org.plos.ned_client.api.IndividualsApi;
+import org.plos.ned_client.model.IndividualComposite;
+import org.plos.ned_client.model.Individualprofile;
+import org.plos.ned_client.model.Auth;
+import org.plos.ned_client.model.Email;
+import org.plos.ned_client.ApiException;
 
 /**
  * Simple implementation of {@link SearchUserService} that uses SQL like restrictions to find users
@@ -156,7 +156,7 @@ public class SearchUserServiceImpl implements SearchUserService {
             }
           }
 
-          List<Auth> authList = individualComposite.getCredentials();
+          List<Auth> authList = individualComposite.getAuth();
           for (Auth a : authList) {
             if (a.getIsactive().equals("1")) {
               up.setAuthId(a.getAuthid());
@@ -167,8 +167,9 @@ public class SearchUserServiceImpl implements SearchUserService {
       }
     }
     catch (ApiException apiEx) {
-      log.error("findUsersViaNed() " + apiEx.getMessage());
-      log.error("findUsersViaNed():  nedValue=" + nedValue);
+      log.error("findUsersViaNed() code: " + apiEx.getCode());
+      log.error("findUsersViaNed() responseBody: " + apiEx.getResponseBody());
+      log.error("findUsersViaNed() nedValue: " + nedValue);
     }
     catch (Exception ex) {
       log.error(ex.getMessage(), ex);
