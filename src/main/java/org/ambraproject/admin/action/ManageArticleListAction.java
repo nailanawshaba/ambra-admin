@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,10 +32,10 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
   private String command;
   private String[] listToDelete;
   private String displayName;
-  private String listCode;
+  private String listKey;
 
   // Fields Used by template
-  private List<ArticleList> articleList;
+  private Collection<ArticleList> articleList;
 
   private static final Logger log = LoggerFactory.getLogger(ManageArticleListAction.class);
 
@@ -91,7 +92,7 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
    */
   private void createArticleList() {
     try {
-      ArticleList article = adminService.createArticleList(getCurrentJournal(), listCode,  displayName);
+      ArticleList article = adminService.createArticleList(getCurrentJournal(), listKey,  displayName);
       if (article != null) {
         addActionMessage("Created New Article List: " + displayName);
       } else {
@@ -121,7 +122,7 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
   }
 
   private void repopulate() {
-    articleList = adminService.getArticleList(getCurrentJournal());
+    articleList = adminService.getArticleLists(getCurrentJournal());
     initJournal();
   }
 
@@ -141,12 +142,12 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
     this.listToDelete = listToDelete;
   }
 
-  public String getListCode() {
-    return listCode;
+  public String getListKey() {
+    return listKey;
   }
 
-  public void setListCode(String listCode) {
-    this.listCode = listCode;
+  public void setListKey(String listKey) {
+    this.listKey = listKey;
   }
 
   public String getDisplayName() {
@@ -157,7 +158,7 @@ public class ManageArticleListAction extends BaseAdminActionSupport {
     this.displayName = displayName;
   }
 
-  public List<ArticleList> getArticleList() {
+  public Collection<ArticleList> getArticleList() {
     return articleList;
   }
 

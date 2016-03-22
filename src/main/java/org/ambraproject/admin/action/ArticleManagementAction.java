@@ -13,6 +13,7 @@
 
 package org.ambraproject.admin.action;
 
+import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleList;
 import org.ambraproject.views.article.ArticleInfo;
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,9 +30,12 @@ import java.util.List;
  */
 public class ArticleManagementAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ArticleManagementAction.class);
+
+  public static final String ARTICLE_LIST_TYPE = "admin"; // From Ambra's migrate_ambra_1007.sql
+
   // Fields set by templates
   private String command;
-  private String listCode;
+  private String listKey;
   private String displayName;
   private String articlesToAddCsv;
   private String[] articlesToRemove;
@@ -38,7 +44,6 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
   private ArticleList articleList;
   private String articleOrderCSV;
   private List<ArticleInfo> articleInfoList;
-  private List<String> orphanDois;
 
   public enum ImCommands {
     ADD_ARTICLE,
@@ -86,12 +91,18 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
    */
   private void addArticles() {
     if (articlesToAddCsv != null && !articlesToAddCsv.isEmpty()) {
+      Collection<String> orphanDois = Collections.emptyList();
       try {
-        adminService.addArticlesToList(listCode, articlesToAddCsv.split(","));
-        addActionMessage("Successfully added articles to list");
+        orphanDois = adminService.addArticlesToList(listKey, articlesToAddCsv.split(","));
       } catch (IllegalArgumentException e) {
-        log.error("Failed to add article(s) '" + articlesToAddCsv + "' to list " + listCode, e);
+        log.error("Failed to add article(s) '" + articlesToAddCsv + "' to list " + listKey, e);
         addActionMessage("Article(s) not added due to the following error: " + e.getMessage());
+      }
+      if (orphanDois.size() < articlesToAddCsv.length()) {
+        addActionMessage("Successfully added articles to list");
+      }
+      for (String orphanDoi : orphanDois) {
+        addActionError("Article not found: " + orphanDoi);
       }
     }
     repopulate();
@@ -102,10 +113,10 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
    */
   private void removeArticles() {
     try {
-      adminService.removeArticlesFromList(listCode, articlesToRemove);
+      adminService.removeArticlesFromList(listKey, articlesToRemove);
       addActionMessage("Removed the following article(s) from list: " + Arrays.toString(articlesToRemove));
     } catch (IllegalArgumentException e) {
-      log.error("Failed to remove articles " + Arrays.toString(articlesToRemove) + " from list " + listCode, e);
+      log.error("Failed to remove articles " + Arrays.toString(articlesToRemove) + " from list " + listKey, e);
       addActionMessage("Article(s) not removed due to the following error: " + e.getMessage());
     }
     repopulate();
@@ -116,46 +127,41 @@ public class ArticleManagementAction extends BaseAdminActionSupport {
    */
   private void updateList() {
     try {
-      adminService.updateList(listCode, displayName, Arrays.asList(articleOrderCSV.split(",")));
-      addActionMessage("Successfully updated list " + listCode);
+      adminService.updateList(listKey, displayName, Arrays.asList(articleOrderCSV.split(",")));
+      addActionMessage("Successfully updated list " + listKey);
     } catch (IllegalArgumentException e) {
-      log.error("Failed to update list '" + listCode + "'", e);
+      log.error("Failed to update list '" + listKey + "'", e);
       addActionError("Article List not updated due to the following error: " + e.getMessage());
     }
     repopulate();
   }
 
   private void repopulate() {
-    articleList = adminService.getList(listCode);
+    articleList = adminService.getList(listKey);
     articleInfoList = adminService.getArticleList(articleList);
-    orphanDois = adminService.getOrphanArticleList(articleList, articleInfoList);
-    articleOrderCSV = formatArticleDoiCsv(articleList.getArticleDois());
+    articleOrderCSV = formatArticleDoiCsv(articleList.getArticles());
     initJournal();
   }
 
-  public String formatArticleDoiCsv(List<String> articleDois) {
+  public String formatArticleDoiCsv(List<Article> articleDois) {
     if (articleDois.isEmpty()) {
       return "";
     }
     String[] dois = new String[articleDois.size()];
-    int i=0;
-    for (String doi : articleDois) {
-      dois[i++] = doi;
+    int i = 0;
+    for (Article article : articleDois) {
+      dois[i++] = article.getDoi();
     }
 
     return StringUtils.join(dois, ',');
   }
 
-  public List<String> getOrphanDois() {
-    return orphanDois;
+  public String getListKey() {
+    return listKey;
   }
 
-  public String getListCode() {
-    return listCode;
-  }
-
-  public void setListCode(String listCode) {
-    this.listCode = listCode;
+  public void setListKey(String listKey) {
+    this.listKey = listKey;
   }
 
   public ArticleList getArticleList() {
