@@ -282,12 +282,18 @@
     </property>
   </bean>
 
+  <bean id="nedService" class="org.ambraproject.admin.service.impl.NedServiceImpl">
+      <constructor-arg index="0" value="${ambra.services.nedapi.server}"/>
+      <constructor-arg index="1" value="${ambra.services.nedapi.username}"/>
+      <constructor-arg index="2" value="${ambra.services.nedapi.password}"/>
+  </bean>
+
   <bean id="adminAnnotationService" class="org.ambraproject.admin.service.impl.AdminAnnotationServiceImpl">
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
   </bean>
 
   <bean id="searchUserService" class="org.ambraproject.search.service.SearchUserServiceImpl">
-    <property name="sessionFactory" ref="hibernateSessionFactory"/>
+    <property name="nedService" ref="nedService" />
   </bean>
 
   <!-- Defined in src/main/resources/ambra/configuration/defaults.xml -->
@@ -532,12 +538,6 @@
     <property name="searchService" ref="searchService"/>
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
     <property name="cache" ref="taxonomyCache"/>
-  </bean>
-
-  <bean id="importUsersService" class="org.ambraproject.admin.service.impl.ImportUsersServiceImpl">
-    <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    <property name="mailer" ref="ambraMailer"/>
-    <property name="configuration" ref="ambraConfiguration"/>
   </bean>
 
     <!--<property name="registrationEmailMap">-->

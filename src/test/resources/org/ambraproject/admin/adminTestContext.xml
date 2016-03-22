@@ -172,7 +172,6 @@
   </bean>
 
   <bean id="searchUserService" class="org.ambraproject.search.service.SearchUserServiceImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
   <bean id="flagService" class="org.ambraproject.admin.flags.service.FlagServiceImpl">
@@ -189,9 +188,4 @@
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
-  <bean id="importUsersService" class="org.ambraproject.admin.service.impl.ImportUsersServiceImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="mailer" ref="ambraMailer"/>
-    <property name="configuration" ref="ambraConfiguration"/>
-  </bean>
 </beans>

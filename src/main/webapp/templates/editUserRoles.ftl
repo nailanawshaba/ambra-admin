@@ -33,35 +33,23 @@
     <@messages />
 
     <fieldset>
-      <legend><strong>Edit User Profile</strong></legend>
-
-      <@s.url id="editProfileByAdminURL" action="editProfileByAdmin" namespace="/"
-        userAuthId="${userAuthId}" includeParams="none"/>
-      <@s.url id="editPreferencesByAdminURL" action="retrieveUserAlertsByAdmin" namespace="/"
-        userAuthId="${userAuthId}" includeParams="none"/>
-      <@s.url id="editSearchAlertsByAdminURL" action="retrieveUserSearchAlertsByAdmin" namespace="/"
-        userAuthId="${userAuthId}" includeParams="none"/>
-      <@s.url id="editRolesURL" action="editRoles" namespace="/"
-        userAuthId="${userAuthId}" includeParams="none"/>
-
-      <@s.a href="%{editProfileByAdminURL}">Profile</@s.a>,
-      <@s.a href="%{editPreferencesByAdminURL}">Alerts/Preferences</@s.a>,
-      <@s.a href="%{editSearchAlertsByAdminURL}">Search Alerts</@s.a>,
-      <#if permissions?seq_contains("MANAGE_ROLES")>
-        <@s.a href="%{editRolesURL}">Roles</@s.a>
-      </#if>
-
-      <br/>
+      <legend><strong>Edit User Roles</strong></legend>
 
       <p>User: <b>${displayName}</b>, Email: <b>${email}</b></p>
 
       <@s.form action="editRolesAssign" namespace="/" method="post" cssClass="ambra-form"
         method="post" title="Roles Form" name="userRoles">
+
+        <@s.hidden name="userId" />
         <@s.hidden name="userAuthId" />
+        <@s.hidden name="displayName" />
+        <@s.hidden name="email" />
+
           <#list userRoles as role>
             <@s.checkbox name="roleIDs" label="${role.roleName}" fieldValue="${role.ID}"
               value="${role.assigned?string}"/><br/>
           </#list>
+
         <br/>
         <@s.submit value="Save" />
       </@s.form>

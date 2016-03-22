@@ -21,3 +21,34 @@ Please direct general user questions and discussions to the [Ambra users mailing
 
 ## License
 Ambra is licensed under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html). See [LICENSE](https://github.com/PLOS/ambra-admin/blob/master/LICENSE.md) for details.
+
+## JIRA ticket:  PS-1144 (To integrate Ambra-Admin with NED-API.)
+
+TODO:
+
+1. Refactor isDisplayNameInuse() and isEmailInUse() to call NED-API.
+
+2. Refactor findUsersViaNed() to iterate over a list of IndividualComposite objects.
+   Currently, this method retrieves the first IndividualComposite object, for exact matching of
+   an user-input parameter of auth id, email address, or display name.
+
+3. The following files have been deleted:
+   org.ambraproject.user.action.AdminUserProfileAction.java
+   org.ambraproject.user.action.AdminUserAlertsAction.java
+   src/main/webapp/templates/editUserAlerts.ftl
+   src/main/webapp/templates/editUserProfile.ftl
+
+3. Add unit test cases for calling NED-API?  The following test files, for interacting with Ambra-DB via Hibernate,
+   have been removed:
+   src/test/java/org/ambraproject/search/service/SearchUserServiceTest.java
+   src/test/java/org/ambraproject/user/action/AdminUserProfileActionTest.java
+   src/test/java/org/ambraproject/user/action/SearchUserActionTest.java
+   src/test/java/org/ambraproject/user/action/AdminUserAlertsActionTest.java
+
+4. /src/main/java/org/ambraproject/admin/service/impl/NedServiceImpl.java
+
+5. Improve logging and exception handling in the SearchUserServiceImpl methods (i.e., findUsersViaNed(), etc.)?
+
+6. In pom.xml, use the <ned-java-client.version> tag for the ned-java-client dependency.
+
+7. Javadoc

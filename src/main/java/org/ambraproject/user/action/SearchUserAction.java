@@ -71,12 +71,12 @@ public class SearchUserAction extends BaseAdminActionSupport {
       return INPUT;
     }
 
-    final UserProfile user = userService.getUserByAuthId(userAuthId);
-    if (null == user) {
-      addActionError("No user for the given auth id");
+    final List<UserProfile> userList = searchUserService.findUsersByAuthId(userAuthId);
+    if (userList.isEmpty()) {
+      addActionError("No user(s) found with the given auth id:  " + userAuthId);
       return INPUT;
     }
-    users = new UserProfile[]{user};
+    users = userList.toArray(new UserProfile[userList.size()]);
 
     return SUCCESS;
   }
@@ -98,7 +98,7 @@ public class SearchUserAction extends BaseAdminActionSupport {
 
     final List<UserProfile> userList = searchUserService.findUsersByDisplayName(name);
     if (userList.isEmpty()) {
-      addActionError("No user(s) found with the username:" + name);
+      addActionError("No user(s) found with the username:  " + name);
       return INPUT;
     }
     users = userList.toArray(new UserProfile[userList.size()]);
@@ -123,7 +123,7 @@ public class SearchUserAction extends BaseAdminActionSupport {
 
     final List<UserProfile> userList = searchUserService.findUsersByEmail(emailAddress);
     if (userList.isEmpty()) {
-      addActionError("No user(s) found with the email:" + emailAddress);
+      addActionError("No user(s) found with the email:  " + emailAddress);
       return INPUT;
     }
     users = userList.toArray(new UserProfile[userList.size()]);
