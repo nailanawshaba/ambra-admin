@@ -55,14 +55,17 @@ public class EditRolesActionTest extends AdminWebTest {
     dummyDataStore.store(up);
 
     return new Object[][]{
-      { up.getAuthId(), up.getID() }
+      { up.getAuthId(), up.getID(), up.getDisplayName(), up.getEmail() }
     };
   }
 
   @Test(dataProvider = "userNoRoles")
-  public void testAssignNoRolesAction(String authId, Long userProfileId) throws Exception {
+  public void testAssignNoRolesAction(String authId, Long userProfileId, String displayName,
+                                      String email) throws Exception {
     editRolesAction.setUserAuthId(authId);
     editRolesAction.setRoleIDs(new Long[]{});
+    editRolesAction.setDisplayName(displayName);
+    editRolesAction.setEmail(email);
     editRolesAction.assignRoles();
 
     UserProfile storedUser = dummyDataStore.get(UserProfile.class, userProfileId);
@@ -100,6 +103,7 @@ public class EditRolesActionTest extends AdminWebTest {
 
   @Test(dataProvider = "userTwoRoles")
   public void testAssignTwoRolesAction(Long userProfileId, String authId, Long[] roleIDs) throws Exception {
+    editRolesAction.setUserId(userProfileId);
     editRolesAction.setUserAuthId(authId);
     editRolesAction.setRoleIDs(roleIDs);
     editRolesAction.assignRoles();
@@ -168,6 +172,7 @@ public class EditRolesActionTest extends AdminWebTest {
   public void testAssignRoles2Action(Long userProfileId, String authId,
     Long[] assignedRoles, Long[] roleIDsToAssign) throws Exception {
 
+    editRolesAction.setUserId(userProfileId);
     editRolesAction.setUserAuthId(authId);
     editRolesAction.execute();
 

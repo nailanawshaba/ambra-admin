@@ -159,20 +159,6 @@
         <documentPrefix>${ambra.platform.guid-prefix}journal.</documentPrefix>
       </documentManagement>
 
-      <registration>
-        <appContext>/ambra-registration</appContext><!-- app context for registration -->
-        <url>
-          <base>
-            https://${ambra.network.hosts.cas}:${ambra.network.ports.cas-ssl}${ambra.services.registration.appContext}
-          </base>
-          <!-- properties below are used by pub app to determine where to send the user for certain actions -->
-          <registration>${ambra.services.registration.url.base}/register.action</registration>
-          <change-password>${ambra.services.registration.url.base}/changePassword.action</change-password>
-          <change-email>${ambra.services.registration.url.base}/changeEmail.action</change-email>
-          <change-password-imported-profile>${ambra.services.registration.url.base}/importedProfileVerify.action</change-password-imported-profile>
-        </url>
-      </registration>
-
       <xreftransform>
         <default>/crossref.xsl</default>
         <dtd_2_3>/crossref.xsl</dtd_2_3>
