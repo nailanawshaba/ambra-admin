@@ -540,12 +540,6 @@
     <property name="cache" ref="taxonomyCache"/>
   </bean>
 
-  <bean id="importUsersService" class="org.ambraproject.admin.service.impl.ImportUsersServiceImpl">
-    <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    <property name="mailer" ref="ambraMailer"/>
-    <property name="configuration" ref="ambraConfiguration"/>
-  </bean>
-
     <!--<property name="registrationEmailMap">-->
         <!--<map>-->
             <!--<entry key="text" value="verifyEmail-text.ftl"/>-->
