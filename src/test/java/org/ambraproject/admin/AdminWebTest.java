@@ -14,6 +14,7 @@
 package org.ambraproject.admin;
 
 import com.opensymphony.xwork2.ActionContext;
+import org.ambraproject.Constants;
 import org.ambraproject.action.BaseWebTest;
 import org.ambraproject.action.BaseActionSupport;
 import org.apache.struts2.interceptor.SessionAware;
@@ -21,7 +22,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Common Base class for tests fo admin action classes. This allows us to specify a new config location for the context.xml.
@@ -38,6 +41,8 @@ import java.util.HashSet;
 @ContextConfiguration(locations = "adminWebContext.xml")
 public abstract class AdminWebTest extends BaseWebTest {
 
+  public static final String DEFAULT_ADMIN_AUTHID = "AdminAuthorizationID";
+
   protected abstract BaseActionSupport getAction();
 
   @Override
@@ -51,5 +56,12 @@ public abstract class AdminWebTest extends BaseWebTest {
       }
     }
   }
+
+//  private final void setupAdminContext() {
+//    Map<String, Object> sessionAttributes = new HashMap<String, Object>();
+//    sessionAttributes.put(Constants.AUTH_KEY, DEFAULT_ADMIN_AUTHID);
+//
+//    setupContext(sessionAttributes);
+//  }
 
 }

@@ -78,6 +78,8 @@ public class DocumentManagementServiceTest extends AdminBaseTest {
   @Autowired
   protected FileStoreService fileStoreService;
 
+  public static final String DEFAULT_USER_AUTHID = "DummyTestUserAuthorizationID";
+
   final String articleArchive = "pone.0000202.zip";
   final String articleXmlFile = "info_doi_10_1371_journal_pone_0000202.xml";
   final String articleUri = "info:doi/10.1371/journal.pone.0000202";

@@ -23,5 +23,6 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(locations = "adminTestContext.xml")
 public class AdminBaseTest extends BaseTest {
 
+  public static final String DEFAULT_ADMIN_AUTHID = "AdminAuthorizationID";
 
 }

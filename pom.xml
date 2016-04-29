@@ -49,7 +49,7 @@
     <activemq.version>5.2.0</activemq.version>
     <easymock.version>3.2</easymock.version>
     <conf-helper.version>2.2.1</conf-helper.version>
-    <ambra.version>2.10.23</ambra.version>
+    <ambra.version>2.10.26</ambra.version>
     <filestore.version>1.2.0</filestore.version>
     <solr.version>4.1.0</solr.version>
     <hsqldb.version>2.3.0</hsqldb.version>
@@ -272,6 +272,7 @@
       <groupId>org.ambraproject</groupId>
       <artifactId>ambra-base</artifactId>
       <version>${ambra.version}</version>
+      <!--<version>NED-RHINO</version>-->
       <!--In a future version of maven, this classifier may need to change to test-jar-->
       <classifier>tests</classifier>
       <scope>test</scope>

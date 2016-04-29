@@ -64,8 +64,12 @@
         <tr>
           <td>${flaggedComment.date?string("EEEE, MMMM dd, yyyy, hh:mm:ss a '('zzz')'")}</td>
           <td width="20%">${flaggedComment.comment!}</td>
-          <td><a href="user/showUser.action?userId=${flaggedComment.creatorID}">${flaggedComment.creatorName}</a>
+
+          <td>
+            <#--<a href="user/showUser.action?userId=${flaggedComment.creatorID}">${(flaggedComment.creatorName)!"Unknown"}</a>-->
+            <a href="https://community.plos.org/people/${flaggedComment.creatorName}">${flaggedComment.creatorName}</a>
           </td>
+
           <td width="20%"><a href="${flagURL}">${flaggedComment.annotationTitle}</a></td>
           <td>${flaggedComment.reasonCode?cap_first!}</td>
           <td>

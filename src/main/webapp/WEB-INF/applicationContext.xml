@@ -380,6 +380,7 @@
   <bean id="flagService" class="org.ambraproject.admin.flags.service.FlagServiceImpl">
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
     <property name="articleHtmlCache" ref="articleHtmlCache"/>
+    <property name="nedService" ref="nedService" />
   </bean>
 
   <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">

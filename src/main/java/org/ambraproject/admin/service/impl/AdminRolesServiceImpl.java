@@ -23,6 +23,7 @@ import org.ambraproject.admin.views.RolePermissionView;
 import org.ambraproject.admin.views.UserRoleView;
 import org.ambraproject.models.UserRole;
 import org.ambraproject.models.UserProfile;
+import org.ambraproject.models.UserProfileRoleJoinTable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,6 +38,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
@@ -44,6 +47,9 @@ import org.springframework.orm.hibernate3.HibernateCallback;
  * Methods to Administer user roles
  */
 public class AdminRolesServiceImpl extends HibernateServiceImpl implements AdminRolesService {
+
+  private static final Logger log = LoggerFactory.getLogger(AdminRolesServiceImpl.class);
+
   private PermissionsService permissionsService;
   /**
    * Get all the roles associated with a user
@@ -82,7 +88,11 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
     {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        UserProfile profile = (UserProfile)session.load(UserProfile.class, userProfileID);
+
+        List<UserProfileRoleJoinTable> userProfileRoles = (List<UserProfileRoleJoinTable>) hibernateTemplate
+            .findByCriteria(DetachedCriteria.forClass(UserProfileRoleJoinTable.class)
+                .add(Restrictions.eq("userProfileID", userProfileID)));
+
         List<Object[]> results = (List<Object[]>)session.createCriteria(UserRole.class)
           .setProjection(Projections.projectionList()
             .add(Projections.property("ID"))
@@ -90,18 +100,17 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
 
         List<UserRoleView> roleViews = new ArrayList<UserRoleView>();
 
-        for(Object[] row : results) {
+        for (Object[] row : results) {
           boolean assigned = false;
 
-          for(UserRole role : profile.getRoles())
-          {
-            if(role.getID().equals((Long)row[0])) {
+          for (UserProfileRoleJoinTable data : userProfileRoles) {
+            if ( data.getUserRoleID().equals((Long)row[0]) ) {
               assigned = true;
               break;
             }
           }
 
-          roleViews.add(new UserRoleView((Long)row[0], (String)row[1], assigned));
+          roleViews.add(new UserRoleView((Long) row[0], (String) row[1], assigned));
         }
 
         return roleViews;

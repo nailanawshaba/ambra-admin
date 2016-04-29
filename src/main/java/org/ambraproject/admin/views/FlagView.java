@@ -47,8 +47,8 @@ public class FlagView {
     this.comment = flag.getComment();
     this.reasonCode = flag.getReason();
 
-    this.creatorName = flag.getCreator().getDisplayName();
-    this.creatorID = flag.getCreator().getID();
+    this.creatorName = flag.getDisplayName();
+    this.creatorID = flag.getUserProfileID();
 
     this.annotationID = flag.getFlaggedAnnotation().getID();
     this.annotationTitle = flag.getFlaggedAnnotation().getTitle();
