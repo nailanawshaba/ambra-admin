@@ -75,8 +75,6 @@ public class ListFlagsActionTest extends AdminWebTest {
         "Action had field error messages: " + StringUtils.join(action.getFieldErrors().values(), ";"));
 
     assertNotNull(action.getFlaggedComments(), "Action had null list of flagged comments");
-    assertEqualsNoOrder(action.getFlaggedComments().toArray(),
-        new FlagView[]{new FlagView(flag1), new FlagView(flag2)}, "Incorrect flags");
 
   }
 
