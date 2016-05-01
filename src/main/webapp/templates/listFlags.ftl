@@ -66,7 +66,6 @@
           <td width="20%">${flaggedComment.comment!}</td>
 
           <td>
-            <#--<a href="user/showUser.action?userId=${flaggedComment.creatorID}">${(flaggedComment.creatorName)!"Unknown"}</a>-->
             <a href="https://community.plos.org/people/${flaggedComment.creatorName}">${flaggedComment.creatorName}</a>
           </td>
 
