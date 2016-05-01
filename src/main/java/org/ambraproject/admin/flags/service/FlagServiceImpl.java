@@ -15,7 +15,10 @@ package org.ambraproject.admin.flags.service;
 
 import org.ambraproject.admin.service.impl.NedServiceImpl;
 import org.ambraproject.admin.views.FlagView;
-import org.ambraproject.models.*;
+import org.ambraproject.models.Annotation;
+import org.ambraproject.models.AnnotationType;
+import org.ambraproject.models.Article;
+import org.ambraproject.models.Flag;
 import org.ambraproject.service.cache.Cache;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.hibernate.Criteria;
