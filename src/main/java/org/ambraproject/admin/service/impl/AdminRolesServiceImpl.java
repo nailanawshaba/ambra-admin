@@ -126,23 +126,15 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
   @SuppressWarnings("unchecked")
   public void revokeAllRoles(final Long userProfileID)
   {
-    List<UserProfile> userProfiles = (List<UserProfile>)hibernateTemplate.findByCriteria(
-      DetachedCriteria.forClass(UserProfile.class)
-        .add(Restrictions.eq("ID", userProfileID))
-        .setFetchMode("userRole", FetchMode.JOIN)
-        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
-
-    if(userProfiles.size() == 0) {
-      throw new HibernateException("Can not find user with ID: " + userProfileID);
-    }
-
-    UserProfile up = userProfiles.get(0);
-
-    //Set roles to an empty collection
-    up.setRoles(new HashSet<UserRole>());
-
-    hibernateTemplate.update(up);
-
+    hibernateTemplate.execute(new HibernateCallback()
+    {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        session.createSQLQuery("DELETE FROM userProfileRoleJoinTable WHERE userProfileID = " +
+            userProfileID).executeUpdate();
+        return null;
+      }
+    });
     this.permissionsService.clearCache();
   }
 
@@ -159,19 +151,11 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
     {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        UserProfile up = (UserProfile)session.load(UserProfile.class, userProfileID);
-        UserRole ur = (UserRole)session.load(UserRole.class, roleId);
-
-        //Add the role to the collection
-        up.getRoles().add(ur);
-
-        //Save the changes
-        session.save(up);
-
+        session.createSQLQuery("INSERT INTO userProfileRoleJoinTable VALUES (" +
+            roleId + ", " + userProfileID + ")").executeUpdate();
         return null;
       }
     });
-
     this.permissionsService.clearCache();
   }
 

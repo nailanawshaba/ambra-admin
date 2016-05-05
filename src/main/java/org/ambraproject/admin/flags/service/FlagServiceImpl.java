@@ -80,7 +80,6 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
     List<FlagView> results = new ArrayList<FlagView>(flags.size());
 
     for (Flag flag : flags) {
-
       try {
         IndividualsApi individualsApi = nedService.getIndividualsApi();
         List<Individualprofile> ipList = new ArrayList<Individualprofile>();
