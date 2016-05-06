@@ -57,11 +57,4 @@ public abstract class AdminWebTest extends BaseWebTest {
     }
   }
 
-//  private final void setupAdminContext() {
-//    Map<String, Object> sessionAttributes = new HashMap<String, Object>();
-//    sessionAttributes.put(Constants.AUTH_KEY, DEFAULT_ADMIN_AUTHID);
-//
-//    setupContext(sessionAttributes);
-//  }
-
 }
