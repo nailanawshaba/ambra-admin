@@ -22,7 +22,6 @@ import org.ambraproject.admin.service.AdminRolesService;
 import org.ambraproject.admin.views.RolePermissionView;
 import org.ambraproject.admin.views.UserRoleView;
 import org.ambraproject.models.UserRole;
-import org.ambraproject.models.UserProfile;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -19,8 +19,6 @@
 
 package org.ambraproject.search.service;
 
-
-import org.ambraproject.models.UserProfile;
 import org.ambraproject.admin.service.impl.NedServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,11 +70,11 @@ public class SearchUserServiceImpl implements SearchUserService {
   @Override
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
-  public List<UserProfile> findUsersByAuthId(String authId) {
+  public List<String> findUsersByAuthId(String authId) {
 
     log.debug("Searching for users with authId like {}", authId);
 
-    List<UserProfile> upList = new ArrayList<UserProfile>();
+    List<String> upList = new ArrayList<UserProfile>();
     try {
       upList = findUsersViaNed(NedEntity.AUTH, authId);
     }
@@ -90,11 +88,11 @@ public class SearchUserServiceImpl implements SearchUserService {
   @Override
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
-  public List<UserProfile> findUsersByEmail(String emailAddress) {
+  public List<String> findUsersByEmail(String emailAddress) {
 
     log.debug("Searching for users with email address like {}", emailAddress);
 
-    List<UserProfile> upList = new ArrayList<UserProfile>();
+    List<String> upList = new ArrayList<String>();
     try {
       upList = findUsersViaNed(NedEntity.EMAIL, emailAddress);
     }
@@ -108,11 +106,11 @@ public class SearchUserServiceImpl implements SearchUserService {
   @Override
   @Transactional(readOnly = true)
   @SuppressWarnings("unchecked")
-  public List<UserProfile> findUsersByDisplayName(String displayName) {
+  public List<String> findUsersByDisplayName(String displayName) {
 
     log.debug("Searching for users with displayName like {}", displayName);
 
-    List<UserProfile> upList = new ArrayList<UserProfile>();
+    List<String> upList = new ArrayList<UserProfile>();
     try {
       upList = findUsersViaNed(NedEntity.INDIVIDUAL_PROFILE, displayName);
     }
@@ -123,8 +121,8 @@ public class SearchUserServiceImpl implements SearchUserService {
     return upList;
   }
 
-  public List<UserProfile> findUsersViaNed(NedEntity nedEntity, String nedValue) {
-    List<UserProfile> upList = new ArrayList<UserProfile>();
+  public List<String> findUsersViaNed(NedEntity nedEntity, String nedValue) {
+    List<String> upList = new ArrayList<UserProfile>();
 
     try {
       IndividualsApi individualsApi = nedService.getIndividualsApi();

@@ -22,9 +22,9 @@ package org.ambraproject.user.action;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.service.AdminService;
 import org.ambraproject.models.Journal;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.pojo.UserProfile;
 import org.ambraproject.search.service.SearchUserService;
-import org.ambraproject.service.user.UserService;
+import org.ambraproject.admin.service.UserService;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.List;

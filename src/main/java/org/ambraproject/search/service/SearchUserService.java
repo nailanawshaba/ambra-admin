@@ -19,7 +19,7 @@
 
 package org.ambraproject.search.service;
 
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.pojo.UserProfile;
 
 import java.util.List;
 
