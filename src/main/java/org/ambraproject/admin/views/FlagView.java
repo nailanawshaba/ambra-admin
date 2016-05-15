@@ -50,9 +50,13 @@ public class FlagView {
     this.creatorName = flag.getDisplayName();
     this.creatorID = flag.getUserProfileID();
 
-    this.annotationID = flag.getFlaggedAnnotation().getID();
-    this.annotationTitle = flag.getFlaggedAnnotation().getTitle();
-    this.type = flag.getFlaggedAnnotation().getType();
+//    this.annotationID = flag.getFlaggedAnnotation().getID();
+//    this.annotationTitle = flag.getFlaggedAnnotation().getTitle();
+//    this.type = flag.getFlaggedAnnotation().getType();
+
+    this.annotationID = flag.getAnnotationID();
+    this.annotationTitle = flag.getAnnotationTitle();
+    this.type = flag.getAnnotationType();
 
     //Defensive copy
     Calendar date = Calendar.getInstance();

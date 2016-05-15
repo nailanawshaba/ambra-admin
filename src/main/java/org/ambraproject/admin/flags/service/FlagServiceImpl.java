@@ -18,8 +18,13 @@ import org.ambraproject.admin.views.FlagView;
 import org.ambraproject.models.Annotation;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.Flag;
+import org.ambraproject.models.FlagReasonCode;
+import org.ambraproject.models.AnnotationType;
 import org.ambraproject.service.cache.Cache;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
+import org.hibernate.Session;
+import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -34,6 +39,7 @@ import org.plos.ned_client.model.Individualprofile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.orm.hibernate3.HibernateCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +49,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Date;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.math.BigInteger;
 
 /**
  * @author Alex Kudlick 3/23/12
@@ -69,54 +79,83 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
   public List<FlagView> getFlaggedComments() {
     log.info("Loading up all flagged annotations");
 
-    List<Flag> flags = (List<Flag>) hibernateTemplate.findByCriteria(
-        DetachedCriteria.forClass(Flag.class)
-            .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-            .addOrder(Order.asc("created"))
-    );
+    return (List<FlagView>) hibernateTemplate.execute(new HibernateCallback()
+    {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
 
-    log.info("Found {} flagged annotations", flags.size());
+        StringBuilder sqlQuery = new StringBuilder();
 
-    List<FlagView> results = new ArrayList<FlagView>(flags.size());
+        sqlQuery.append("SELECT a.annotationFlagID, a.created, a.reason, a.userProfileID, " +
+            "b.annotationID, b.type, b.title, a.comment " +
+            "FROM annotationFlag a, annotation b WHERE a.annotationID=b.annotationID ORDER BY created");
 
-    for (Flag flag : flags) {
-      try {
-        IndividualsApi individualsApi = nedService.getIndividualsApi();
-        List<Individualprofile> ipList = new ArrayList<Individualprofile>();
+        SQLQuery query = session.createSQLQuery(sqlQuery.toString());
+        List<Object[]> flagList = query.list();
+        log.info("Found {} flagged annotations", flagList.size());
 
-        ipList = individualsApi.getProfiles(flag.getUserProfileID().intValue());
+        List<FlagView> results = new ArrayList(flagList.size());
 
-        if ( ipList.size() > 0 ) {
-          Individualprofile ip = ipList.get(0);
-          flag.setDisplayName(ip.getDisplayname());
-        }
+        for (Object[] obj : flagList) {
+          Flag f = new Flag();
+          f.setID(((Number) obj[0]).longValue());
+          f.setCreated((java.util.Date) obj[1]);
+          f.setReason(FlagReasonCode.fromString((String) obj[2]));
+          f.setUserProfileID(((Number) obj[3]).longValue());
+          f.setAnnotationID(((Number) obj[4]).longValue());
+          f.setAnnotationType(AnnotationType.fromString((String) obj[5]));
+          f.setAnnotationTitle((String) obj[6]);
+          f.setComment((String) obj[7]);
+
+          try {
+            IndividualsApi individualsApi = nedService.getIndividualsApi();
+            List<Individualprofile> ipList = new ArrayList<Individualprofile>();
+
+            ipList = individualsApi.getProfiles(f.getUserProfileID().intValue());
+
+            if ( ipList.size() > 0 ) {
+              Individualprofile ip = ipList.get(0);
+              f.setDisplayName(ip.getDisplayname());
+            }
+          }
+          catch (ApiException apiEx) {
+            log.error("getFlaggedComments() code: " + apiEx.getCode());
+            log.error("getFlaggedComments() responseBody: " + apiEx.getResponseBody());
+            log.error("getFlaggedComments() f.getUserProfileID(): " + f.getUserProfileID());
+          }
+          catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+          }
+
+          if ( f.getDisplayName() == null ) {
+            continue;
+          }
+
+          results.add(new FlagView(f));
+        };
+
+        return results;
       }
-      catch (ApiException apiEx) {
-        log.error("getFlaggedComments() code: " + apiEx.getCode());
-        log.error("getFlaggedComments() responseBody: " + apiEx.getResponseBody());
-        log.error("getFlaggedComments() flag.getUserProfileID(): " + flag.getUserProfileID());
-      }
-      catch (Exception ex) {
-        log.error(ex.getMessage(), ex);
-      }
+    });
 
-      if ( flag.getDisplayName() == null ) {
-        continue;
-      }
-
-      results.add(new FlagView(flag));
-    }
-    return results;
   }
 
   @Override
   public void deleteFlags(Long... flagIds) {
-    log.debug("Removing flags: {}", Arrays.toString(flagIds));
-    hibernateTemplate.deleteAll(hibernateTemplate.findByCriteria(
-        DetachedCriteria.forClass(Flag.class)
-            .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-            .add(Restrictions.in("ID", flagIds))
-    ));
+    log.info("Removing flags: {}", Arrays.toString(flagIds));
+
+    final String flags = Arrays.toString(flagIds);
+
+    hibernateTemplate.execute(new HibernateCallback()
+    {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        session.createSQLQuery("DELETE FROM annotationFlag WHERE annotationFlagID in (" +
+                flags.substring(1,flags.length()-1) + ")").executeUpdate();
+        return null;
+      }
+    });
+
   }
 
   /**
@@ -126,44 +165,44 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
 
   @Override
   public void deleteFlagAndComment(Long... commentIds) {
-    log.debug("Removing comments and associated flag for flagId: {}", Arrays.toString(commentIds));
+    log.info("Removing comments and associated flags for flagId: {}", Arrays.toString(commentIds));
 
-    //get all the flags for given flag id
-    List<Flag> flags = (List<Flag>) hibernateTemplate.findByCriteria(
-        DetachedCriteria.forClass(Flag.class)
-            .add(Restrictions.in("ID", commentIds))
-            .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-    );
+    final String comments = Arrays.toString(commentIds);
 
-    Map<Long,Annotation> annotationMap = new HashMap<Long, Annotation>();
+    hibernateTemplate.execute(new HibernateCallback()
+    {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        StringBuilder sqlQuery = new StringBuilder();
 
-    Set<Flag> flagsToDelete = new HashSet<Flag>();
+        sqlQuery.append("SELECT annotationID, created FROM annotationFlag WHERE annotationFlagId IN (" +
+            comments.substring(1,comments.length()-1) + ")");
+        log.info(sqlQuery.toString());
+        SQLQuery query = session.createSQLQuery(sqlQuery.toString());
+        List<Object[]> annotationList = query.list();
+        log.info("Found {} annotations", annotationList.size());
 
-    //for each flag get the associated annotation object and make a list of it.
-    //also get all the other flags related to this comment
-    for (Flag flag : flags) {
-      Annotation annotation = flag.getFlaggedAnnotation();
-      annotationMap.put(annotation.getID(), annotation);
+        StringBuilder sb = new StringBuilder();
+        for (Object[] obj : annotationList) {
+          sb.append(obj[0]);
+          sb.append(",");
+        }
 
-      //make a list of flags to delete
-      List<Flag> flags1 = (List<Flag>) hibernateTemplate.findByCriteria(
-          DetachedCriteria.forClass(Flag.class)
-              .createAlias("flaggedAnnotation","a")
-              .add(Restrictions.eq("a.ID", annotation.getID()))
-              .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-      );
+        String str1 = "DELETE FROM annotationFlag WHERE annotationID IN (" + sb.substring(0,sb.length()-1) + ")";
+        log.info(str1);
+        session.createSQLQuery(str1).executeUpdate();
 
-      flagsToDelete.addAll(flags1);
-    }
+        String str2 = "DELETE FROM annotation WHERE parentID IN (" + sb.substring(0,sb.length()-1) + ")";
+        log.info(str2);
+        session.createSQLQuery(str2).executeUpdate();
 
-    //first delete all the flags
-    hibernateTemplate.deleteAll(flagsToDelete);
+        String str3 = "DELETE FROM annotation WHERE annotationID IN (" + sb.substring(0,sb.length()-1) + ")";
+        log.info(str3);
+        session.createSQLQuery(str3).executeUpdate();
 
-    // for each comment delete the comment tree
-    for(Iterator it=annotationMap.entrySet().iterator(); it.hasNext();) {
-      Annotation annotation = (Annotation)((Map.Entry)it.next()).getValue();
-      listDeleteCommentTree(annotation);
-    }
+        return null;
+      }
+    });
   }
 
   private String getArticleDoi(Annotation annotation) {
