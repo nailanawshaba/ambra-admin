@@ -795,7 +795,7 @@ public class AdminServiceImpl extends HibernateServiceImpl implements AdminServi
       }
 
       if (terms != null && terms.size() > 0) {
-        Article article = articleService.getArticle(articleDoi, authID);
+        Article article = articleService.getArticle(articleDoi);
         return articleService.setArticleCategories(article, terms).keySet();
       }
     }

@@ -13,6 +13,7 @@
 
 package org.ambraproject.admin.flags.service;
 
+import org.ambraproject.admin.service.impl.NedServiceImpl;
 import org.ambraproject.admin.views.FlagView;
 import org.ambraproject.models.Annotation;
 import org.ambraproject.models.AnnotationType;
@@ -25,6 +26,9 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.plos.ned_client.ApiException;
+import org.plos.ned_client.api.IndividualsApi;
+import org.plos.ned_client.model.Individualprofile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -47,6 +51,10 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
 
   private Cache articleHtmlCache;
 
+  private NedServiceImpl nedService;
+
+  public void setNedService(NedServiceImpl nedService) {this.nedService = nedService;}
+
   @Required
   public void setArticleHtmlCache(Cache articleHtmlCache) {
     this.articleHtmlCache = articleHtmlCache;
@@ -65,6 +73,26 @@ public class FlagServiceImpl extends HibernateServiceImpl implements FlagService
     log.debug("Found {} flagged annotations", flags.size());
     List<FlagView> results = new ArrayList<FlagView>(flags.size());
     for (Flag flag : flags) {
+      try {
+        IndividualsApi individualsApi = nedService.getIndividualsApi();
+        List<Individualprofile> ipList = new ArrayList<Individualprofile>();
+
+        ipList = individualsApi.getProfiles(flag.getUserProfileID().intValue());
+
+        if ( ipList.size() > 0 ) {
+          Individualprofile ip = ipList.get(0);
+          flag.setDisplayName(ip.getDisplayname());
+        }
+      }
+      catch (ApiException apiEx) {
+        log.error("getFlaggedComments() code: " + apiEx.getCode());
+        log.error("getFlaggedComments() responseBody: " + apiEx.getResponseBody());
+        log.error("getFlaggedComments() flag.getUserProfileID(): " + flag.getUserProfileID());
+      }
+      catch (Exception ex) {
+        log.error(ex.getMessage(), ex);
+      }
+
       results.add(new FlagView(flag));
     }
     return results;

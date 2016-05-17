@@ -35,11 +35,11 @@
           <legend><b>User Profiles</b></legend>
           <ul>
             <#list users as user>
-              <@s.url id="editRolesURL" action="editRoles" namespace="/" userId="${user.ID}"
-              displayName="${user.displayName}" email="${user.email}" userAuthId="${user.authId}"/>
+              <@s.url id="editRolesURL" action="editRoles" namespace="/" userId="${user.ID?c}"
+              displayName="${user.displayName}" email="${user.email}"/>
 
               <li>
-                User: {Id: <b>${user.ID}</b>; User name: <b>${user.displayName!}</b>; Email: <b>${user.email!}</b>}
+                User: {Id: <b>${user.ID?c}</b>; User name: <b>${user.displayName!}</b>; Email: <b>${user.email!}</b>}
                 <#if permissions?seq_contains("MANAGE_ROLES")>
                   <@s.a href="%{editRolesURL}">Edit Roles</@s.a>
                 </#if>

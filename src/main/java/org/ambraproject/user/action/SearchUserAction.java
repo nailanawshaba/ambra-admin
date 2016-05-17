@@ -22,9 +22,8 @@ package org.ambraproject.user.action;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.service.AdminService;
 import org.ambraproject.models.Journal;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.ambraproject.search.service.SearchUserService;
-import org.ambraproject.service.user.UserService;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.List;
@@ -33,8 +32,6 @@ import java.util.List;
  * Search a user based on a criteria
  */
 public class SearchUserAction extends BaseAdminActionSupport {
-  private UserService userService;
-
   private String userAuthId;
   private String emailAddress;
   private String name;
@@ -180,13 +177,6 @@ public class SearchUserAction extends BaseAdminActionSupport {
   }
 
   @Required
-  public void setSearchUserService(SearchUserService searchUserService) {
-    this.searchUserService = searchUserService;
-  }
+  public void setSearchUserService(SearchUserService searchUserService) { this.searchUserService = searchUserService; }
 
-  @Required
-  public void setUserService(UserService userService)
-  {
-    this.userService = userService;
-  }
 }

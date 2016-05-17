@@ -59,7 +59,7 @@ public class FeaturedArticleAction extends BaseAdminActionSupport {
       addActionError("DOI must be specified");
     } else {
       try {
-        articleService.getArticle(this.doi, super.getAuthId());
+        articleService.getArticle(this.doi);
       } catch (NoSuchArticleIdException ex) {
         addActionError("No article found for DOI: " + this.doi);
       }

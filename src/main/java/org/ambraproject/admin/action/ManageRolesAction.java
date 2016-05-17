@@ -3,10 +3,9 @@ package org.ambraproject.admin.action;
 import org.ambraproject.admin.service.AdminRolesService;
 import org.ambraproject.admin.views.RolePermissionView;
 import org.ambraproject.admin.views.UserRoleView;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.ambraproject.models.UserRole;
-import org.ambraproject.service.permission.PermissionsService;
-import org.ambraproject.service.user.UserService;
+import org.ambraproject.search.service.SearchUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -17,8 +16,7 @@ import java.util.List;
  */
 public class ManageRolesAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ManageRolesAction.class);
-  private AdminRolesService adminRolesService;
-  private UserService userService;
+  private SearchUserService searchUserService;
   private List<UserRoleView> userRoles;
 
   private Long roleID;
@@ -36,8 +34,10 @@ public class ManageRolesAction extends BaseAdminActionSupport {
     // create a faux journal object for templates
     initJournal();
 
-    UserProfile userProfile = userService.getUserByAuthId(getAuthId());
-    this.userRoles = adminRolesService.getAllRoles(userProfile.getID());
+    List<UserProfile> userProfiles = searchUserService.findUsersByAuthId(getAuthId());
+    if (!userProfiles.isEmpty()) {
+      this.userRoles = adminRolesService.getAllRoles(userProfiles.get(0).getID());
+    }
 
     return SUCCESS;
   }
@@ -74,7 +74,7 @@ public class ManageRolesAction extends BaseAdminActionSupport {
    */
   public String setRolePermissions()
   {
-    permissionsService.checkPermission(UserRole.Permission.MANAGE_ROLES, this.getAuthId());
+    adminRolesService.checkPermission(UserRole.Permission.MANAGE_ROLES, this.getAuthId());
 
     adminRolesService.setRolePermissions(this.roleID, this.newPermissions);
 
@@ -87,7 +87,7 @@ public class ManageRolesAction extends BaseAdminActionSupport {
 
   public String createRole()
   {
-    permissionsService.checkPermission(UserRole.Permission.MANAGE_ROLES, this.getAuthId());
+    adminRolesService.checkPermission(UserRole.Permission.MANAGE_ROLES, this.getAuthId());
 
     if(this.roleName == null || this.roleName.length() == 0) {
       execute();
@@ -115,7 +115,7 @@ public class ManageRolesAction extends BaseAdminActionSupport {
   }
 
   public String deleteRole() {
-    permissionsService.checkPermission(UserRole.Permission.MANAGE_ROLES, this.getAuthId());
+    adminRolesService.checkPermission(UserRole.Permission.MANAGE_ROLES, this.getAuthId());
 
     this.adminRolesService.deleteRole(this.roleID);
 
@@ -138,15 +138,9 @@ public class ManageRolesAction extends BaseAdminActionSupport {
   }
 
   @Required
-  public void setAdminRolesService(AdminRolesService adminRolesService)
+  public void setSearchUserService(SearchUserService searchUserService)
   {
-    this.adminRolesService = adminRolesService;
-  }
-
-  @Required
-  public void setUserService(UserService userService)
-  {
-    this.userService = userService;
+    this.searchUserService = searchUserService;
   }
 
   public Long getRoleID()

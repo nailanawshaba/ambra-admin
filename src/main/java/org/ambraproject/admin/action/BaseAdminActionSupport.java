@@ -22,9 +22,13 @@
 package org.ambraproject.admin.action;
 
 import org.ambraproject.action.BaseActionSupport;
+import org.ambraproject.admin.service.AdminRolesService;
 import org.ambraproject.admin.service.AdminService;
 import org.ambraproject.models.Journal;
+import org.ambraproject.models.UserRole;
 import org.springframework.beans.factory.annotation.Required;
+
+import java.util.Set;
 
 public class BaseAdminActionSupport extends BaseActionSupport {
   protected static final String IMPORT_USER_LIST = "IMPORT_USER_LIST";
@@ -36,8 +40,23 @@ public class BaseAdminActionSupport extends BaseActionSupport {
 
   protected AdminService adminService;
 
+  protected AdminRolesService adminRolesService;
+
   // Fields Used by template
   private Journal journalInfo;
+
+  public UserRole.Permission[] getPermissions()
+  {
+    String authId = getAuthId();
+
+    if(authId != null) {
+      Set<UserRole.Permission> perms = this.adminRolesService.getPermissions(authId);
+      return perms.toArray(new UserRole.Permission[perms.size()]);
+    } else {
+      return new UserRole.Permission[] {};
+    }
+  }
+
 
   /**
     * Gets the JournalInfo value object for access in the view.
@@ -57,6 +76,10 @@ public class BaseAdminActionSupport extends BaseActionSupport {
   public void setAdminService(AdminService adminService) {
     this.adminService = adminService;
   }
+
+  @Required
+  public void setAdminRolesService(AdminRolesService adminRolesService) { this.adminRolesService = adminRolesService; }
+
 
   protected void initJournal() {
     journalInfo = adminService.getJournal(getCurrentJournal());

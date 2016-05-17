@@ -20,14 +20,16 @@ package org.ambraproject.user.action;
 
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.views.ImportedUserView;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.admin.views.UserRoleView;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.ambraproject.models.UserRole;
-import org.ambraproject.service.user.UserService;
+import org.ambraproject.search.service.SearchUserService;
 import org.apache.struts2.ServletActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,10 +40,11 @@ import java.util.Set;
 public class ImportUsersPermissionsAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(ImportUsersPermissionsAction.class);
 
-  private UserService userService;
   private int accountsToImport = 0;
   private Long[] hashCodes;
-  private Set<UserRole> userRoles;
+  private Set<UserRoleView> userRoles;
+
+  private SearchUserService searchUserService;
 
   @Override
   public String execute() {
@@ -64,18 +67,25 @@ public class ImportUsersPermissionsAction extends BaseAdminActionSupport {
 
     accountsToImport = hashCodes.length;
 
-    UserProfile userProfile = userService.getUserByAuthId(this.getAuthId());
-    //Only allow the user to assign the new user roles that they belong to already
-    userRoles = userProfile.getRoles();
+//    UserProfile userProfile = userService.getUserByAuthId(this.getAuthId());
+//    //Only allow the user to assign the new user roles that they belong to already
+//    userRoles = userProfile.getRoles();
+
+    List<UserProfile> userProfiles = searchUserService.findUsersByAuthId(this.getAuthId());
+    if (userProfiles.size() > 0) {
+      Long userProfileID = userProfiles.get(0).getID();
+      userRoles = adminRolesService.getUserRoles(userProfileID);
+    } else {
+      userRoles = new HashSet<UserRoleView>();
+    }
+    //TODO: populate userRoles from Ambra.
 
     return SUCCESS;
   }
 
-  public void setHashCodes(Long[] hashCodes) {
-    this.hashCodes = hashCodes;
-  }
+  public void setHashCodes(Long[] hashCodes) { this.hashCodes = hashCodes; }
 
-  public Set<UserRole> getUserRoles() {
+  public Set<UserRoleView> getUserRoles() {
     return userRoles;
   }
 
@@ -84,9 +94,7 @@ public class ImportUsersPermissionsAction extends BaseAdminActionSupport {
   }
 
   @Required
-  public void setUserService(UserService userService)
-  {
-    this.userService = userService;
-  }
+  public void setSearchUserService(SearchUserService searchUserService) { this.searchUserService = searchUserService; }
+
 }
 

@@ -84,7 +84,6 @@
 
   <bean id="articleService" class="org.ambraproject.service.article.ArticleServiceImpl">
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    <property name="permissionsService" ref="permissionsService"/>
   </bean>
 
   <bean id="journalCreator" class="org.ambraproject.service.journal.JournalCreatorImpl"
@@ -93,20 +92,10 @@
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
   </bean>
 
-  <bean id="permissionsService" class="org.ambraproject.service.permission.PermissionsServiceImpl">
-    <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    <property name="rolesCache" ref="rolesCache"/>
-  </bean>
-
   <bean id="adminRolesService" class="org.ambraproject.admin.service.impl.AdminRolesServiceImpl">
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    <property name="permissionsService" ref="permissionsService"/>
-  </bean>
-
-  <bean id="userService" class="org.ambraproject.service.user.UserServiceImpl">
-    <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    <property name="permissionsService" ref="permissionsService"/>
-    <property name="configuration" ref="ambraConfiguration"/>
+    <property name="rolesCache" ref="rolesCache"/>
+    <property name="nedService" ref="nedService" />
   </bean>
 
   <bean id="annotationService" class="org.ambraproject.service.annotation.AnnotationServiceImpl">
@@ -134,7 +123,6 @@
 
   <bean id="articleAssetService" class="org.ambraproject.service.article.ArticleAssetServiceImpl">
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    <property name="permissionsService" ref="permissionsService"/>
     <property name="articleService" ref="articleService"/>
     <property name="templatesDirectory" value="${ambra.virtualJournals.templateDir}"/>
     <property name="fileStoreService" ref="fileStoreService"/>
@@ -350,7 +338,7 @@
     <property name="documentPrefix" value="${ambra.services.documentManagement.documentPrefix}"/>
     <property name="plosDoiUrl" value="${ambra.services.crossref.plos.doiurl}"/>
     <property name="plosEmail" value="${ambra.services.crossref.plos.email}"/>
-    <property name="permissionsService" ref="permissionsService"/>
+    <property name="adminRolesService" ref="adminRolesService"/>
     <property name="fileStoreService" ref="fileStoreService"/>
     <property name="onPublishListeners">
       <list>
@@ -380,6 +368,7 @@
   <bean id="flagService" class="org.ambraproject.admin.flags.service.FlagServiceImpl">
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
     <property name="articleHtmlCache" ref="articleHtmlCache"/>
+    <property name="nedService" ref="nedService"/>
   </bean>
 
   <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
@@ -534,7 +523,6 @@
   </bean>
 
   <bean id="taxonomyService" class="org.ambraproject.service.taxonomy.TaxonomyServiceImpl">
-    <property name="permissionsService" ref="permissionsService"/>
     <property name="searchService" ref="searchService"/>
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
     <property name="cache" ref="taxonomyCache"/>

@@ -23,6 +23,9 @@ package org.ambraproject.admin.service;
 
 import org.ambraproject.admin.views.RolePermissionView;
 import org.ambraproject.admin.views.UserRoleView;
+import org.ambraproject.models.UserRole;
+import org.ambraproject.service.cache.Cache;
+
 import java.util.List;
 import java.util.Set;
 
@@ -88,4 +91,12 @@ public interface AdminRolesService {
    * @param permissions the permissions to grant a user
    */
   public void setRolePermissions(final Long roleId, final String[] permissions);
+
+  public void checkPermission(final UserRole.Permission permission, final String authId);
+
+  public Set<UserRole.Permission> getPermissions(final String authID);
+
+  public void setRolesCache(Cache rolesCache);
+
+  public void clearCache();
 }

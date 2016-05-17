@@ -22,21 +22,24 @@ import org.ambraproject.admin.service.AdminRolesService;
 import org.ambraproject.admin.views.RolePermissionView;
 import org.ambraproject.admin.views.UserRoleView;
 import org.ambraproject.models.UserRole;
-import org.ambraproject.models.UserProfile;
+
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.ambraproject.service.cache.Cache;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
-import org.ambraproject.service.permission.PermissionsService;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StandardBasicTypes;
+import org.plos.ned_client.ApiException;
+import org.plos.ned_client.api.IndividualsApi;
+import org.plos.ned_client.model.IndividualComposite;
+import org.plos.ned_client.model.Individualprofile;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
@@ -44,7 +47,16 @@ import org.springframework.orm.hibernate3.HibernateCallback;
  * Methods to Administer user roles
  */
 public class AdminRolesServiceImpl extends HibernateServiceImpl implements AdminRolesService {
-  private PermissionsService permissionsService;
+
+  private static final String ROLES_LOCK = "RolesCache-Lock-";
+  private Cache rolesCache;
+
+  public void setNedService(NedServiceImpl nedService) {
+    this.nedService = nedService;
+  }
+
+  private NedServiceImpl nedService;
+
   /**
    * Get all the roles associated with a user
    *
@@ -54,17 +66,23 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
    */
   public Set<UserRoleView> getUserRoles(final Long userProfileID)
   {
-    UserProfile up = (UserProfile)hibernateTemplate.load(UserProfile.class, userProfileID);
-
-    if(up == null) {
-      throw new HibernateException("Can not find user with ID: " + userProfileID);
-    }
+    List<Object[]> userProfileRoles = (List<Object[]>) hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return session.createSQLQuery("select userProfileRoleJoinTable.userRoleID, userRole.roleName" +
+            " from userProfileRoleJoinTable left join userRole on userRole.userRoleID=userProfileRoleJoinTable.userRoleID" +
+            " where userProfileRoleJoinTable.userProfileID = " + userProfileID)
+            .addScalar("userProfileRoleJoinTable.userRoleID", StandardBasicTypes.LONG)
+            .addScalar("userRole.roleName", StandardBasicTypes.STRING).list();
+      }
+    });
 
     Set<UserRoleView> results = new HashSet<UserRoleView>();
 
-    for(UserRole ur : up.getRoles())
-    {
-      results.add(new UserRoleView(ur.getID(), ur.getRoleName(), true));
+    for (Object[] ur: userProfileRoles) {
+      Long userRoleID = (Long) ur[0];
+      String roleName = (String) ur[1];
+      results.add(new UserRoleView(userRoleID, roleName, true));
     }
 
     return results;
@@ -82,7 +100,19 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
     {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        UserProfile profile = (UserProfile)session.load(UserProfile.class, userProfileID);
+
+        List<Object[]> userProfileRoles = (List<Object[]>) hibernateTemplate.execute(new HibernateCallback() {
+          @Override
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            return session.createSQLQuery("select userProfileRoleJoinTable.userRoleID, userRole.roleName" +
+                " from userProfileRoleJoinTable left join userRole on userRole.userRoleID=userProfileRoleJoinTable.userRoleID" +
+                " where userProfileRoleJoinTable.userProfileID = " + userProfileID)
+                .addScalar("userProfileRoleJoinTable.userRoleID", StandardBasicTypes.LONG)
+                .addScalar("userRole.roleName", StandardBasicTypes.STRING).list();
+          }
+        });
+
+
         List<Object[]> results = (List<Object[]>)session.createCriteria(UserRole.class)
           .setProjection(Projections.projectionList()
             .add(Projections.property("ID"))
@@ -93,9 +123,9 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
         for(Object[] row : results) {
           boolean assigned = false;
 
-          for(UserRole role : profile.getRoles())
-          {
-            if(role.getID().equals((Long)row[0])) {
+          for(Object[] ur: userProfileRoles) {
+            Long userRoleID = (Long) ur[0];
+            if(userRoleID.equals((Long) row[0])) {
               assigned = true;
               break;
             }
@@ -117,24 +147,17 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
   @SuppressWarnings("unchecked")
   public void revokeAllRoles(final Long userProfileID)
   {
-    List<UserProfile> userProfiles = (List<UserProfile>)hibernateTemplate.findByCriteria(
-      DetachedCriteria.forClass(UserProfile.class)
-        .add(Restrictions.eq("ID", userProfileID))
-        .setFetchMode("userRole", FetchMode.JOIN)
-        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
+    hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        session.createSQLQuery("delete from userProfileRoleJoinTable where " +
+            "userProfileID = " + userProfileID).executeUpdate();
 
-    if(userProfiles.size() == 0) {
-      throw new HibernateException("Can not find user with ID: " + userProfileID);
-    }
+        return null;
+      }
+    });
 
-    UserProfile up = userProfiles.get(0);
-
-    //Set roles to an empty collection
-    up.setRoles(new HashSet<UserRole>());
-
-    hibernateTemplate.update(up);
-
-    this.permissionsService.clearCache();
+    this.clearCache();
   }
 
   /**
@@ -150,20 +173,14 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
     {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        UserProfile up = (UserProfile)session.load(UserProfile.class, userProfileID);
-        UserRole ur = (UserRole)session.load(UserRole.class, roleId);
-
-        //Add the role to the collection
-        up.getRoles().add(ur);
-
-        //Save the changes
-        session.save(up);
+        session.createSQLQuery("INSERT INTO userProfileRoleJoinTable (userRoleID, userProfileID) VALUES (" +
+            roleId + ", " + userProfileID + ")").executeUpdate();
 
         return null;
       }
     });
 
-    this.permissionsService.clearCache();
+    this.clearCache();
   }
 
   /**
@@ -210,7 +227,7 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
       }
     });
 
-    this.permissionsService.clearCache();
+    this.clearCache();
   }
 
   /**
@@ -266,16 +283,106 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
       }
     });
 
-    this.permissionsService.clearCache();
+    this.clearCache();
   }
 
   /**
-   * Sets the PermissionsService.
+   * Does the user associated with the current security principle have the given permission?
+   * @param permission The permission to check for
+   * @param authId The authorization ID for the logged in user.
    *
-   * @param permService The PermissionsService to set.
+   * @throws SecurityException if the user doesn't have the permission
+   */
+  public void checkPermission(final UserRole.Permission permission, final String authId) throws SecurityException {
+    if (authId == null || authId.trim().length() == 0) {
+      throw new SecurityException("There is no current user.");
+    }
+
+    Set<UserRole.Permission> perms = getPermissions(authId);
+
+    if(perms == null) {
+      throw new SecurityException("Current user does not have the defined permission of " + permission.toString());
+    }
+
+    for(UserRole.Permission p : perms) {
+      if(p.equals(permission)) {
+        return;
+      }
+    }
+
+    throw new SecurityException("Current user does not have the defined permission of " + permission.toString());
+  }
+
+  public Set<UserRole.Permission> getPermissions(final String authId) {
+    final Object lock = (ROLES_LOCK + authId).intern(); //lock @ Article level
+
+    return rolesCache.get(authId,
+        new Cache.SynchronizedLookup<Set<UserRole.Permission>, SecurityException>(lock) {
+          public Set<UserRole.Permission> lookup() throws SecurityException {
+
+            final Long userProfileID = getUserIdFromAuthId(authId);
+
+            List<Object> userPermissions = (List<Object>) hibernateTemplate.execute(new HibernateCallback() {
+              @Override
+              public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                return session.createSQLQuery("select distinct userRolePermission.permission" +
+                    " from userProfileRoleJoinTable" +
+                    " left join userRolePermission on userRolePermission.userRoleID=userProfileRoleJoinTable.userRoleID" +
+                    " where userProfileRoleJoinTable.userProfileID = " + userProfileID).list();
+              }
+            });
+
+            Set<UserRole.Permission> permissions = new HashSet<UserRole.Permission>();
+            for (Object p: userPermissions) {
+              permissions.add(UserRole.Permission.valueOf((String) p));
+            }
+
+            return permissions;
+          }
+        });
+  }
+
+  private Long getUserIdFromAuthId(final String authId) throws SecurityException {
+    try {
+      //"individuals/CAS/{authId}" =>
+      IndividualsApi individualsApi = nedService.getIndividualsApi();
+      IndividualComposite individualComposite = individualsApi.readIndividualByCasId(authId);
+      List<Individualprofile> ipList = individualComposite.getIndividualprofiles();
+
+      if (ipList.size() > 0) {
+        Individualprofile ip = ipList.get(0);
+        if (ip.getNedid() != null && ip.getNedid().intValue() != 0) {
+          return ip.getNedid().longValue();
+        }
+      }
+    } catch (ApiException e) {
+      throw new SecurityException("valid NedId not found in result for authId=" + authId, e);
+    }
+
+    throw new SecurityException("user record not found for authId=" + authId);
+  }
+
+  public void checkLogin(String authId) throws SecurityException {
+    if (authId != null) {
+      return;
+    }
+
+    throw new SecurityException("Current user is not logged in");
+  }
+
+  /**
+   * @param rolesCache The roles cache to use
    */
   @Required
-  public void setPermissionsService(PermissionsService permService) {
-    this.permissionsService = permService;
+  public void setRolesCache(Cache rolesCache) {
+    this.rolesCache = rolesCache;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public void clearCache()
+  {
+    this.rolesCache.removeAll();
   }
 }

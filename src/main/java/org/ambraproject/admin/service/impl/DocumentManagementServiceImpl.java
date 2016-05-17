@@ -38,7 +38,7 @@ import org.ambraproject.service.article.ArticleService;
 import org.ambraproject.service.article.NoSuchArticleIdException;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.ambraproject.service.journal.JournalService;
-import org.ambraproject.service.permission.PermissionsService;
+import org.ambraproject.admin.service.AdminRolesService;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
@@ -75,7 +75,8 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
   private static final Logger log = LoggerFactory.getLogger(DocumentManagementServiceImpl.class);
 
   private ArticleService articleService;
-  private PermissionsService permissionsService;
+
+  private AdminRolesService adminRolesService;
   private FileStoreService fileStoreService;
 
   private String documentDirectory;
@@ -169,11 +170,11 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
   @Override
   @Transactional(rollbackFor = {Throwable.class})
   public void unPublish(String objectURI, final String authId) throws Exception {
-    permissionsService.checkPermission(Permission.INGEST_ARTICLE, authId);
+    adminRolesService.checkPermission(Permission.INGEST_ARTICLE, authId);
 
     URI id = URI.create(objectURI);
 
-    articleService.setState(objectURI, authId, Article.STATE_UNPUBLISHED);
+    articleService.setState(objectURI, Article.STATE_UNPUBLISHED);
 
     removeFromCrossPubbedJournals(id);
 
@@ -191,11 +192,11 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
   @Override
   @Transactional(rollbackFor = {Throwable.class})
   public void disable(String objectURI, final String authId) throws Exception {
-    permissionsService.checkPermission(Permission.INGEST_ARTICLE, authId);
+    adminRolesService.checkPermission(Permission.INGEST_ARTICLE, authId);
 
     URI id = URI.create(objectURI);
 
-    articleService.setState(objectURI, authId, Article.STATE_DISABLED);
+    articleService.setState(objectURI, Article.STATE_DISABLED);
 
     removeFromCrossPubbedJournals(id);
 
@@ -224,7 +225,7 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
   @Override
   @Transactional(rollbackFor = {Throwable.class})
   public void delete(String articleDoi, final String authId) throws Exception {
-    permissionsService.checkPermission(Permission.DELETE_ARTICLES, authId);
+    adminRolesService.checkPermission(Permission.DELETE_ARTICLES, authId);
 
     log.debug("Deleting Article:" + articleDoi);
 
@@ -413,7 +414,7 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
     for (String article : uris) {
       try {
         // mark article as active
-        articleService.setState(article, authId, Article.STATE_ACTIVE);
+        articleService.setState(article, Article.STATE_ACTIVE);
 
         msgs.add("Published: " + article);
         log.info("Published article: '" + article + "'");
@@ -561,25 +562,17 @@ public class DocumentManagementServiceImpl extends HibernateServiceImpl implemen
     return articleId.toString().replace(':', '_').replace('/', '_').replace('.', '_') + ".xml";
   }
 
+  public void setAdminRolesService(AdminRolesService adminRolesService) {
+    this.adminRolesService = adminRolesService;
+  }
+
   /**
    * Sets the JournalService.
    *
    * @param journalService The JournalService to set.
    */
   @Required
-  public void setJournalService(JournalService journalService) {
-    this.journalService = journalService;
-  }
-
-  /**
-   * Sets the PermissionsService.
-   *
-   * @param permService The PermissionsService to set.
-   */
-  @Required
-  public void setPermissionsService(PermissionsService permService) {
-    this.permissionsService = permService;
-  }
+  public void setJournalService(JournalService journalService) { this.journalService = journalService; }
 
   /**
    * @param plosDoiUrl The plosDxUrl to set.

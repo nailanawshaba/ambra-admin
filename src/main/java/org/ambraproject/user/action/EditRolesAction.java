@@ -19,12 +19,9 @@
  */
 package org.ambraproject.user.action;
 
-import org.ambraproject.action.BaseActionSupport;
 import org.ambraproject.admin.action.BaseAdminActionSupport;
 import org.ambraproject.admin.service.AdminRolesService;
 import org.ambraproject.admin.views.UserRoleView;
-import org.ambraproject.models.UserProfile;
-import org.ambraproject.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -36,8 +33,6 @@ import java.util.List;
  */
 public class EditRolesAction extends BaseAdminActionSupport {
   private static final Logger log = LoggerFactory.getLogger(EditRolesAction.class);
-  private AdminRolesService adminRolesService;
-  private UserService userService;
   private List<UserRoleView> userRoles;
   private Long userId;
   private String userAuthId;
@@ -185,14 +180,4 @@ public class EditRolesAction extends BaseAdminActionSupport {
     this.displayName = displayName;
   }
 
-  @Required
-  public void setAdminRolesService(AdminRolesService adminRolesService) {
-    this.adminRolesService = adminRolesService;
-  }
-
-  @Required
-  public void setUserService(UserService userService)
-  {
-    this.userService = userService;
-  }
 }

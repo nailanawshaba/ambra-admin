@@ -19,7 +19,7 @@
 
 package org.ambraproject.search.service;
 
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.modelsdeprecated.UserProfile;
 
 import java.util.List;
 

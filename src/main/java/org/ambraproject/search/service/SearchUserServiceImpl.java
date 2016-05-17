@@ -20,15 +20,14 @@
 package org.ambraproject.search.service;
 
 
-import org.ambraproject.models.UserProfile;
 import org.ambraproject.admin.service.impl.NedServiceImpl;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.plos.ned_client.ApiClient;
 import org.plos.ned_client.api.IndividualsApi;
 import org.plos.ned_client.model.IndividualComposite;
 import org.plos.ned_client.model.Individualprofile;
@@ -157,9 +156,11 @@ public class SearchUserServiceImpl implements SearchUserService {
           }
 
           List<Auth> authList = individualComposite.getAuth();
+          // TODO: "auth" is always empty, because response shows "credentials"
           for (Auth a : authList) {
-            if (a.getIsactive().equals("1")) {
+            if (a.getIsactive().booleanValue()) {
               up.setAuthId(a.getAuthid());
+              break;
             }
           }
           upList.add(up);
