@@ -20,7 +20,7 @@ import org.ambraproject.models.Annotation;
 import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleAuthor;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.DataProvider;
@@ -48,12 +48,7 @@ public class LoadAnnotationActionTest extends AdminWebTest {
 
   @DataProvider(name = "annotation")
   public Object[][] getAnnotation() throws ParseException {
-    UserProfile creator = new UserProfile(
-        "email@loadAnnotationActionTest.org",
-        "displayNameForLoadAnnotationActionTest",
-        "pass"
-    );
-    dummyDataStore.store(creator);
+    Long creatorID = 6628L;
 
     Article article = new Article("id:doi-for-LoadAnnotationActionTest");
     article.setIssue("issue");
@@ -68,13 +63,13 @@ public class LoadAnnotationActionTest extends AdminWebTest {
     article.seteIssn("1234");
     dummyDataStore.store(article);
 
-    Annotation comment = new Annotation(creator, AnnotationType.COMMENT, article.getID());
+    Annotation comment = new Annotation(creatorID, AnnotationType.COMMENT, article.getID());
     comment.setAnnotationUri("id:comment-for-LoadAnnotationActionTest");
     comment.setTitle("Test annotation title");
     comment.setBody("This is a test comment");
     dummyDataStore.store(comment);
 
-    Annotation reply = new Annotation(creator, AnnotationType.REPLY, article.getID());
+    Annotation reply = new Annotation(creatorID, AnnotationType.REPLY, article.getID());
     reply.setAnnotationUri("id:reply-for-LoadAnnotationActionTest");
     reply.setTitle("Test reply title");
     reply.setBody("This is a test reply");

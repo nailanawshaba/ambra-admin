@@ -340,7 +340,7 @@ public class ArticleManagementActionTest extends AdminWebTest {
       String doi = article.getDoi();
       assertFalse(getDois(storedArticleList).contains(doi), "Article " + doi + " didn't get removed from list in the database");
       try {
-        articleService.getArticle(doi, DEFAULT_ADMIN_AUTHID);
+        articleService.getArticle(doi);
       } catch (NoSuchArticleIdException e) {
         fail("Article " + doi + " got deleted from the database instead of just being removed from the list");
       }

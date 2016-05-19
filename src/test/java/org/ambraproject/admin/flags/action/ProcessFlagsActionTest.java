@@ -22,7 +22,7 @@ import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleAuthor;
 import org.ambraproject.models.Flag;
 import org.ambraproject.models.FlagReasonCode;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.BeforeMethod;
@@ -59,11 +59,7 @@ public class ProcessFlagsActionTest extends AdminWebTest {
 
   @DataProvider(name = "flags")
   public Object[][] getFlags() {
-    UserProfile creator = new UserProfile(
-        "id:creatorForProcessFlagsActionTest",
-        "email@ProcessFlagsActionTest.org",
-        "displaynameForProcessFlagsActionTest");
-    dummyDataStore.store(creator);
+    Long creatorID = 6630L;
 
     Article article = new Article("id:doi-for-ProcessFlagsActionTest");
     article.setAuthors(Arrays.asList(
@@ -75,19 +71,19 @@ public class ProcessFlagsActionTest extends AdminWebTest {
     List<Long> annotationIds = new ArrayList<Long>(4);
     List<Long> flagIds = new ArrayList<Long>(4);
 
-    Annotation comment = new Annotation(creator, AnnotationType.COMMENT, article.getID());
+    Annotation comment = new Annotation(creatorID, AnnotationType.COMMENT, article.getID());
     dummyDataStore.store(comment);
     annotationIds.add(comment.getID());
 
-    Flag flagComment = new Flag(creator, FlagReasonCode.INAPPROPRIATE, comment);
+    Flag flagComment = new Flag(creatorID, FlagReasonCode.INAPPROPRIATE, comment);
     dummyDataStore.store(flagComment);
     flagIds.add(flagComment.getID());
 
-    Annotation reply = new Annotation(creator, AnnotationType.REPLY, article.getID());
+    Annotation reply = new Annotation(creatorID, AnnotationType.REPLY, article.getID());
     dummyDataStore.store(reply);
     annotationIds.add(reply.getID());
 
-    Flag flagReply = new Flag(creator, FlagReasonCode.SPAM, reply);
+    Flag flagReply = new Flag(creatorID, FlagReasonCode.SPAM, reply);
     dummyDataStore.store(flagReply);
     flagIds.add(flagReply.getID());
 

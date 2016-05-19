@@ -32,6 +32,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -261,7 +262,7 @@ public class AdminTopActionTest extends AdminWebTest {
       assertTrue(articleDir.exists(), "Article didn't get written to the file store");
 
       try {
-        articleService.getArticle(article.getDoi(), DEFAULT_ADMIN_AUTHID);
+        articleService.getArticle(article.getDoi());
       } catch (NoSuchArticleIdException e) {
         fail("Article didn't get written to the database");
       }
@@ -472,6 +473,12 @@ public class AdminTopActionTest extends AdminWebTest {
     for (Long id : ids) {
       assertEquals(dummyDataStore.get(Article.class, id).getState(), Article.STATE_DISABLED, "Article didn't get disabled");
     }
+  }
+
+
+  @BeforeMethod
+  public void restoreUserData() {
+    restoreDefaultUsers();
   }
 
   @Override

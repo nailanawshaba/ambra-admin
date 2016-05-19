@@ -20,7 +20,7 @@ import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.Flag;
 import org.ambraproject.models.FlagReasonCode;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.ambraproject.service.cache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,23 +50,15 @@ public class FlagServiceTest extends AdminBaseTest {
     dummyDataStore.deleteAll(Flag.class);
 
     //set up data
-    UserProfile commentCreator = new UserProfile(
-        "id:creatorForFlagManagementServiceTest",
-        "email@FlagManagementServiceTest.org",
-        "displaynameForFlagManagementServiceTest");
-    dummyDataStore.store(commentCreator);
+    Long commentCreatorID = 6624L;
+    Long flagCreatorID = 6625L;
 
-    UserProfile flagCreator = new UserProfile(
-        "flagCreatorForFlagManagementServiceTest",
-        "flagCreator@FlagManagementServiceTest.org",
-        "flagCreatorForFlagManagementServiceTest");
-    dummyDataStore.store(flagCreator);
 
-    Annotation comment = new Annotation(commentCreator, AnnotationType.COMMENT, 123l);
+    Annotation comment = new Annotation(commentCreatorID, AnnotationType.COMMENT, 123l);
     comment.setTitle("test title for flagManagementServiceTest");
     dummyDataStore.store(comment);
 
-    Annotation reply = new Annotation(commentCreator, AnnotationType.REPLY, 123l);
+    Annotation reply = new Annotation(commentCreatorID, AnnotationType.REPLY, 123l);
     reply.setTitle("test title for reply on flagManagementServiceTest");
     dummyDataStore.store(reply);
 
@@ -76,12 +68,12 @@ public class FlagServiceTest extends AdminBaseTest {
     Calendar lastMonth = Calendar.getInstance();
     lastMonth.add(Calendar.MONTH, -1);
 
-    Flag firstFlag = new Flag(flagCreator, FlagReasonCode.SPAM, comment);
+    Flag firstFlag = new Flag(flagCreatorID, FlagReasonCode.SPAM, comment);
     firstFlag.setComment("Spamalot");
     firstFlag.setCreated(lastYear.getTime());
     dummyDataStore.store(firstFlag);
 
-    Flag secondFlag = new Flag(flagCreator, FlagReasonCode.INAPPROPRIATE, reply);
+    Flag secondFlag = new Flag(flagCreatorID, FlagReasonCode.INAPPROPRIATE, reply);
     secondFlag.setComment("inappropriate");
     secondFlag.setCreated(lastMonth.getTime());
     dummyDataStore.store(secondFlag);
@@ -100,19 +92,15 @@ public class FlagServiceTest extends AdminBaseTest {
 
   @Test
   public void testDeleteFlags() {
-    UserProfile creator = new UserProfile(
-        "id:creatorForDeleteFlagsServiceTest",
-        "email@DeleteFlagsServiceTest.org",
-        "displaynameForDeleteFlagsServiceTest");
-    dummyDataStore.store(creator);
+    Long creatorID = 6626L;
 
-    Annotation annotation = new Annotation(creator, AnnotationType.COMMENT, 12l);
+    Annotation annotation = new Annotation(creatorID, AnnotationType.COMMENT, 12l);
     dummyDataStore.store(annotation);
 
-    Flag flag1 = new Flag(creator, FlagReasonCode.SPAM, annotation);
+    Flag flag1 = new Flag(creatorID, FlagReasonCode.SPAM, annotation);
     Long id1 = Long.valueOf(dummyDataStore.store(flag1));
 
-    Flag flag2 = new Flag(creator, FlagReasonCode.OFFENSIVE, annotation);
+    Flag flag2 = new Flag(creatorID, FlagReasonCode.OFFENSIVE, annotation);
     Long id2 = Long.valueOf(dummyDataStore.store(flag2));
 
     flagService.deleteFlags(id1, id2);
@@ -127,11 +115,7 @@ public class FlagServiceTest extends AdminBaseTest {
     dummyDataStore.deleteAll(Flag.class);
     dummyDataStore.deleteAll(Annotation.class);
 
-    UserProfile creator = new UserProfile(
-        "id:creatorForDeleteFlagsServiceTest",
-        "email@DeleteFlagsServiceTest.org",
-        "displaynameForDeleteFlagsServiceTest");
-    dummyDataStore.store(creator);
+    Long creatorID = 6627L;
 
     Article article = new Article("id:doi-for-delete-comment-by-service");
     dummyDataStore.store(article);
@@ -139,25 +123,25 @@ public class FlagServiceTest extends AdminBaseTest {
     Article noteArticle = new Article("id:article-with-note-to-delete");
     dummyDataStore.store(noteArticle);
 
-    Annotation comment1 = new Annotation(creator, AnnotationType.COMMENT, article.getID());
+    Annotation comment1 = new Annotation(creatorID, AnnotationType.COMMENT, article.getID());
     dummyDataStore.store(comment1);
     
-    Annotation reply = new Annotation(creator, AnnotationType.REPLY, article.getID());
+    Annotation reply = new Annotation(creatorID, AnnotationType.REPLY, article.getID());
     reply.setParentID(comment1.getID());
     dummyDataStore.store(reply);
 
-    Annotation note = new Annotation(creator, AnnotationType.COMMENT, noteArticle.getID());
+    Annotation note = new Annotation(creatorID, AnnotationType.COMMENT, noteArticle.getID());
     dummyDataStore.store(note);
 
-    Flag flag1 = new Flag(creator, FlagReasonCode.OFFENSIVE, comment1);
+    Flag flag1 = new Flag(creatorID, FlagReasonCode.OFFENSIVE, comment1);
     flag1.setFlaggedAnnotation(comment1);
     Long id1 = Long.valueOf(dummyDataStore.store(flag1));
 
-    Flag flag2 = new Flag(creator, FlagReasonCode.OTHER, note);
+    Flag flag2 = new Flag(creatorID, FlagReasonCode.OTHER, note);
     flag2.setFlaggedAnnotation(note);
     Long id2 = Long.valueOf(dummyDataStore.store(flag2));
 
-    Flag flag3 = new Flag(creator, FlagReasonCode.SPAM, note);
+    Flag flag3 = new Flag(creatorID, FlagReasonCode.SPAM, note);
     flag3.setFlaggedAnnotation(note);
     Long id3 = Long.valueOf(dummyDataStore.store(flag3));
 

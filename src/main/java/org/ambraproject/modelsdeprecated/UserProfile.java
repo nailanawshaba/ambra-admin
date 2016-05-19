@@ -11,11 +11,10 @@ public class UserProfile {
   public UserProfile() {
   }
 
-  public UserProfile(Long id, String authId, String displayName, String email) {
-    this.id = id;
-    this.displayName = displayName;
-    this.email = email;
+  public UserProfile(String authId, String email, String displayName) {
     this.authId = authId;
+    this.email = email;
+    this.displayName = displayName;
   }
 
   public Long getID() {

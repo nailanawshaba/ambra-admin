@@ -74,7 +74,7 @@
 
   <bean id="documentManagementService" class="org.ambraproject.admin.service.impl.DocumentManagementServiceImpl">
     <property name="articleService" ref="articleService"/>
-    <property name="permissionsService" ref="permissionsService"/>
+    <property name="adminRolesService" ref="adminRolesService"/>
     <property name="journalService" ref="journalService"/>
     <property name="fileStoreService" ref="fileStoreService"/>
     <property name="plosDoiUrl" value="http://dx.plos.org/ambra-doi-resolver/10.1371/"/>
@@ -135,7 +135,6 @@
 
   <bean id="articleService" class="org.ambraproject.service.article.ArticleServiceImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="permissionsService" ref="permissionsService"/>
   </bean>
 
   <bean id="ingestArchiveProcessor" class="org.ambraproject.article.service.XslIngestArchiveProcessor">
@@ -177,6 +176,7 @@
   <bean id="flagService" class="org.ambraproject.admin.flags.service.FlagServiceImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="articleHtmlCache" ref="articleHtmlCache"/>
+    <property name="nedService" ref="nedService"/>
   </bean>
 
   <bean id="adminAnnotationService" class="org.ambraproject.admin.service.impl.AdminAnnotationServiceImpl">
@@ -184,8 +184,11 @@
   </bean>
 
   <bean id="adminRolesService" class="org.ambraproject.admin.service.impl.AdminRolesServiceImpl">
-    <property name="permissionsService" ref="permissionsService"/>
     <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="rolesCache" ref="rolesCache" />
+    <property name="nedService" ref="nedService" />
   </bean>
 
+  <bean id="nedService" class="org.ambraproject.admin.service.DummyNedServiceImpl">
+  </bean>
 </beans>

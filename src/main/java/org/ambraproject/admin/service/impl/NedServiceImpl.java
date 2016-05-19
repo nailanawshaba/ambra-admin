@@ -24,6 +24,10 @@ public class NedServiceImpl {
     individualsApi = new IndividualsApi(apiClient);
   }
 
+  protected NedServiceImpl() {
+
+  }
+
   public String getBaseUri() {
     return baseUri;
   }

@@ -20,7 +20,7 @@ import org.ambraproject.models.Annotation;
 import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Article;
 import org.ambraproject.models.ArticleAsset;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -115,15 +115,11 @@ public class DeleteArticleActionTest extends AdminWebTest {
     ingestZip.deleteOnExit();
 
     //add some annotations to the article to see that they get deleted
-    UserProfile creator = new UserProfile(
-        "email@DeleteArticleAction.org",
-        "displayNameDeleteArticleAction",
-        "pass"
-    );
-    dummyDataStore.store(creator);
-    Annotation comment = new Annotation(creator, AnnotationType.COMMENT, article.getID());
+    Long creatorID = 6629L;
+
+    Annotation comment = new Annotation(creatorID, AnnotationType.COMMENT, article.getID());
     dummyDataStore.store(comment);
-    Annotation reply = new Annotation(creator, AnnotationType.REPLY, article.getID());
+    Annotation reply = new Annotation(creatorID, AnnotationType.REPLY, article.getID());
     reply.setParentID(comment.getID());
     dummyDataStore.store(reply);
 

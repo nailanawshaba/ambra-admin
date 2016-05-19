@@ -23,8 +23,11 @@ package org.ambraproject.user.action;
 import org.ambraproject.action.BaseActionSupport;
 import org.ambraproject.admin.AdminWebTest;
 import org.ambraproject.admin.views.UserRoleView;
-import org.ambraproject.models.UserProfile;
+import org.ambraproject.models.UserProfileRoleJoinTable;
+import org.ambraproject.modelsdeprecated.UserProfile;
 import org.ambraproject.models.UserRole;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -46,13 +49,10 @@ public class EditRolesActionTest extends AdminWebTest {
   @DataProvider(name = "userNoRoles")
   public Object[][] getUserNoRoles() {
     UserProfile up = new UserProfile();
-
+    up.setID(6638L);
     up.setAuthId("AUTHID");
     up.setDisplayName("user name 1");
     up.setEmail("test@ambraproject.org");
-    up.setPassword("pass");
-
-    dummyDataStore.store(up);
 
     return new Object[][]{
       { up.getAuthId(), up.getID(), up.getDisplayName(), up.getEmail() }
@@ -68,7 +68,9 @@ public class EditRolesActionTest extends AdminWebTest {
     editRolesAction.setEmail(email);
     editRolesAction.assignRoles();
 
-    UserProfile storedUser = dummyDataStore.get(UserProfile.class, userProfileId);
+    //UserProfile storedUser = dummyDataStore.get(UserProfile.class, userProfileId);
+    List<UserProfileRoleJoinTable> userProfileRoles = dummyDataStore.findByCriteria(
+        DetachedCriteria.forClass(UserProfileRoleJoinTable.class).add(Restrictions.eq("userProfileID", userProfileId)));
 
     //Test action get methods
     assertEquals(editRolesAction.getUserAuthId(), authId);
@@ -76,17 +78,17 @@ public class EditRolesActionTest extends AdminWebTest {
     assertEquals(editRolesAction.getEmail(), "test@ambraproject.org");
 
     //All user roles should be removed
-    assertEquals(storedUser.getRoles().size(), 0, "Roles not removed correctly");
+    //assertEquals(storedUser.getRoles().size(), 0, "Roles not removed correctly");
+    assertEquals(userProfileRoles.size(), 0, "Roles not removed correctly");
   }
 
   @DataProvider(name = "userTwoRoles")
   public Object[][] getUserTwoRoles() {
     UserProfile up = new UserProfile();
+    up.setID(6631L);
     up.setDisplayName("user name 2");
     up.setAuthId("TESTUSER2");
     up.setEmail("twoRoles@example.org");
-    up.setPassword("pass");
-    dummyDataStore.store(up);
 
     UserRole ur1 = new UserRole();
     ur1.setRoleName("Role 1");
@@ -108,16 +110,19 @@ public class EditRolesActionTest extends AdminWebTest {
     editRolesAction.setRoleIDs(roleIDs);
     editRolesAction.assignRoles();
 
-    UserProfile storedUser = dummyDataStore.get(UserProfile.class, userProfileId);
+    //UserProfile storedUser = dummyDataStore.get(UserProfile.class, userProfileId);
+    List<UserProfileRoleJoinTable> userProfileRoles = dummyDataStore.findByCriteria(
+        DetachedCriteria.forClass(UserProfileRoleJoinTable.class).add(Restrictions.eq("userProfileID", userProfileId)));
 
     //All user should have two roles
-    assertEquals(storedUser.getRoles().size(), 2, "Roles not assigned correctly");
+    //assertEquals(storedUser.getRoles().size(), 2, "Roles not assigned correctly");
+    assertEquals(userProfileRoles.size(), 2, "Roles not assigned correctly");
 
     for(Long roleId : roleIDs) {
       boolean found = false;
 
-      for(UserRole ur : storedUser.getRoles()) {
-        if(ur.getID().equals(roleId)) {
+      for(UserProfileRoleJoinTable ur : userProfileRoles) {
+        if(ur.getUserRoleID().equals(roleId)) {
           found = true;
           break;
         }
@@ -154,12 +159,25 @@ public class EditRolesActionTest extends AdminWebTest {
     dummyDataStore.store(ur5);
 
     UserProfile up = new UserProfile();
+    up.setID(6637L);
     up.setDisplayName("user name 3");
     up.setAuthId("USERAUTH5");
     up.setEmail("threeRoles@example.com");
-    up.setPassword("pass");
-    up.setRoles(roles);
-    dummyDataStore.store(up);
+
+    UserProfileRoleJoinTable upr1 = new UserProfileRoleJoinTable();
+    upr1.setUserProfileID(up.getID());
+    upr1.setUserRoleID(ur1.getID());
+    dummyDataStore.store(upr1);
+
+    UserProfileRoleJoinTable upr2 = new UserProfileRoleJoinTable();
+    upr2.setUserProfileID(up.getID());
+    upr2.setUserRoleID(ur2.getID());
+    dummyDataStore.store(upr2);
+
+    UserProfileRoleJoinTable upr3 = new UserProfileRoleJoinTable();
+    upr3.setUserProfileID(up.getID());
+    upr3.setUserRoleID(ur3.getID());
+    dummyDataStore.store(upr3);
 
     return new Object[][]{
       { up.getID(), up.getAuthId(),
@@ -197,15 +215,19 @@ public class EditRolesActionTest extends AdminWebTest {
     editRolesAction.assignRoles();
 
     //All user should have two roles
-    UserProfile up = (UserProfile)dummyDataStore.get(UserProfile.class, userProfileId);
+//    UserProfile up = (UserProfile)dummyDataStore.get(UserProfile.class, userProfileId);
+    List<UserProfileRoleJoinTable> userProfileRoles = dummyDataStore.findByCriteria(
+        DetachedCriteria.forClass(UserProfileRoleJoinTable.class).add(Restrictions.eq("userProfileID", userProfileId)));
 
-    assertEquals(up.getRoles().size(), 2, "Roles not assigned correctly");
+
+//    assertEquals(up.getRoles().size(), 2, "Roles not assigned correctly");
+    assertEquals(userProfileRoles.size(), 2, "Roles not assigned correctly");
 
     for(Long roleId : roleIDsToAssign) {
       boolean found = false;
 
-      for(UserRole ur : up.getRoles()) {
-        if(ur.getID().equals(roleId)) {
+      for(UserProfileRoleJoinTable ur : userProfileRoles) {
+        if(ur.getUserRoleID().equals(roleId)) {
           found = true;
           break;
         }
