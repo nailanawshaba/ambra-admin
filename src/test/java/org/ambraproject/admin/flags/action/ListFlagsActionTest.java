@@ -13,15 +13,21 @@
 
 package org.ambraproject.admin.flags.action;
 
+import com.opensymphony.xwork2.Action;
 import org.ambraproject.action.BaseActionSupport;
 import org.ambraproject.admin.AdminWebTest;
+import org.ambraproject.admin.views.FlagView;
+import org.ambraproject.models.AnnotationType;
 import org.ambraproject.models.Flag;
+import org.ambraproject.models.FlagReasonCode;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertEqualsNoOrder;
 import static org.testng.Assert.assertNotNull;
+import org.ambraproject.models.Annotation;
 
 /**
  * @author Alex Kudlick 3/23/12
@@ -42,34 +48,30 @@ public class ListFlagsActionTest extends AdminWebTest {
     dummyDataStore.deleteAll(Flag.class);
 
     //set up data
-//    UserProfile creator = new UserProfile(
-//        "id:creatorForListFlagsActionTest",
-//        "email@ListFlagsActionTest.org",
-//        "displaynameForListFlagsActionTest");
-//    dummyDataStore.store(creator);
-//
-//    Annotation comment = new Annotation(creator, AnnotationType.COMMENT, 123l);
-//    comment.setTitle("test title for ListFlagsActionTest");
-//    dummyDataStore.store(comment);
-//
-//    Flag flag1 = new Flag(creator, FlagReasonCode.SPAM, comment);
-//    flag1.setComment("This is totally spam");
-//    dummyDataStore.store(flag1);
-//
-//    Flag flag2 = new Flag(creator, FlagReasonCode.INAPPROPRIATE, comment);
-//    flag2.setComment("This is totally inappropriate");
-//    dummyDataStore.store(flag2);
-//
-//    String result = action.execute();
-//    assertEquals(result, Action.SUCCESS, "Action didn't return success");
-//    assertEquals(action.getActionErrors().size(), 0,
-//        "Action had error messages: " + StringUtils.join(action.getActionErrors(), ";"));
-//    assertEquals(action.getFieldErrors().size(), 0,
-//        "Action had field error messages: " + StringUtils.join(action.getFieldErrors().values(), ";"));
-//
-//    assertNotNull(action.getFlaggedComments(), "Action had null list of flagged comments");
-//    assertEqualsNoOrder(action.getFlaggedComments().toArray(),
-//        new FlagView[]{new FlagView(flag1), new FlagView(flag2)}, "Incorrect flags");
+    Long creatorID = 6638L;
+
+    Annotation comment = new Annotation(creatorID, AnnotationType.COMMENT, 123l);
+    comment.setTitle("test title for ListFlagsActionTest");
+    dummyDataStore.store(comment);
+
+    Flag flag1 = new Flag(creatorID, FlagReasonCode.SPAM, comment);
+    flag1.setComment("This is totally spam");
+    dummyDataStore.store(flag1);
+
+    Flag flag2 = new Flag(creatorID, FlagReasonCode.INAPPROPRIATE, comment);
+    flag2.setComment("This is totally inappropriate");
+    dummyDataStore.store(flag2);
+
+    String result = action.execute();
+    assertEquals(result, Action.SUCCESS, "Action didn't return success");
+    assertEquals(action.getActionErrors().size(), 0,
+        "Action had error messages: " + StringUtils.join(action.getActionErrors(), ";"));
+    assertEquals(action.getFieldErrors().size(), 0,
+        "Action had field error messages: " + StringUtils.join(action.getFieldErrors().values(), ";"));
+
+    assertNotNull(action.getFlaggedComments(), "Action had null list of flagged comments");
+    assertEqualsNoOrder(action.getFlaggedComments().toArray(),
+        new FlagView[]{new FlagView(flag1), new FlagView(flag2)}, "Incorrect flags");
 
   }
 

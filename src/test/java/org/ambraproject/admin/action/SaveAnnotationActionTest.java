@@ -45,46 +45,41 @@ public class SaveAnnotationActionTest extends AdminWebTest {
 
   @Test
   public void testExecute() throws Exception {
-//    UserProfile userProfile = new UserProfile(
-//        "authIdSaveAnnotationActionTest",
-//        "email@saveAnnotationActionTest.org",
-//        "displayNameSaveAnnotationActionTest"
-//    );
-//    dummyDataStore.store(userProfile);
-//    Article article = new Article("id:doi-SaveAnnotationActionTest");
-//    dummyDataStore.store(article);
-//
-//    Annotation original = new Annotation(userProfile.getID(), AnnotationType.COMMENT, article.getID());
-//    original.setBody("After surviving the horrific car crash, Elena, still shaken by her resemblance to " +
-//        "Katherine Pierce, is rescued by Damon who takes on her on a road trip to Georgia where he meets " +
-//        "with an old friend of his, a witch/barmaid named Bree, to ask for her help on a spell that could " +
-//        "free Katherine from her tomb. Back in Mystic Falls, Stefan tries to help Bonnie understand her " +
-//        "wican powers and gets to meet her grandmother Tituba. Meanwhile, Jeremy meets a new local girl, " +
-//        "named Anna, who give him insight on the vampire legends about the town as he continues to research his ...");
-//    original.setAnnotationUri("id:annotationUriToChange");
-//
-//    dummyDataStore.store(original);
-//
-//    action.setAnnotationId(original.getID());
-//    action.getModel().setBody("New body");
-//    action.getModel().setAnnotationUri("new annotation uri");
-//
-//    String result = action.execute();
-//    assertEquals(result, Action.SUCCESS, "action didn't return success");
-//    assertEquals(action.getActionMessages().size(), 1, "Action didn't return message indicating success");
-//    assertEquals(action.getActionErrors().size(), 0,
-//        "Action had error messages: " + StringUtils.join(action.getActionErrors(), ";"));
-//    assertEquals(action.getFieldErrors().size(), 0,
-//        "Action had field error messages: " + StringUtils.join(action.getFieldErrors().values(), ";"));
-//    assertEquals(action.getAnnotationId(), original.getID(), "Action changed annotation id");
-//
-//    Annotation storedAnnotation = dummyDataStore.get(Annotation.class, action.getAnnotationId());
-//    assertNotNull(storedAnnotation, "Annotation got deleted");
-//    assertEquals(storedAnnotation.getArticleID(), original.getArticleID(), "Action changed article id");
-//    assertEquals(storedAnnotation.getType(), original.getType(), "Action changed type");
-//    assertEquals(storedAnnotation.getParentID(), original.getParentID(), "Action changed parent id");
-//
-//    assertEquals(storedAnnotation.getBody(), action.getModel().getBody(), "Action didn't update annotation body");
-//    assertEquals(storedAnnotation.getAnnotationUri(), action.getModel().getAnnotationUri(), "Action didn't update annotation uri");
+    Long creatorID = 6648L;
+    Article article = new Article("id:doi-SaveAnnotationActionTest");
+    dummyDataStore.store(article);
+
+    Annotation original = new Annotation(creatorID, AnnotationType.COMMENT, article.getID());
+    original.setBody("After surviving the horrific car crash, Elena, still shaken by her resemblance to " +
+        "Katherine Pierce, is rescued by Damon who takes on her on a road trip to Georgia where he meets " +
+        "with an old friend of his, a witch/barmaid named Bree, to ask for her help on a spell that could " +
+        "free Katherine from her tomb. Back in Mystic Falls, Stefan tries to help Bonnie understand her " +
+        "wican powers and gets to meet her grandmother Tituba. Meanwhile, Jeremy meets a new local girl, " +
+        "named Anna, who give him insight on the vampire legends about the town as he continues to research his ...");
+    original.setAnnotationUri("id:annotationUriToChange");
+
+    dummyDataStore.store(original);
+
+    action.setAnnotationId(original.getID());
+    action.getModel().setBody("New body");
+    action.getModel().setAnnotationUri("new annotation uri");
+
+    String result = action.execute();
+    assertEquals(result, Action.SUCCESS, "action didn't return success");
+    assertEquals(action.getActionMessages().size(), 1, "Action didn't return message indicating success");
+    assertEquals(action.getActionErrors().size(), 0,
+        "Action had error messages: " + StringUtils.join(action.getActionErrors(), ";"));
+    assertEquals(action.getFieldErrors().size(), 0,
+        "Action had field error messages: " + StringUtils.join(action.getFieldErrors().values(), ";"));
+    assertEquals(action.getAnnotationId(), original.getID(), "Action changed annotation id");
+
+    Annotation storedAnnotation = dummyDataStore.get(Annotation.class, action.getAnnotationId());
+    assertNotNull(storedAnnotation, "Annotation got deleted");
+    assertEquals(storedAnnotation.getArticleID(), original.getArticleID(), "Action changed article id");
+    assertEquals(storedAnnotation.getType(), original.getType(), "Action changed type");
+    assertEquals(storedAnnotation.getParentID(), original.getParentID(), "Action changed parent id");
+
+    assertEquals(storedAnnotation.getBody(), action.getModel().getBody(), "Action didn't update annotation body");
+    assertEquals(storedAnnotation.getAnnotationUri(), action.getModel().getAnnotationUri(), "Action didn't update annotation uri");
   }
 }
