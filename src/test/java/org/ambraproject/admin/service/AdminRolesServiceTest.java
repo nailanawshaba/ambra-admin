@@ -122,12 +122,12 @@ public class AdminRolesServiceTest extends AdminBaseTest {
   public Object[][] roleSet2()
   {
     UserRole ur1 = new UserRole();
-    ur1.setRoleName("Role3");
+    ur1.setRoleName("Role4");
 
     dummyDataStore.store(ur1);
 
     UserRole ur2 = new UserRole();
-    ur2.setRoleName("Role4");
+    ur2.setRoleName("Role5");
 
     dummyDataStore.store(ur2);
 
@@ -157,37 +157,37 @@ public class AdminRolesServiceTest extends AdminBaseTest {
     };
   }
 
-//  @Test(dataProvider = "userProfileAndRoles2")
-//  public void testRemoveRoles(UserProfile up, HashSet<UserRole> roles)
-//  {
-//    List<UserProfileRoleJoinTable> userProfileRoles = dummyDataStore.findByCriteria(
-//        DetachedCriteria.forClass(UserProfileRoleJoinTable.class).add(Restrictions.eq("userProfileID", up.getID())));
-//
-//    assertEquals(userProfileRoles.size(), 2);
-//
-//    adminRolesService.revokeAllRoles(up.getID());
-//
-//    userProfileRoles = dummyDataStore.findByCriteria(
-//        DetachedCriteria.forClass(UserProfileRoleJoinTable.class).add(Restrictions.eq("userProfileID", up.getID())));
-//
-//    assertEquals(userProfileRoles.size(), 0);
-//  }
+  @Test(dataProvider = "userProfileAndRoles2")
+  public void testRemoveRoles(UserProfile up, HashSet<UserRole> roles)
+  {
+    List<UserProfileRoleJoinTable> userProfileRoles = dummyDataStore.findByCriteria(
+        DetachedCriteria.forClass(UserProfileRoleJoinTable.class).add(Restrictions.eq("userProfileID", up.getID())));
+
+    assertEquals(userProfileRoles.size(), 2);
+
+    adminRolesService.revokeAllRoles(up.getID());
+
+    userProfileRoles = dummyDataStore.findByCriteria(
+        DetachedCriteria.forClass(UserProfileRoleJoinTable.class).add(Restrictions.eq("userProfileID", up.getID())));
+
+    assertEquals(userProfileRoles.size(), 0);
+  }
 
   @DataProvider(name = "userRoles")
   public Object[][] roles()
   {
     UserProfile up = new UserProfile();
     up.setID(6632L);
-    up.setDisplayName("roles5");
-    up.setEmail("roles5@example.org");
+    up.setDisplayName("roles6");
+    up.setEmail("roles6@example.org");
 
     UserRole ur1 = new UserRole();
-    ur1.setRoleName("Role5");
+    ur1.setRoleName("Role6");
 
     dummyDataStore.store(ur1);
 
     UserRole ur2 = new UserRole();
-    ur2.setRoleName("Role6");
+    ur2.setRoleName("Role7");
 
     dummyDataStore.store(ur2);
 
@@ -219,12 +219,12 @@ public class AdminRolesServiceTest extends AdminBaseTest {
   public Object[][] userAssignedRoles()
   {
     UserRole ur1 = new UserRole();
-    ur1.setRoleName("Role7");
+    ur1.setRoleName("Role8");
 
     dummyDataStore.store(ur1);
 
     UserRole ur2 = new UserRole();
-    ur2.setRoleName("Role8");
+    ur2.setRoleName("Role9");
 
     dummyDataStore.store(ur2);
 
@@ -292,12 +292,12 @@ public class AdminRolesServiceTest extends AdminBaseTest {
   public Object[][] roleSet3()
   {
     UserRole ur1 = new UserRole();
-    ur1.setRoleName("Role5");
+    ur1.setRoleName("Role10");
 
     dummyDataStore.store(ur1);
 
     UserRole ur2 = new UserRole();
-    ur2.setRoleName("Role6");
+    ur2.setRoleName("Role11");
 
     dummyDataStore.store(ur2);
 
@@ -308,8 +308,8 @@ public class AdminRolesServiceTest extends AdminBaseTest {
 
     UserProfile up = new UserProfile();
     up.setID(6635L);
-    up.setDisplayName("roles3");
-    up.setEmail("roles3@example.org");
+    up.setDisplayName("roles12");
+    up.setEmail("roles12@example.org");
 
     UserProfileRoleJoinTable upr1 = new UserProfileRoleJoinTable();
     upr1.setUserProfileID(up.getID());
@@ -321,31 +321,31 @@ public class AdminRolesServiceTest extends AdminBaseTest {
     upr2.setUserRoleID(ur2.getID());
     dummyDataStore.store(upr2);
 
+    Set<UserRoleView> rolesFromDB = adminRolesService.getUserRoles(up.getID());
+
     return new Object[][] {
       { up, roles }
     };
   }
 
-//  @Test(dataProvider = "userProfileAndRoles3")
-//  public void testGetUserRoles(UserProfile up, HashSet<UserRole> roles)
-//  {
-//    assertTrue(up.getID().equals(6635L), "userProfileID does not match");
-//
-//    Set<UserRoleView> rolesFromDB = adminRolesService.getUserRoles(up.getID());
-//
-//    assertEquals(roles.size(), rolesFromDB.size());
-//
-//    for(UserRoleView urv : rolesFromDB) {
-//      boolean found = false;
-//
-//      for(UserRole role : roles) {
-//        if(urv.getID().equals(role.getID())) {
-//          found = true;
-//          break;
-//        }
-//      }
-//
-//      assertTrue(found);
-//    }
-//  }
+  @Test(dataProvider = "userProfileAndRoles3")
+  public void testGetUserRoles(UserProfile up, HashSet<UserRole> roles)
+  {
+    Set<UserRoleView> rolesFromDB = adminRolesService.getUserRoles(up.getID());
+
+    assertEquals(rolesFromDB.size(), roles.size());
+
+    for(UserRoleView urv : rolesFromDB) {
+      boolean found = false;
+
+      for(UserRole role : roles) {
+        if(urv.getID().equals(role.getID())) {
+          found = true;
+          break;
+        }
+      }
+
+      assertTrue(found);
+    }
+  }
 }
