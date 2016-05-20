@@ -283,7 +283,7 @@
     <dependency>
       <groupId>org.ambraproject</groupId>
       <artifactId>ambra-base</artifactId>
-      <version>NED-RHINO</version>
+      <version>2.10.29-NED-IO</version>
       <!--In a future version of maven, this classifier may need to change to test-jar-->
       <classifier>tests</classifier>
       <scope>test</scope>
