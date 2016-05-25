@@ -40,6 +40,8 @@ import org.plos.ned_client.ApiException;
 import org.plos.ned_client.api.IndividualsApi;
 import org.plos.ned_client.model.IndividualComposite;
 import org.plos.ned_client.model.Individualprofile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
@@ -48,7 +50,9 @@ import org.springframework.orm.hibernate3.HibernateCallback;
  */
 public class AdminRolesServiceImpl extends HibernateServiceImpl implements AdminRolesService {
 
-  private static final String ROLES_LOCK = "RolesCache-Lock-";
+  private static final Logger log = LoggerFactory.getLogger(AdminRolesService.class);
+
+  private static final String ROLES_LOCK = "PermissionsCache-Lock-";
   private Cache rolesCache;
 
   public void setNedService(NedServiceImpl nedService) {
@@ -328,15 +332,19 @@ public class AdminRolesServiceImpl extends HibernateServiceImpl implements Admin
                 return session.createSQLQuery("select distinct userRolePermission.permission" +
                     " from userProfileRoleJoinTable" +
                     " left join userRolePermission on userRolePermission.userRoleID=userProfileRoleJoinTable.userRoleID" +
-                    " where userProfileRoleJoinTable.userProfileID = " + userProfileID).list();
+                    " where userRolePermission.permission is not NULL" +
+                    " and userProfileRoleJoinTable.userProfileID = " + userProfileID).list();
               }
             });
 
             Set<UserRole.Permission> permissions = new HashSet<UserRole.Permission>();
             for (Object p: userPermissions) {
-              permissions.add(UserRole.Permission.valueOf((String) p));
+              try {
+                permissions.add(UserRole.Permission.valueOf((String) p));
+              } catch (IllegalArgumentException e) {
+                log.info("ignoring permission string " + ((String) p) + " not mapped to UserRole.Permission");
+              }
             }
-
             return permissions;
           }
         });
